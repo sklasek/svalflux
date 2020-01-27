@@ -1,0 +1,178 @@
+---
+title: "sequence_processing"
+author: "Scott Klasek"
+date: "1/27/2020"
+output: github_document
+---
+Take a look at Rmarkdown examples
+Long step:
+Notes from previous document
+forward quality scores: the extraction blanks and samples with low reads (like <1000) are really bad, other samples drop off at ~230
+reverse quality scores: same pattern, but drop off ~220
+my f primer is 19 bp, reverse is 20: forward, GTGCCAGCMGCCGCGGTAA; reverse, TAATCTWTGGGVHCATCAGG
+
+```{r cachedChunk, cache=TRUE}
+# libraries and environment
+library(dada2)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(phyloseq)
+library(DESeq2)
+library(decontam)
+library(DECIPHER)
+library(phangorn)
+sessioninfo <- sessionInfo()
+# dada2
+fqpath <- "/Users/scottklasek/Desktop/flux_resubmission/fastq"
+original_file_names <- list.files(fqpath)
+original_file_names
+new_file_names <- list.files(fqpath)
+new_file_names
+fnFs.2 <- sort(list.files(fqpath, pattern="_R1.fastq", full.names = TRUE))
+fnRs.2 <- sort(list.files(fqpath, pattern="_R2.fastq", full.names = TRUE))
+sample.names.2 <- sapply(strsplit(basename(fnFs.2), "_"), `[`, 1)
+sample.names.2
+plotQualityProfile(fnFs.2[30:35])
+plotQualityProfile(fnRs.2[30:35])
+# some of our samples are sequenced twice. which fastq files are better quality?
+dup_samples <- c("GC1048-305.0A","GC1048-305.0B","GC1070-063.0A","GC1070-063.0B","GC1070-068.0A","GC1070-068.0B")
+dup_vectors <- match(dup_samples,sample.names.2)
+plotQualityProfile(fnFs.2[dup_vectors])
+plotQualityProfile(fnRs.2[dup_vectors])
+filtFs.2 <- file.path(fqpath, "filtered", paste0(sample.names.2, "_F_filt.fastq"))
+filtRs.2 <- file.path(fqpath, "filtered", paste0(sample.names.2, "_R_filt.fastq"))
+names(filtFs.2) <- sample.names.2
+names(filtRs.2) <- sample.names.2
+out.2 <- filterAndTrim(fnFs.2, filtFs.2, fnRs.2, filtRs.2, truncLen=c(230,230), trimLeft=c(19,20),
+                       maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE,
+                       compress=TRUE, multithread=TRUE)
+head(out.2)
+errF.2 <- learnErrors(filtFs.2, multithread=TRUE)
+errR.2 <- learnErrors(filtRs.2, multithread=TRUE)
+plotErrors(errF.2, nominalQ=TRUE)
+plotErrors(errR.2, nominalQ=TRUE)
+dadaFs.2 <- dada(filtFs.2, err=errF.2, multithread=TRUE)
+dadaRs.2 <- dada(filtRs.2, err=errR.2, multithread=TRUE)
+dadaFs.2[[75]]
+dadaRs.2[[75]]
+mergers.2 <- mergePairs(dadaFs.2, filtFs.2, dadaRs.2, filtRs.2, verbose=TRUE)
+# quick trim
+seqtab.2 <- makeSequenceTable(mergers.2)
+dim(seqtab.2)
+table(nchar(getSequences(seqtab.2)))
+# The V4 amplicon should be ~291 bp, so trimming each F or R read to 230 bp and removing primers (19-20 bp) should mean that the amplicons are closer to 252 bp, right? But I remember they were ~252 bp when I hadn't removed the primers when processing these in mothur. Most of the sequences are 214 bp, 214 + 39 (length of trimmed primers) is 253. So I think ~214 bp is the correct length. 
+seqtab.trim.2 <- seqtab.2[,nchar(colnames(seqtab.2)) %in% 212:217]
+table(nchar(getSequences(seqtab.trim.2)))
+seqtab.nochim.2 <- removeBimeraDenovo(seqtab.trim.2, method="consensus", multithread=TRUE, verbose=TRUE)
+dim(seqtab.nochim.2)
+dim(seqtab.trim.2)
+sum(seqtab.nochim.2)/sum(seqtab.trim.2)
+getN <- function(x) sum(getUniques(x))
+track.2 <- cbind(out.2, sapply(dadaFs.2, getN), sapply(dadaRs.2, getN), sapply(mergers.2, getN), rowSums(seqtab.nochim.2))
+colnames(track.2) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+rownames(track.2) <- sample.names.2
+head(track.2)
+tdf.2 <- as.data.frame(track.2)
+tdf.2$filtered_out <- tdf.2$input-tdf.2$filtered
+tdf.2$noise_removed <- tdf.2$filtered-with(tdf.2, pmin(denoisedF, denoisedR))
+tdf.2$unmerged <- (tdf.2$filtered-tdf.2$noise_removed)-tdf.2$merged
+tdf.2$chimeras <- tdf.2$merged-tdf.2$nonchim
+tdf.2 <- data.frame(sample = row.names(tdf.2), tdf.2)
+# select only the columns we want to plot:
+tdfs.2 <- tdf.2[,c(1,7,8,9,10,11)]
+tdfs.2  
+tdfl.2 <- gather(tdfs.2, step, reads, nonchim:chimeras, factor_key=FALSE)
+tdfl.2
+# reorder the steps to plot them in an order that makes sense:
+tdfl.2$step <- factor(tdfl.2$step, levels = c("filtered_out","noise_removed","unmerged","chimeras", "nonchim"))
+track.reads.2 <- ggplot(tdfl.2,aes(sample,reads,fill=step))
+track.reads.plot.2 <- track.reads.2+
+  geom_bar(stat="identity")+
+  scale_y_continuous(breaks = c(50000,100000,150000,200000,250000))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+track.reads.plot.2
+taxa.2 <- assignTaxonomy(seqtab.nochim.2, "~/Desktop/flux_resubmission/silva_nr_v132_train_set.fa", multithread=TRUE)
+taxa.print.2 <- taxa.2
+rownames(taxa.print.2) <- NULL
+head(taxa.print.2) 
+# note I didn't do any species assignment because 1) I didn't for my mothur run, 2) only 13% of genera were identified anyway (see below), and 
+# 3) I got a weird error message during the addSpecies command: "Error: vector memory exhausted (limit reached?)"
+message("% phyla identified is ", (1-(sum(is.na(taxa.print.2[,2]))/length(taxa.print.2[,2])))*100)
+message("% classes identified is ", (1-(sum(is.na(taxa.print.2[,3]))/length(taxa.print.2[,3])))*100)
+message("% orders identified is ", (1-(sum(is.na(taxa.print.2[,4]))/length(taxa.print.2[,4])))*100)
+message("% families identified is ", (1-(sum(is.na(taxa.print.2[,5]))/length(taxa.print.2[,5])))*100)
+message("% genera identified is ", (1-(sum(is.na(taxa.print.2[,6]))/length(taxa.print.2[,6])))*100)
+# 88% of phyla, 76% of classes, 52% of orders, 31% of families, 13% of genera identified in the sediments. compare to 84.5% of families, 60.9% of genera, and 3.9% species identified in rhizosphere communities
+
+# phylogenetic tree
+seqs <- getSequences(seqtab.nochim.2)
+names(seqs) <- seqs
+alignment <- AlignSeqs(DNAStringSet(seqs), anchor=NA) # this took ~50 minutes
+phang.align <- phyDat(as(alignment, "matrix"), type="DNA")
+dm <- dist.ml(phang.align) # started 3:05 pm, finished around an hour later? 
+treeNJ <- NJ(dm) # Note, tip order != sequence order ## this takes at least an hour... started 6:01 pm
+fit <- pml(treeNJ, data=phang.align)
+fitGTR <- update(fit, k=4, inv=0.2)
+```
+
+I have not changed anything about the previous chunk! 
+Now add metadata and create phyloseq object
+```{r}
+metadata.2 <- read.csv(file="~/Desktop/svalflux/metadata.csv")
+rownames(metadata.2) <- sample.names.2
+metadata.2
+library(phyloseq)
+ps.f <- phyloseq(tax_table(taxa.2),
+                 sample_data(metadata.2),
+                 phy_tree(fitGTR$tree),
+                 otu_table(seqtab.nochim.2, taxa_are_rows = FALSE))
+dna <- Biostrings::DNAStringSet(taxa_names(ps.f))
+names(dna) <- taxa_names(ps.f)
+ps.f <- merge_phyloseq(ps.f, dna)
+taxa_names(ps.f) <- paste0("ASV", seq(ntaxa(ps.f)))
+ps.f # the first phyloseq object
+ASV_classifications <- c("Bacteria","Archaea","Eukaryota", "Unclassified", "Chloroplast","Mitochondria")
+num_ASVs <- c(sum(tax_table(ps.f)[,1]=="Bacteria", na.rm = TRUE),
+               sum(tax_table(ps.f)[,1]=="Archaea", na.rm=TRUE),
+               sum(tax_table(ps.f)[,1]=="Eukaryota", na.rm=TRUE),
+               sum(is.na(tax_table(ps.f)[,1])),
+               sum(tax_table(ps.f)[,4]=="Chloroplast", na.rm=TRUE), 
+               sum(tax_table(ps.f)[,5]=="Mitochondria", na.rm=TRUE))
+num_ASVcounts <- c(sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Bacteria")], na.rm = TRUE),
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Archaea")], na.rm = TRUE),
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Eukaryota")], na.rm = TRUE), 
+              sum(is.na(tax_table(ps.f)[,1])),
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,4]=="Chloroplast")], na.rm = TRUE), 
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,5]=="Mitochondria")], na.rm = TRUE))
+asv.table <- cbind.data.frame(ASV_classifications, num_ASVs, num_ASVcounts)
+asv.table
+ps.fr <- subset_taxa(ps.f, (Kingdom!="Eukaryota")) # 448 unknown and eukaryote ASVs removed
+ps.fr <- subset_taxa(ps.fr, (Order!="Chloroplast") | is.na(Order)) # chloroplasts removed
+ps.fr <- subset_taxa(ps.fr, (Family!="Mitochondria") | is.na(Family)) # mitochondria removed
+ntaxa(ps.f)-ntaxa(ps.fr) # in total, 514 taxa removed 
+ps.fr
+
+# decontam using the combined approach, which combines the scores from prevalence and frequency using Fisher's method. 
+library(decontam) 
+sample_data(ps.fr)$is.neg <- sample_data(ps.fr)$Sample_or_Control == "Control Sample"
+contamdf.flux.comb <- isContaminant(ps.fr, method="combined", neg="is.neg", conc="quant_reading")
+table(contamdf.flux.comb$contaminant) # only 82 are contaminants now
+flux.comb.contam <- (which(contamdf.flux.comb$contaminant))
+flux.comb.contam.mx <- subset(tax_table(ps.fr)[flux.comb.contam,])
+flux.comb.contam.mx # when rerunning: go to line 341 to remove contaminants
+# how many contaminant ASVs belong to a particular taxonomy (say, ANME-1?)
+which(flux.comb.contam.mx[,6]=="Enhydrobacter")
+which(flux.comb.contam.mx[,6]=="Pseudomonas")
+which(flux.comb.contam.mx[,6]=="Flavobacterium")
+which(flux.comb.contam.mx[,6]=="Streptococcus")
+which(flux.comb.contam.mx[,6]=="Escherichia-Shigella")
+which(flux.comb.contam.mx[,6]=="Micrococcus")
+which(flux.comb.contam.mx[,6]=="Kocuria")
+which(flux.comb.contam.mx[,5]=="Comamonadaceae")
+which(flux.comb.contam.mx[,5]=="Micrococcaceae")
+which(flux.comb.contam.mx[,5]=="Erythrobacteraceae")
+which(flux.comb.contam.mx[,6]=="Brachybacterium")
+```
