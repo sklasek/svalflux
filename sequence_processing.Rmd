@@ -4,14 +4,13 @@ author: "Scott Klasek"
 date: "1/27/2020"
 output: github_document
 ---
-Take a look at Rmarkdown examples
-Long step:
+
 Notes from previous document
 forward quality scores: the extraction blanks and samples with low reads (like <1000) are really bad, other samples drop off at ~230
 reverse quality scores: same pattern, but drop off ~220
 my f primer is 19 bp, reverse is 20: forward, GTGCCAGCMGCCGCGGTAA; reverse, TAATCTWTGGGVHCATCAGG
 
-```{r cachedChunk, cache=TRUE}
+```{r cache=TRUE}
 # libraries and environment
 library(dada2)
 library(tidyr)
@@ -19,7 +18,6 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(phyloseq)
-library(DESeq2)
 library(decontam)
 library(DECIPHER)
 library(phangorn)
@@ -62,7 +60,7 @@ mergers.2 <- mergePairs(dadaFs.2, filtFs.2, dadaRs.2, filtRs.2, verbose=TRUE)
 seqtab.2 <- makeSequenceTable(mergers.2)
 dim(seqtab.2)
 table(nchar(getSequences(seqtab.2)))
-# The V4 amplicon should be ~291 bp, so trimming each F or R read to 230 bp and removing primers (19-20 bp) should mean that the amplicons are closer to 252 bp, right? But I remember they were ~252 bp when I hadn't removed the primers when processing these in mothur. Most of the sequences are 214 bp, 214 + 39 (length of trimmed primers) is 253. So I think ~214 bp is the correct length. 
+# The V4 amplicon should be ~291 bp, so trimming each F or R read to 230 bp and removing primers (19-20 bp) should mean that the amplicons # are closer to 252 bp, right? But I remember they were ~252 bp when I hadn't removed the primers when processing these in mothur. Most of # the sequences are 214 bp, 214 + 39 (length of trimmed primers) is 253. So I think ~214 bp is the correct length. 
 seqtab.trim.2 <- seqtab.2[,nchar(colnames(seqtab.2)) %in% 212:217]
 table(nchar(getSequences(seqtab.trim.2)))
 seqtab.nochim.2 <- removeBimeraDenovo(seqtab.trim.2, method="consensus", multithread=TRUE, verbose=TRUE)
@@ -106,8 +104,19 @@ message("% orders identified is ", (1-(sum(is.na(taxa.print.2[,4]))/length(taxa.
 message("% families identified is ", (1-(sum(is.na(taxa.print.2[,5]))/length(taxa.print.2[,5])))*100)
 message("% genera identified is ", (1-(sum(is.na(taxa.print.2[,6]))/length(taxa.print.2[,6])))*100)
 # 88% of phyla, 76% of classes, 52% of orders, 31% of families, 13% of genera identified in the sediments. compare to 84.5% of families, 60.9% of genera, and 3.9% species identified in rhizosphere communities
+```
 
-# phylogenetic tree
+phylogenetic tree
+```{r cache=TRUE}
+library(dada2)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(phyloseq)
+library(decontam)
+library(DECIPHER)
+library(phangorn)
 seqs <- getSequences(seqtab.nochim.2)
 names(seqs) <- seqs
 alignment <- AlignSeqs(DNAStringSet(seqs), anchor=NA) # this took ~50 minutes
@@ -118,7 +127,6 @@ fit <- pml(treeNJ, data=phang.align)
 fitGTR <- update(fit, k=4, inv=0.2)
 ```
 
-I have not changed anything about the previous chunk! 
 Now add metadata and create phyloseq object
 ```{r}
 metadata.2 <- read.csv(file="~/Desktop/svalflux/metadata.csv")
