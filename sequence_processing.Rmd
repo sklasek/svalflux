@@ -142,6 +142,12 @@ names(dna) <- taxa_names(ps.f)
 ps.f <- merge_phyloseq(ps.f, dna)
 taxa_names(ps.f) <- paste0("ASV", seq(ntaxa(ps.f)))
 ps.f # the first phyloseq object
+saveRDS(ps.f, "ps.f") # saved phyloseq object, pushed to Github
+```
+
+Removal of unwanted taxa/samples and decontamination
+```{r}
+library(phyloseq)
 ASV_classifications <- c("Bacteria","Archaea","Eukaryota", "Unclassified", "Chloroplast","Mitochondria")
 num_ASVs <- c(sum(tax_table(ps.f)[,1]=="Bacteria", na.rm = TRUE),
                sum(tax_table(ps.f)[,1]=="Archaea", na.rm=TRUE),
@@ -157,30 +163,79 @@ num_ASVcounts <- c(sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Bacteria")],
               sum(otu_table(ps.f)[,which(tax_table(ps.f)[,5]=="Mitochondria")], na.rm = TRUE))
 asv.table <- cbind.data.frame(ASV_classifications, num_ASVs, num_ASVcounts)
 asv.table
-ps.fr <- subset_taxa(ps.f, (Kingdom!="Eukaryota")) # 448 unknown and eukaryote ASVs removed
+ps.fr <- subset_taxa(ps.f, (Kingdom!="Eukaryota")) # unknown and eukaryote ASVs removed
 ps.fr <- subset_taxa(ps.fr, (Order!="Chloroplast") | is.na(Order)) # chloroplasts removed
 ps.fr <- subset_taxa(ps.fr, (Family!="Mitochondria") | is.na(Family)) # mitochondria removed
-ntaxa(ps.f)-ntaxa(ps.fr) # in total, 514 taxa removed 
+ntaxa(ps.f)-ntaxa(ps.fr) # number of taxa removed 
 ps.fr
 
-# decontam using the combined approach, which combines the scores from prevalence and frequency using Fisher's method. 
+# run decontam using the combined approach, which combines the scores from prevalence and frequency using Fisher's method 
 library(decontam) 
 sample_data(ps.fr)$is.neg <- sample_data(ps.fr)$Sample_or_Control == "Control Sample"
 contamdf.flux.comb <- isContaminant(ps.fr, method="combined", neg="is.neg", conc="quant_reading")
-table(contamdf.flux.comb$contaminant) # only 82 are contaminants now
+table(contamdf.flux.comb$contaminant) # prints the number of contaminants
 flux.comb.contam <- (which(contamdf.flux.comb$contaminant))
 flux.comb.contam.mx <- subset(tax_table(ps.fr)[flux.comb.contam,])
-flux.comb.contam.mx # when rerunning: go to line 341 to remove contaminants
-# how many contaminant ASVs belong to a particular taxonomy (say, ANME-1?)
-which(flux.comb.contam.mx[,6]=="Enhydrobacter")
-which(flux.comb.contam.mx[,6]=="Pseudomonas")
-which(flux.comb.contam.mx[,6]=="Flavobacterium")
-which(flux.comb.contam.mx[,6]=="Streptococcus")
-which(flux.comb.contam.mx[,6]=="Escherichia-Shigella")
-which(flux.comb.contam.mx[,6]=="Micrococcus")
-which(flux.comb.contam.mx[,6]=="Kocuria")
-which(flux.comb.contam.mx[,5]=="Comamonadaceae")
-which(flux.comb.contam.mx[,5]=="Micrococcaceae")
-which(flux.comb.contam.mx[,5]=="Erythrobacteraceae")
-which(flux.comb.contam.mx[,6]=="Brachybacterium")
+
+# plot library sizes of true samples and blanks
+library(ggplot2)
+df.flux <- as.data.frame(sample_data(ps.fr)) 
+df.flux$LibrarySize <- sample_sums(ps.fr)
+df.flux <- df.flux[order(df.flux$LibrarySize),]
+df.flux$Index <- seq(nrow(df.flux))
+flux.sample.depth.samples.and.controls <- ggplot(data=df.flux, aes(x=Index, y=LibrarySize, color=Sample_or_Control)) + geom_point() + ggtitle("Before decontamination")
+flux.sample.depth.samples.and.controls 
+
+# remove the contaminants
+contam <- rownames(flux.comb.contam.mx) # the contaminant names
+allnames <- rownames(tax_table(ps.fr)) # the taxa names
+flux.uncontam <- allnames[!allnames %in% contam] # gives us the noncontaminant names
+ps.frd <- prune_taxa(flux.uncontam, ps.fr) # creates new phyloseq object without contaminants
+ps.frd 
+
+# remembered there were Micrococcus in some groups... 
+which(flux.comb.contam.mx[,6]=="Micrococcus") # not detected by decontam
+sum(otu_table(ps.fr)[,which(tax_table(ps.fr)[,6]=="Micrococcus")])/sum(otu_table(ps.fr))*100 # 0.67% of sequences
+ps.blanks <- subset_samples(ps.fr, Sample_or_Control=="Control Sample") # phyloseq object with only the blanks 
+blanks.top100 <- names(sort(taxa_sums(ps.blanks), decreasing=TRUE))[1:100]
+blanks.ps.ra <- transform_sample_counts(ps.blanks, function(OTU) OTU/sum(OTU))
+blanks.ps.top100 <- prune_taxa(blanks.top100, blanks.ps.ra)
+blanks_barplot <- plot_bar(blanks.ps.top100, fill="Class")
+blanks_barplot # yes indeed these blanks are different
+df.flux["EBkati-000.0A","LibrarySize"] # over 9k reads
+EBkati.ra <- get_taxa(blanks.ps.ra, "EBkati-000.0A") # extract relative abundances from one of our blanks
+EBkati.ra <- subset(EBkati.ra, EBkati.ra>0) # omit ASVs not detected in the blank
+EBkati.ra <- sort(EBkati.ra, decreasing = TRUE) # sort the list of ASVs by descending order
+tax_table(ps.blanks)[names(EBkati.ra)[EBkati.ra>0],] # lists taxonomies of ASVs in the sample by descending relative abundance. Here we see the two most abundant ASVs belong to micrococcus. What is the abundance of Micrococcus across all samples?
+ps.fr.ra <- transform_sample_counts(ps.fr, function(OTU) OTU/sum(OTU)) # first trasform ps.fr to relative abundances
+micrococcus <- subset_taxa(ps.fr.ra, Genus=="Micrococcus")
+plot_bar(micrococcus) # only the 1048 201, 260, 261 depths also have Micrococcus in significant amounts, ~20%. They all have >25k reads:
+df.dc.flux["GC1048-201.0A","LibrarySize"]
+df.dc.flux["GC1048-260.0A","LibrarySize"]
+df.dc.flux["GC1048-261.0A","LibrarySize"]
+ps.frd <- subset_taxa(ps.frd, (Genus!="Micrococcus") | is.na(Genus)) # removed 4 Micrococcus ASVs from ps.frd
+ps.frd
+
+# plot library sizes of true samples and blanks after decontamination
+df.dc.flux <- as.data.frame(sample_data(ps.frd)) 
+df.dc.flux$LibrarySize <- sample_sums(ps.frd)
+df.dc.flux <- df.dc.flux[order(df.dc.flux$LibrarySize),]
+df.dc.flux$Index <- seq(nrow(df.dc.flux))
+flux.dc.sample.depth.samples.and.controls <- ggplot(data=df.dc.flux, aes(x=Index, y=LibrarySize, color=Sample_or_Control)) + geom_point() + ggtitle("After decontamination")
+flux.dc.sample.depth.samples.and.controls # now the other negative control is lower
+
+# prune samples with low-abundance reads
+df.dc.flux[10:15,16] # inspect library sizes near the range where we want to prune
+ps.frdp <- prune_samples(sample_sums(ps.frd)>=8931, ps.frd) # 12 samples with less than 8931 reads removed (max library size removed was 3816)
+ps.frdp # PhyloSeq object Flux, Removed unwanted taxa, Decontaminated, Pruned
+saveRDS(ps.frdp, "ps.frdp") # saved phyloseq object, pushed to Github
 ```
+
+
+```{r}
+head(metadata.2)
+```
+
+
+
+
