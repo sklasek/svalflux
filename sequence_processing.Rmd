@@ -5,6 +5,7 @@ date: "1/27/2020"
 output: github_document
 ---
 
+### dada2 sequence processing
 Notes from previous document
 forward quality scores: the extraction blanks and samples with low reads (like <1000) are really bad, other samples drop off at ~230
 reverse quality scores: same pattern, but drop off ~220
@@ -106,7 +107,7 @@ message("% genera identified is ", (1-(sum(is.na(taxa.print.2[,6]))/length(taxa.
 # 88% of phyla, 76% of classes, 52% of orders, 31% of families, 13% of genera identified in the sediments. compare to 84.5% of families, 60.9% of genera, and 3.9% species identified in rhizosphere communities
 ```
 
-phylogenetic tree
+### Make phylogenetic tree
 ```{r cache=TRUE}
 library(dada2)
 library(tidyr)
@@ -127,7 +128,7 @@ fit <- pml(treeNJ, data=phang.align)
 fitGTR <- update(fit, k=4, inv=0.2)
 ```
 
-Now add metadata and create phyloseq object
+### Add in metadata and create phyloseq object
 ```{r}
 metadata.2 <- read.csv(file="~/Desktop/svalflux/metadata.csv")
 rownames(metadata.2) <- sample.names.2
@@ -142,10 +143,10 @@ names(dna) <- taxa_names(ps.f)
 ps.f <- merge_phyloseq(ps.f, dna)
 taxa_names(ps.f) <- paste0("ASV", seq(ntaxa(ps.f)))
 ps.f # the first phyloseq object
-saveRDS(ps.f, "ps.f") # saved phyloseq object, pushed to Github
+saveRDS(ps.f, "ps.f") # saved phyloseq object, pushed to Github (need to update this, as metadata now has ddPCR data)
 ```
 
-Removal of unwanted taxa/samples and decontamination
+### Pruning and decontamination
 ```{r}
 library(phyloseq)
 ASV_classifications <- c("Bacteria","Archaea","Eukaryota", "Unclassified", "Chloroplast","Mitochondria")
@@ -210,11 +211,6 @@ tax_table(ps.blanks)[names(EBkati.ra)[EBkati.ra>0],] # lists taxonomies of ASVs 
 ps.fr.ra <- transform_sample_counts(ps.fr, function(OTU) OTU/sum(OTU)) # first trasform ps.fr to relative abundances
 micrococcus <- subset_taxa(ps.fr.ra, Genus=="Micrococcus")
 plot_bar(micrococcus) # only the 1048 201, 260, 261 depths also have Micrococcus in significant amounts, ~20%. They all have >25k reads:
-df.dc.flux["GC1048-201.0A","LibrarySize"]
-df.dc.flux["GC1048-260.0A","LibrarySize"]
-df.dc.flux["GC1048-261.0A","LibrarySize"]
-ps.frd <- subset_taxa(ps.frd, (Genus!="Micrococcus") | is.na(Genus)) # removed 4 Micrococcus ASVs from ps.frd
-ps.frd
 
 # plot library sizes of true samples and blanks after decontamination
 df.dc.flux <- as.data.frame(sample_data(ps.frd)) 
@@ -224,41 +220,47 @@ df.dc.flux$Index <- seq(nrow(df.dc.flux))
 flux.dc.sample.depth.samples.and.controls <- ggplot(data=df.dc.flux, aes(x=Index, y=LibrarySize, color=Sample_or_Control)) + geom_point() + ggtitle("After decontamination")
 flux.dc.sample.depth.samples.and.controls # now the other negative control is lower
 
+df.dc.flux["GC1048-201.0A","LibrarySize"]
+df.dc.flux["GC1048-260.0A","LibrarySize"]
+df.dc.flux["GC1048-261.0A","LibrarySize"]
+ps.frd <- subset_taxa(ps.frd, (Genus!="Micrococcus") | is.na(Genus)) # removed 4 Micrococcus ASVs from ps.frd
+ps.frd
+
 # prune samples with low-abundance reads
 df.dc.flux[10:15,16] # inspect library sizes near the range where we want to prune
 ps.frdp <- prune_samples(sample_sums(ps.frd)>=8931, ps.frd) # 12 samples with less than 8931 reads removed (max library size removed was 3816)
 ps.frdp # PhyloSeq object Flux, Removed unwanted taxa, Decontaminated, Pruned
-saveRDS(ps.frdp, "ps.frdp") # saved phyloseq object, pushed to Github
+saveRDS(ps.frdp, "ps.frdp") # saved phyloseq object, pushed to Github (need to update with metadata)
 ```
 
-Reload ps.frdp and add more metadata to the sample data: SMT depth, peakAOM depth, distance above/below peakAOM depth, and classification of samples as above or below SMT
+### Import  ps.frdp and add in more metadata
+SMT depth, peakAOM depth, distance above/below peakAOM depth, and classification of samples as above or below SMT
 ```{r}
 library(phyloseq)
 ps.frdp <- readRDS(file="ps.frdp")
-ps.frdp
 
 sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),8] <- "ss" # overwrites "inc" to "ss" for core GC1048
 sample_data(ps.frdp)$smt <- NA # write a new metadata column for SMT depth
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1045"),16] <- 82 # assign SMT depths by core
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),16] <- 320
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1068"),16] <- 108
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1069"),16] <- 138
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1070"),16] <- 69
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),16] <- 56
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1045"),18] <- 82 # assign SMT depths by core
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),18] <- 320
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1068"),18] <- 108
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1069"),18] <- 138
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1070"),18] <- 69
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),18] <- 56
 sample_data(ps.frdp)$peakaom <- NA # creates a new metada column for peak AOM depth
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="PC1029"),17] <- 45.3 # assign peak AOM depths by core
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1045"),17] <- 65
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),17] <- 313.5
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1068"),17] <- 108
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1069"),17] <- 137
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1070"),17] <- 67
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),17] <- 56
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="PC1029"),19] <- 45.3 # assign peak AOM depths by core
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1045"),19] <- 65
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),19] <- 313.5
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1068"),19] <- 108
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1069"),19] <- 137
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1070"),19] <- 67
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),19] <- 56
 sample_data(ps.frdp)$smtzposition <- "above" # creates default value "above" for samples 
-sample_data(ps.frdp)[which(sample_data(ps.frdp)$geochem_zone=="below"),18] <- "below" # overwrites as "below" for samples where geochem_zone = below
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$geochem_zone=="below"),20] <- "below" # overwrites as "below" for samples where geochem_zone = below
 sample_data(ps.frdp)$dist_above_peakaom <- sample_data(ps.frdp)$peakaom-sample_data(ps.frdp)$depth # creates a new variable, distance above peak AOM
 ```
 
-Here's the LONG code block...
+### Pull out and subset taxonomic and relative abundance data
 Find the most abundant taxonomic classes, pull out their relative abundances, create a dataframe of them. Then identify the most abundant ANME and SRB and do the same thing. Add metadata and finally subset by stage. 
 ```{r}
 library(phyloseq)
@@ -271,7 +273,7 @@ mx.f.asv <- as.matrix(otu_table(ps.frdp)) # creates a matrix  from the phyloseq 
 class.ra <- vector("list",0)
 for (i in classes.ps.frdp) {class.ra[[i]] <- sum(mx.f.asv[,which(tax_table(ps.frdp)[,3]==i)])/31170.40}
 class.output <- cbind(class.ra) 
-print(class.output) # list of classes by their relative abundance
+# cab print list of classes by their relative abundance: print(class.output) 
 top.c <- c("JS1","Deltaproteobacteria","Methanomicrobia","Dehalococcoidia","Anaerolineae","Campylobacteria","Aminicenantia","Bacteroidia","Phycisphaerae","Lokiarchaeia","Woesearchaeia","Gammaproteobacteria","Thermoplasmata","Alphaproteobacteria", "Nitrososphaeria") # all classes > 1% relabund
 sum(25.57895,14.68791,10.22672,7.295351,4.331321,3.897544,3.558376,2.645234,2.289897,2.236513,1.741267,1.636488,1.2688,1.181987,1.01452) # 83.6% of sequences belong to these 15 classes. Sum of all 125 is probably 90.% (prior run flux_dada2)
 
@@ -391,13 +393,14 @@ sdf.fi <- subset(metasuperdf, metasuperdf$stage=="fluxincreasing")
 sdf.ss <- subset(metasuperdf, metasuperdf$stage=="steadystate")
 ```
 
-Bubble plotting. Note that the Classes were all mixed up when I was plotting tax_reorder under aes(). Replotting by tax solves this, but I wanted to order Deltaproteobacteria and Methanomicrobia next to ANME and SRB. It's a small detail though.
+### Graph community composition bubble plots
+Note that the Classes were all mixed up when I was plotting tax_reorder under aes(). Replotting by tax solves this, but I wanted to order Deltaproteobacteria and Methanomicrobia next to ANME and SRB. It's a small detail though.
 ```{r}
 library(ggplot2)
 
 # first the seep site
 bp1029 <- ggplot(sdf1029,aes(tax,depth,size=pctabund))
-bp1029 <- bp1029+
+bp.seep <- bp1029+
   geom_point(aes(fill=Domain),colour="black",pch=21)+
   xlab("")+
   scale_y_reverse("", limits=c(30,0), breaks=c(0,5,10,15,20,25,30))+
@@ -408,25 +411,25 @@ bp1029 <- bp1029+
   theme(legend.position = "top", legend.box = "vertical", axis.text.x=element_text(angle = 55, hjust = 1,      
     size=11), axis.text.y=element_text(size = 12), legend.text=element_text(size=11),
     axis.title=element_text(size=14), strip.text = element_text(size=11), plot.margin = margin(0,0,0,-0.5,"cm"))
-bp1029
+bp.seep
 
 # methane flux increasing
 bp.fi <- ggplot(sdf.fi,aes(tax,depth,size=pctabund))
-bp.fi <- bp.fi+
+bp.fluxincreasing <- bp.fi+
   geom_point(aes(fill=Domain),colour="black",pch=21)+
   xlab("")+
   facet_grid(core~level_reorder,scales="free", space = "free")+
   scale_y_reverse("",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
   scale_fill_discrete("")+
   scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
-  geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
+  geom_hline(aes(yintercept = 50),linetype="dashed",size=0.8)+ # this line returns Error in -x : invalid argument to unary operator
   theme_bw()+
   theme(legend.position = "top", axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), plot.margin = margin(0,0,0,-0.5,"cm"), legend.box = "vertical")
-bp.fi
+bp.fluxincreasing 
 
 # steady-state
 bp.ss <- ggplot(sdf.ss,aes(tax,depth,size=pctabund))
-bp.ss <- bp.ss+
+bp.steadystate <- bp.ss+
   geom_point(aes(fill=Domain),colour="black",pch=21)+
   xlab("")+
   facet_grid(core~level_reorder,scales="free", space = "free")+
@@ -436,10 +439,10 @@ bp.ss <- bp.ss+
   geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
   theme_bw()+
   theme(legend.position = "top",axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), legend.box = "horizontal", plot.margin = margin(0,0,0,-0.5,"cm"))
-bp.ss
+bp.steadystate
 ```
 
-Porewater graphs
+### Import and graph porewater data
 ```{r}
 library(ggplot2)
 # import the porewater data
@@ -494,7 +497,157 @@ gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
 gg.porewater.ss
 ```
 
-On to importing the modeling data... hooo boy
+### Import and graph modeled AOM rate data
+Some of it I've found on this computer, but WeiLi's modeling of past years of 1045 and 1081 might be on my home computer
+```{r}
+aomrates <- read.csv(file="~/Desktop/svalflux/aomrates.csv") # import rate data
+head(aomrates)
+aomrates <- aomrates[,1:5] # trim off weird columns that contain no information
+
+# subset by methane flux condition
+aomrates.inc <- subset(aomrates, aomrates$core=="GC1045"|aomrates$core=="GC1081")
+aomrates.ss <- subset(aomrates, aomrates$core=="GC1068"|aomrates$core=="GC1069"|aomrates$core=="GC1070"|aomrates$core=="GC1048")
+aomrates.seep <- subset(aomrates, aomrates$core=="PC1029")
+
+# graph seep rate
+aom1029 <- ggplot(aomrates.seep, aes(depth,aom))
+raom1029 <- aom1029+geom_line(size=1.5)+
+  coord_flip()+
+  scale_y_continuous("",position="right", breaks=c(0,2000,4000,6000,8000))+
+  scale_x_reverse("",breaks=c(0,5,10,15,20,25,30),limits=c(30,0))+
+  labs(title=expression("AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
+  theme_bw()+
+  theme(axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14))
+raom1029 
+
+# graph ss rates
+aom.ss <- ggplot(aomrates.ss, aes(depth,aom))
+raom.ss <- aom.ss+geom_line(size=1)+
+  geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
+  coord_flip()+
+  facet_grid(core~.)+
+  scale_y_continuous("",limits = c(-5,600),position = "right")+
+  scale_x_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  theme_bw()+
+  labs(title=expression("AOM rate \n(µmols L"^{-1}*" day"^{-1}*")"))+
+  theme(axis.text=element_text(size=12),strip.text.y = element_blank(),strip.background = element_blank(),axis.text.y=element_blank(),title=element_text(size=11),plot.margin=margin(1,0,0,-0.25,"cm"))
+raom.ss 
+
+# graph inc rates 
+aomrates.inc$yrsbp <- factor(aomrates.inc$yrsbp,levels=c(-2,-1,0,1,2,3,4,5,6,7,8,9,10)) 
+head(aomrates.inc)
+
+aom.nss <- ggplot(aomrates.inc,aes(depth,aom,color=yrsbp))
+raom.nss <- aom.nss+geom_line(size=1)+
+  scale_color_manual("years \nbefore \npresent",values=c("dodgerblue3","dodgerblue1","black","#662506","#993404","#cc4c02","#ec7014","#fe9929","#fec44f","grey75","grey65","grey55","grey45"))+
+  geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
+  coord_flip()+
+  facet_grid(core~.)+
+  labs(title=expression("AOM rate\n(µmols L"^{-1}*" day"^{-1}*")"))+
+  scale_y_continuous("",breaks=c(0,100,200),limits = c(-5,220),position = "right")+
+  scale_x_reverse("",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
+  theme_bw()+
+  theme(axis.text=element_text(size=12),strip.text.y = element_blank(),strip.background = element_blank(),axis.text.y=element_blank(),title=element_text(size=11),plot.margin=margin(1,0,0,-0.25,"cm"))
+raom.nss
+```
+
+### Graph ddPCR counts of mcrA and dsrAB
+```{r}
+# first make a dataframe with gene counts in long format
+core <- rep(sample_data(ps.frdp)$core, times=2) # repeat core data for each gene
+depth <- rep(sample_data(ps.frdp)$depth, times=2) # repeat depth 
+smt <- rep(sample_data(ps.frdp)$smt, times=2) # repeat smt
+genecount <- c(sample_data(ps.frdp)$dsrab, sample_data(ps.frdp)$mcra) # combine gene counts into one vector, mcra first
+gene <- c(rep("dsrAB", each=76), rep("mcrA", each=76)) # create vector with type of gene being counted
+gene <- factor(gene, levels = c("mcrA", "dsrAB"))
+stage <- rep(sample_data(ps.frdp)$stage, times=2) # repeat stage
+ddpcr.all <- data.frame(core, depth, smt, stage, genecount, gene) # make data frame
+ddpcr.all$logcopies <- log10(ddpcr.all$genecount) # transform gene counts to log
+
+# subset by stage of methane flux
+dd.pcr.fi <- subset(ddpcr.all, ddpcr.all$stage=="fluxincreasing")
+dd.pcr.ss <- subset(ddpcr.all, ddpcr.all$stage=="steadystate")
+dd.pcr.seep <- subset(ddpcr.all, ddpcr.all$stage=="seep")
+
+# seep ddPCR plot
+dd1029 <- ggplot(dd.pcr.seep, aes(depth, logcopies, color=gene))
+dd.seep <- dd1029+geom_line(size=1.5)+
+  geom_point(size=3)+
+  coord_flip()+
+  scale_y_continuous("",breaks=c(4,5,6,7,8),limits = c(3.7,8.5),position="right")+
+  scale_x_reverse("",breaks=c(0,5,10,15,20,25,30),limits=c(30,0))+
+  scale_color_discrete("")+
+  theme_bw()+
+  labs(title=expression(paste("log"[10]," gene copies")))+
+  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=8))
+dd.seep
+# remove the NAs at 12 cm depth that prevent the lines from being connected
+
+# non-steady-state ddPCR plot
+ddfi<- ggplot(dd.pcr.fi, aes(depth, logcopies, color=gene))
+dd.fi <- ddfi+geom_line(size=1.5)+
+  geom_point(size=3)+
+  coord_flip()+
+  scale_y_continuous("", breaks=c(4,5,6,7), limits = c(3.7,7.4), position="right")+
+  scale_x_reverse("", breaks=c(0,25,50,75,100,125,150), limits=c(150,0))+
+  scale_color_discrete("")+
+  geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
+  facet_grid(core~.)+
+  theme_bw()+
+  labs(title=expression(paste("log"[10]," gene copies")))+
+  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=8))
+dd.fi
+
+# steady-state ddPCR plot
+ddss<- ggplot(dd.pcr.ss, aes(depth, logcopies, color=gene))
+dd.ss <- ddss+geom_line(size=1.5)+
+  geom_point(size=3)+
+  coord_flip()+
+  scale_y_continuous("", breaks=c(4,5,6,7), limits = c(3.7,7.4), position="right")+
+  scale_x_reverse("", breaks=c(0,50,100,150,200,250,300,350), limits=c(350,0))+
+  geom_vline(aes(xintercept=smt), linetype="dashed",size=0.8)+
+  facet_grid(core~.)+
+  theme_bw()+
+  labs(title=expression(paste("log"[10]," gene copies")))+
+  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=8))
+dd.ss
+# need to remove the samples with zeros that obscure the trend or at least make the graph look really chaotic
+```
+
+### Make panel figures
+```{r}
+library(egg)
+
+# Figure 2 (Seep)
+fig1029 <- ggarrange(gg.porewater.1029, raom1029, bp.seep, dd.seep, widths=c(1.1,0.9,2.5,0.7),ncol = 4,nrow = 1,labels=c("A","B","C","D"))
+fig1029
+
+# Figure 3 (Non-steady-state sites)
+fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol = 4, nrow = 1,
+  widths = c(2.4,2.1,5,1.8),labels=c("A","B","C","D"))
+fig.nss
+
+# Figure 4 (Steady-state sites)
+fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
+                        ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
+fig.ss
+```
+
+### Ordinations and microbial community comparisons
+```{r}
+
+```
+
+### DEseq
+```{r}
+
+```
+
+### Supplemental figures
+Total methane flux across all cores
+Regression of mcrA counts and modeled AOM rates
+Justification of steady-state vs non-steady-state
+I think I'm forgetting one...
 ```{r}
 
 ```
