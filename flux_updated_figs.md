@@ -187,7 +187,7 @@ non-steady-state sites (will discuss this more in the text).
 
 ### Conceptual figure is unchanged:
 
-![caption](figures/flux.conceptual.figure.png)
+![](figures/flux.conceptual.figure.png)
 
 Figure 8. Conceptual depiction of microbial community changes concurrent
 with evolving methane supply at Storfjordrenna GHMs. Methane and sulfate
