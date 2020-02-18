@@ -258,6 +258,8 @@ sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),19] <- 56
 sample_data(ps.frdp)$smtzposition <- "above" # creates default value "above" for samples 
 sample_data(ps.frdp)[which(sample_data(ps.frdp)$geochem_zone=="below"),20] <- "below" # overwrites as "below" for samples where geochem_zone = below
 sample_data(ps.frdp)$dist_above_peakaom <- sample_data(ps.frdp)$peakaom-sample_data(ps.frdp)$depth # creates a new variable, distance above peak AOM
+
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"&sample_data(ps.frdp)$depth<310),9] <- "lin" # GC1048 is a steady-state core, so geochem zone should be "lin" until it hits the SMT 
 ```
 
 ### Pull out and subset taxonomic and relative abundance data
@@ -413,7 +415,7 @@ bp.seep <- bp1029+
     axis.title=element_text(size=14), strip.text = element_text(size=11), plot.margin = margin(0,0,0,-0.5,"cm"))
 bp.seep
 
-# methane flux increasing
+# non-steady-state
 bp.fi <- ggplot(sdf.fi,aes(tax,depth,size=pctabund))
 bp.fluxincreasing <- bp.fi+
   geom_point(aes(fill=Domain),colour="black",pch=21)+
@@ -422,7 +424,7 @@ bp.fluxincreasing <- bp.fi+
   scale_y_reverse("",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
   scale_fill_discrete("")+
   scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
-  geom_hline(aes(yintercept = 50),linetype="dashed",size=0.8)+ # this line returns Error in -x : invalid argument to unary operator
+  geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+ # this line returns Error in -x : invalid argument to unary operator
   theme_bw()+
   theme(legend.position = "top", axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), plot.margin = margin(0,0,0,-0.5,"cm"), legend.box = "vertical")
 bp.fluxincreasing 
@@ -440,6 +442,16 @@ bp.steadystate <- bp.ss+
   theme_bw()+
   theme(legend.position = "top",axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), legend.box = "horizontal", plot.margin = margin(0,0,0,-0.5,"cm"))
 bp.steadystate
+
+
+
+
+bp.steadystate <- saveRDS(bp.steadystate, "figures/bp.steadystate") # export
+
+
+
+
+
 ```
 
 ### Import and graph porewater data
@@ -620,36 +632,561 @@ library(egg)
 
 # Figure 2 (Seep)
 fig1029 <- ggarrange(gg.porewater.1029, raom1029, bp.seep, dd.seep, widths=c(1.1,0.9,2.5,0.7),ncol = 4,nrow = 1,labels=c("A","B","C","D"))
-fig1029
+fig1029 <- saveRDS(fig1029, "figures/figure2") # export
 
 # Figure 3 (Non-steady-state sites)
 fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol = 4, nrow = 1,
   widths = c(2.4,2.1,5,1.8),labels=c("A","B","C","D"))
-fig.nss
+fig.nss <- saveRDS(fig.nss, "figures/figure3") # export
 
 # Figure 4 (Steady-state sites)
 fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
                         ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
-fig.ss
+fig.ss <- saveRDS(fig.ss, "figures/figure4") # export
 ```
 
-### Ordinations and microbial community comparisons
+### Alpha diversity
 ```{r}
+plotrichness.oc <- plot_richness(ps.frdp, x="dist_above_peakaom", measures=c("Shannon"), color="core")
+plotrichness.oc+
+  facet_grid(core_flowtype~.)+
+  ylab("Shannon diversity index")+
+  xlab("Distance above present-day peak AOM rate (cm)")+
+  scale_color_discrete("Core")+
+  theme_bw()
 
+ps.frdp.ss <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage=="steadystate") # subsetsall steady-state samples
+ps.frdp.nss.seep <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage!="steadystate") # subsets the non-steady-state samples and the seep
+
+alphadiv.ss <- estimate_richness(ps.frdp.ss, split = TRUE, measures=c("Shannon","InvSimpson","Observed")) # calculate tables of alpha diversity
+alphadiv.nss <- estimate_richness(ps.frdp.nss.seep, split = TRUE, measures=c("Shannon","InvSimpson","Observed"))
+
+alphadiv.ss$depth <- substring(rownames(alphadiv.ss), 8,12) # pull out depth values from the sample names
+alphadiv.ss$depth <- as.numeric(alphadiv.ss$depth) # convert them to numeric
+alphadiv.nss$depth <- substring(rownames(alphadiv.nss), 8,12)
+alphadiv.nss$depth <- as.numeric(alphadiv.nss$depth)
+
+alphadiv.ss$core <- substring(rownames(alphadiv.ss), 1,6) # pull out core names from sample names
+alphadiv.nss$core <- substring(rownames(alphadiv.nss), 1,6)
+
+alphadiv.nss$peakaom <- NA # creates a NA value for peak AOM depth
+alphadiv.ss$peakaom <- NA
+alphadiv.nss[which(alphadiv.nss$core=="GC1081"),6] <- 56 # add in SMT depths for all cores
+alphadiv.nss[which(alphadiv.nss$core=="GC1045"),6] <- 65
+alphadiv.nss[which(alphadiv.nss$core=="PC1029"),6] <- 45.3
+alphadiv.ss[which(alphadiv.ss$core=="GC1068"),6] <- 108
+alphadiv.ss[which(alphadiv.ss$core=="GC1069"),6] <- 137
+alphadiv.ss[which(alphadiv.ss$core=="GC1070"),6] <- 67
+alphadiv.ss[which(alphadiv.ss$core=="GC1048"),6] <- 313.5
+alphadiv.ss$dist_above_peakaom <- alphadiv.ss$peakaom-alphadiv.ss$depth # calculate distance above/below SMT
+alphadiv.nss$dist_above_peakaom <- alphadiv.nss$peakaom-alphadiv.nss$depth 
+alphadiv.ss.range <- subset(alphadiv.ss, dist_above_peakaom < 62 & dist_above_peakaom > -46) # subset the dataframe to include steady-state samples from depths across the SMT that correspond to depths of non-steady-state samples
+
+nss.lm <- lm(alphadiv.nss$Shannon~alphadiv.nss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
+ss.lm <- lm(alphadiv.ss$Shannon~alphadiv.ss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
+ss.lm.range <- lm(alphadiv.ss.range$Shannon~alphadiv.ss.range$dist_above_peakaom)
+summary(nss.lm) # summarizes the linear regression: slope is 0.023203, intercept is 3.777779, both are significant. Multiple R^2 is 0.4874, p value of slope is 5.14e-05
+summary(ss.lm) # slope is significant considering all the points across depth 
+summary(ss.lm.range) # slope is 0.006184, intercept is 3.742064, slope not significant across the SMT range. Multiple R^2 is 0.03277, p value of slope is 0.347
+
+alphadiv.nss$core_flowtype_label <- "Non-Steady-State"
+alphadiv.ss$core_flowtype_label <- "Steady-State"
+
+plotrichness.ss <- ggplot(alphadiv.ss, aes(dist_above_peakaom, Shannon, color=core)) 
+ssplot <- plotrichness.ss+
+  geom_point(size=2)+
+  facet_grid(~core_flowtype_label)+
+  scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
+  scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
+  scale_color_manual("Core", values=c("#C49A00","#53B400","#00C094","#00B6EB"))+
+  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
+  geom_segment(x=-45,y=3.482369,xend=61,yend=4.116885, color="black", size=1)+
+  theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
+  theme(strip.text = element_text(size = 11))+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.0328\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.347\")", parse = TRUE)+
+  annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
+ssplot
+
+plotrichness.nss <- ggplot(alphadiv.nss, aes(dist_above_peakaom, Shannon, color=core))
+nssplot <- plotrichness.nss+
+  geom_point(size=2)+
+  facet_grid(~core_flowtype_label)+
+  scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
+  scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
+  scale_color_manual("Core", values=c("#F8766D","#A58AFF","#FB61D7"))+
+  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
+  geom_segment(x=-45,y=2.747481,xend=61,yend=5.204455, color="black", size=1)+
+  theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
+  theme(strip.text = element_text(size = 11))+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.4874\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 5.14e-05\")", parse = TRUE)+
+  annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
+nssplot
+
+library(egg)
+div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 5
+div.fig <- saveRDS(div.fig, "figures/figure5") # export
 ```
+
+### Transforming OTU tables for ordination
+```{r}
+dm.jac <- phyloseq::distance(ps.frdp, method = "jaccard", binary = TRUE) # makes binary Jaccard distance matrix
+
+# Transformations:
+# Hellinger transformation
+otu.hel <- otu_table(decostand(otu_table(ps.frdp), method = "hellinger"), taxa_are_rows=FALSE)
+ps.hel <- phyloseq(tax_table(ps.frdp),
+                    sample_data(ps.frdp),
+                    otu_table(otu.hel),
+                    phy_tree(ps.frdp),
+                    refseq(ps.frdp)) 
+# log2 transformation
+ps.log2 <- phyloseq::phyloseq_to_metagenomeSeq(ps.frdp) 
+ps.log2_otu <- metagenomeSeq::MRcounts(ps.css, norm=TRUE, log = TRUE)
+ps.log2 <- phyloseq(tax_table(ps.frdp),
+                    sample_data(ps.frdp),
+                    otu_table(ps.log2_otu, taxa_are_rows=TRUE),
+                    phy_tree(ps.frdp),
+                    refseq(ps.frdp))
+
+# variance-stabilizing transformation
+de.ps <- phyloseq_to_deseq2(ps.frdp, ~ stage) # counts are converted to integer mode
+de.ps <-  estimateSizeFactors(de.ps, type="poscounts") # maybe try type="iterate" as well
+de.ps <-  estimateDispersions(de.ps)
+otu.ps.vst <-  getVarianceStabilizedData(de.ps) # otu.ps.vst and otu_table(ps.frdp) are transposed matrices
+ps.vst <- phyloseq(tax_table(ps.frdp),  # phyloseq object with variance-stabilized transformed otu table
+                 sample_data(ps.frdp),
+                 otu_table(otu.ps.vst, taxa_are_rows = TRUE),
+                 refseq(ps.frdp))
+otu.vst.pos <- otu_table(ps.vst) # define a matrix where negative values will be set to zero
+otu.vst.pos[otu.vst.pos < 0.0] <- 0.0 # set those negatives to zero
+ps.vst.pos <- phyloseq(tax_table(ps.frdp),  # create the phyloseq object with variance-stabilized transformed otu table, and no negative values
+                 sample_data(ps.frdp),
+                 phy_tree(ps.frdp),
+                 otu_table(otu.vst.pos, taxa_are_rows = TRUE),
+                 refseq(ps.frdp))
+```
+
+### Plotting ordinations (first by methane flux stage)
+Trying out two ordinations: PCoA and NMDS
+Two transformations: hellinger and VST
+And four metrics: Binary Jaccard (on untransformed ASV table), Bray-Curtis, and Unifrac (weighted and unweighted)
+```{r}
+# Binary Jaccard with untransformed OTU table
+ord.ps.bjac.nmds <- ordinate(ps.frdp, method="NMDS", distance = dm.jac) # NMDS solution reached, Stress 0.150 Procrustes: rmse 0.0006652266  max resid 0.00337687
+ord.ps.bjac.pcoa <- ordinate(ps.frdp, method="PCoA", distance = dm.jac) # PCoA
+
+ord1 <- plot_ordination(ps.frdp, ord.ps.bjac.nmds, color = "stage", title = "untransformed Binary Jaccard NMDS, stress=0.150") # useful: fluxincreasing are between separate clusters of seep and steadystate.
+ord2 <- plot_ordination(ps.frdp, ord.ps.bjac.pcoa, color = "stage", title = "untransformed Binary Jaccard PCoA") # not so useful, 8 and 5% on axes
+
+# Bray-Curtis 
+ord.ps.vst.bc.nmds <- ordinate(ps.vst.pos, "NMDS", "bray")
+ord.ps.vst.bc.pcoa <- ordinate(ps.vst.pos, "PCoA", "bray")
+ord.ps.hel.bc.nmds <- ordinate(ps.hel, "NMDS", "bray")
+ord.ps.hel.bc.pcoa <- ordinate(ps.hel, "PCoA", "bray")
+
+ord3 <- plot_ordination(ps.vst.pos, ord.ps.vst.bc.nmds, color = "stage", title = "vst Bray-Curtis NMDS, stress=0.144") # ok, similar to the bjac
+ord4 <- plot_ordination(ps.vst.pos, ord.ps.vst.bc.pcoa, color = "stage", title = "vst Bray-Curtis PCoA") # 14 and 9% 
+ord5 <- plot_ordination(ps.hel, ord.ps.hel.bc.nmds, color = "stage", title = "hel Bray-Curtis NMDS, stress=0.150") # ok, similar to the bjac
+ord6 <- plot_ordination(ps.hel, ord.ps.hel.bc.pcoa, color = "stage", title = "hel Bray-Curtis PCoA") # 16 and 10%
+
+# weighted Unifrac
+ord.ps.vst.wuni.nmds <- ordinate(ps.vst.pos, "NMDS", "unifrac", weighted=TRUE) # Stress = 0.121
+ord.ps.vst.wuni.pcoa <- ordinate(ps.vst.pos, "PCoA", "unifrac", weighted=TRUE)
+ord.ps.hel.wuni.nmds <- ordinate(ps.hel, "NMDS", "unifrac", weighted=TRUE) # Stress = 0.129
+ord.ps.hel.wuni.pcoa <- ordinate(ps.hel, "PCoA", "unifrac", weighted=TRUE)
+
+ord7 <- plot_ordination(ps.vst.pos, ord.ps.vst.wuni.nmds, color = "stage", title = "vst weighted Unifrac NMDS, stress=0.121") # simialr pattern as before but a few noticeable outliers
+ord8 <- plot_ordination(ps.vst.pos, ord.ps.vst.wuni.pcoa, color = "stage", title = "vst weighted Unifrac PCoA") # 24 and 12% 
+ord9 <- plot_ordination(ps.hel, ord.ps.hel.wuni.nmds, color = "stage", title = "hel weighted Unifrac NMDS, stress=0.129") # again, outliers
+ord10 <- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "stage", title = "hel weighted Unifrac PCOA") # 25 and 17% best PCoA so far
+
+# unweighted Unifrac
+ord.ps.vst.uni.nmds <- ordinate(ps.vst.pos, "NMDS", "unifrac", weighted=FALSE) # Stress = 0.105
+ord.ps.vst.uni.pcoa <- ordinate(ps.vst.pos, "PCoA", "unifrac", weighted=FALSE)
+ord.ps.hel.uni.nmds <- ordinate(ps.hel, "NMDS", "unifrac", weighted=FALSE) # no convergence
+ord.ps.hel.uni.pcoa <- ordinate(ps.hel, "PCoA", "unifrac", weighted=FALSE)
+
+ord11 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "stage", title = "vst unweighted Unifrac NMDS, stress=0.105") # less outlier influence
+ord12 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.pcoa, color = "stage", title = "vst unweighted Unifrac PCoA") # 10.5 and 8%
+ord13 <- plot_ordination(ps.hel, ord.ps.hel.uni.nmds, color = "stage", title = "hel unweighted Unifrac NMDS, No Convergence")
+ord14 <- plot_ordination(ps.hel, ord.ps.hel.uni.pcoa, color = "stage", title = "hel unweighted Unifrac PCOA") # 10.6 and 8%
+```
+Conclusions: they all convey steady state separate from seep, with fluxincreasing samples somewhere in the middle, widely spaced out. So the variance in community structure is due to different patterns in presence/absence, taxonomy, and relative abundance. (Compare ord1 and ord7, which are untransformed Binary Jaccard and vst weighted Unifrac NMDS respectively, yet show very similar patterns).
+Best PCoAs are on weighted Unifrac, and best NMDS on unweighted Unifrac. But the NMDS on Unifrac distances show several outliers (steadystate samples) and the Bray-Curtis NMDSs show the separation a bit better. 
+
+Best ordinations:
+```{r}
+ord11+stat_ellipse() # vst unweighted Unifrac NMDS. Best NMDS (stress=0.105) and shows less outlier influence than others. (Only good Unifrac NMDS)
+ord10+stat_ellipse() # hel weighted Unifrac PCOA, best PCoA (25% and 17% variance on x and y, also less separation between fluxincreasing and steadystate)
+ord3+stat_ellipse() # vst Bray-Curtis NMDS, higher stress but shows separation well
+ord5+stat_ellipse() # hel Bray-Curtis NMDS, higher stress but shows separation well
+```
+
+### Permanova follow-up tests
+```{r}
+metadata.ps.frdp <- as(sample_data(ps.frdp), "data.frame") #  create dataframe
+
+dm.vst.unifrac <- UniFrac(ps.vst.pos, weighted = FALSE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # create unweighted Unifrac distance matrix
+permanova.vst.unifrac <- adonis(dm.vst.unifrac ~ stage, data=metadata.ps.frdp) # test associated with ord11 (vst, unweighted unifrac by stage)
+permanova.vst.unifrac
+
+dm.hel.wunifrac <- UniFrac(ps.hel, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # create weighted Unifrac distance matrix
+permanova.hel.wunifrac <- adonis(dm.hel.wunifrac ~ stage, data=metadata.ps.frdp) # test associated with ord10 (hel, weighted unifrac by stage)
+permanova.hel.wunifrac
+```
+
+### More permanovas
+Previously, I had subset by core_flowtype and then conducted tests between different geochem_zones. I also compared geochem_zones by different core_flowtype. What I had found was that below-SMT communities in cores where methane flux was increasing were not that different, but above the SMT they were. And in cores where methane flux was increasing, the non-steady-state sulfate-reduction zone communities were similar to those below the SMT, and distinct from those from the linear portion of the sulfate-reduction zone.
+```{r}
+# subsetting phyloseq objects by metadata, starting with vst positive transformation
+ps.vst.inc <- subset_samples(ps.vst.pos, core_flowtype=="inc") # phyloseq containing cores where methane flux is increasing 
+ps.vst.ss <- subset_samples(ps.vst.pos, core_flowtype=="ss") # phyloseq containing steady-state cores 
+
+ps.vst.lin <- subset_samples(ps.vst.pos, geochem_zone=="lin") # phyloseq containing samples from linearly-decreasing sulfate reduction zone
+ps.vst.below <- subset_samples(ps.vst.pos, geochem_zone=="below") # phyloseq containing samples from below SMT
+ps.vst.notbelow <- subset_samples(ps.vst.pos, geochem_zone!="below") # phyloseq containing samples from sulfate reduction zone
+ps.vst.inc.notbelow <- subset_samples(ps.vst.inc, geochem_zone!="below") # phyloseq containing samples from nss and linear part of SR zone in inc cores
+ps.vst.inc.notlin <- subset_samples(ps.vst.inc, geochem_zone!="lin") # phyloseq containing inc samples omitting linear SR zone
+ps.vst.inc.notnss <- subset_samples(ps.vst.inc, geochem_zone!="nss") # phyloseq containing inc samples omitting nss SR zone
+
+# subsetting more phyloseq objects for beta-diversity calculations
+ps.vst.inc.lin <- subset_samples(ps.vst.inc, geochem_zone=="lin")
+ps.vst.inc.nss <- subset_samples(ps.vst.inc, geochem_zone=="nss")
+ps.vst.inc.below <- subset_samples(ps.vst.inc, geochem_zone=="below")
+ps.vst.ss.lin <- subset_samples(ps.vst.ss, geochem_zone=="lin")
+ps.vst.ss.below <- subset_samples(ps.vst.ss, geochem_zone=="below")
+
+
+# calculate weighted Unifrac distance matrices
+dm.vst.inc.wunifrac <- UniFrac(ps.vst.inc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # for increasing flux core samples
+dm.vst.ss.wunifrac <- UniFrac(ps.vst.ss, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # for steady-state core samples
+dm.vst.lin.wunifrac <- UniFrac(ps.vst.lin, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # for linear sulfate-reduction zone samples
+dm.vst.below.wunifrac <- UniFrac(ps.vst.below, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # for below-SMT samples
+dm.vst.notbelow.wunifrac <- UniFrac(ps.vst.notbelow, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # for SR zone samples
+dm.vst.inc.notbelow.wunifrac <- UniFrac(ps.vst.inc.notbelow, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # for inc SR zone samples
+dm.vst.inc.notlin.wunifrac <- UniFrac(ps.vst.inc.notlin, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # inc samples omitting linear SR zone
+dm.vst.inc.notnss.wunifrac <- UniFrac(ps.vst.inc.notnss, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # inc samples omitting nss SR zone
+
+# calculate more distance matrices for beta-diversity comparisons:
+dm.vst.inc.lin <- UniFrac(ps.vst.inc.lin, weighted=TRUE, normalized=TRUE, parallel =FALSE, fast=TRUE) # increasing CH4 flux, linear  
+dm.vst.inc.nss <- UniFrac(ps.vst.inc.nss, weighted=TRUE, normalized=TRUE, parallel =FALSE, fast=TRUE) # increasing, non-steady-state
+dm.vst.inc.below <- UniFrac(ps.vst.inc.below, weighted=TRUE, normalized=TRUE, parallel =FALSE, fast=TRUE) # increasing, below-SMT
+dm.vst.ss.lin <- UniFrac(ps.vst.ss.lin, weighted=TRUE, normalized=TRUE, parallel =FALSE, fast=TRUE) # steady-state, linear
+dm.vst.ss.below <- UniFrac(ps.vst.ss.below, weighted=TRUE, normalized=TRUE, parallel =FALSE, fast=TRUE) # steady-state, below-SMT
+
+# make subsetted metadata data frames
+metadata.ps.vst.inc <- as(sample_data(ps.vst.inc), "data.frame")
+metadata.ps.vst.ss <- as(sample_data(ps.vst.ss), "data.frame")
+metadata.ps.vst.lin <- as(sample_data(ps.vst.lin), "data.frame")
+metadata.ps.vst.below <- as(sample_data(ps.vst.below), "data.frame")
+metadata.ps.vst.notbelow <- as(sample_data(ps.vst.notbelow), "data.frame")
+metadata.ps.vst.inc.notbelow <- as(sample_data(ps.vst.inc.notbelow), "data.frame")
+metadata.ps.vst.inc.notlin <- as(sample_data(ps.vst.inc.notlin), "data.frame")
+metadata.ps.vst.inc.notnss <- as(sample_data(ps.vst.inc.notnss), "data.frame")
+
+# permanovas
+permanova.vst.wunifrac.inc.geochem_zone <- adonis(dm.vst.inc.wunifrac ~ geochem_zone, data=metadata.ps.vst.inc)
+permanova.vst.wunifrac.inc.geochem_zone # Pr(>F) 0.001 *** different communities between the 3 linear, nss, below-SMT zones of increasing-CH4-flux cores
+
+permanova.vst.wunifrac.ss.geochem_zone <- adonis(dm.vst.ss.wunifrac ~ geochem_zone, data=metadata.ps.vst.ss)
+permanova.vst.wunifrac.ss.geochem_zone # Pr(>F) 0.001 *** different communities between the 2 linear / below-SMT zones of steady-state cores
+
+permanova.vst.wunifrac.lin.core_flowtype <- adonis(dm.vst.lin.wunifrac ~ core_flowtype, data=metadata.ps.vst.lin)
+permanova.vst.wunifrac.lin.core_flowtype # Pr(>F) 0.001 *** different communities between linear zones of cores with different CH4 flux types
+
+permanova.vst.wunifrac.below.core_flowtype <- adonis(dm.vst.below.wunifrac ~ core_flowtype, data=metadata.ps.vst.below)
+permanova.vst.wunifrac.below.core_flowtype # Pr(>F) 0.003 *** different communities between below-SMT zones of cores with different CH4 flux types (DIFFERENT results from what I found previously, see note 1 below)
+
+permanova.vst.wunifrac.notbelow.core_flowtype <- adonis(dm.vst.notbelow.wunifrac ~ core_flowtype, data=metadata.ps.vst.notbelow)
+permanova.vst.wunifrac.notbelow.core_flowtype # Pr(>F) 0.001 *** different communities between SR zones of cores with different CH4 flux types
+
+permanova.vst.wunifrac.inc.notbelow.geochem_zone <- adonis(dm.vst.inc.notbelow.wunifrac ~ geochem_zone, data=metadata.ps.vst.inc.notbelow)
+permanova.vst.wunifrac.inc.notbelow.geochem_zone # Pr(>F) 0.005 *** different communities between linear and nss zones of increasing-CH4-flux cores
+
+permanova.vst.wunifrac.inc.notlin.geochem_zone <- adonis(dm.vst.inc.notlin.wunifrac ~ geochem_zone, data=metadata.ps.vst.inc.notlin)
+permanova.vst.wunifrac.inc.notlin.geochem_zone # Pr (>F) 0.014 ** different communities between nss and below-SMT of increasing-CH4-flux cores (DIFFERENT results from what I found previously, see note 2 below)
+
+permanova.vst.wunifrac.inc.notnss.geochem_zone <- adonis(dm.vst.inc.notnss.wunifrac ~ geochem_zone, data=metadata.ps.vst.inc.notnss)
+permanova.vst.wunifrac.inc.notnss.geochem_zone # Pr(>F) 0.001 *** different communities between linear and below-SMT of increasing-CH4-flux cores
+```
+Note 1: Below-SMT communities in increasing and steady-state cores might be different now, whereas previously n=22, p=0.077. In comparison to my previous results, this test has two fewer samples.
+Note 2: Previously had n=16, p=0.096. Same 16 samples
+Also relevant for both discrepancies: we have ASVs instead of OTUs, and the count table is VST-transformed instead of rarefied.
+
+### More ordinations
+```{r}
+sample_data(ps.vst.pos)$redox <- factor(sample_data(ps.vst.pos)$geochem_zone, levels = c("below", "lin", "nss"), labels = c("below SMT", "linear SR zone", "nonlinear SR zone")) # reassign geochem_zone with better labels for the plot
+
+ord15 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "redox", title = "NMDS on unweighted Unifrac distances, stress=0.105") # same ordination as ord11
+nmdsord1 <- ord15+stat_ellipse()+
+  scale_color_discrete("Redox zone")+
+  theme_bw() # variance-stabilized transformation
+nmdsord1 <- saveRDS(nmdsord1, "figures/nmdsord1") # export
+
+ord16 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "core_flowtype", title = "vst unweighted Unifrac NMDS, stress=0.105") # same ordination as ord11
+ord16+stat_ellipse()
+ord17 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "geochem_zone", title = "vst unweighted Unifrac NMDS, stress=0.105") # same ordination as ord11
+ord17+stat_ellipse()
+```
+
+### Beta-diversity comparisons, boxplots, and t-tests
+```{r}
+# rewrite the triangle distance matrices as vectors
+b.inc <- as.vector(dm.vst.inc.wunifrac)
+b.ss <- as.vector(dm.vst.ss.wunifrac)
+b.lin <- as.vector(dm.vst.lin.wunifrac)
+b.below <- as.vector(dm.vst.below.wunifrac)
+b.notbelow <- as.vector(dm.vst.notbelow.wunifrac)
+b.inc.notbelow <- as.vector(dm.vst.inc.notbelow.wunifrac)
+b.inc.notlin <- as.vector(dm.vst.inc.notlin.wunifrac)
+b.inc.notnss <- as.vector(dm.vst.inc.notnss.wunifrac)
+
+mx.b <- cbind(b.inc, b.ss, b.lin, b.below, b.notbelow, b.inc.notbelow, b.inc.notlin, b.inc.notnss) # convert the vectors into a matrix
+boxplot(mx.b, las=2) # make boxplot
+
+t.test(b.inc, b.ss) # inc and ss cores do not have different beta-diversity.
+t.test(b.lin, b.below) # below have higher beta-diversity than linear: p-value = 2.846e-06
+
+# rewrite the triangle distance matrices as vectors
+bdiv.inc.lin <- as.vector(dm.vst.inc.lin) 
+bdiv.inc.nss <- as.vector(dm.vst.inc.nss)
+bdiv.inc.below <- as.vector(dm.vst.inc.below)
+bdiv.ss.lin <- as.vector(dm.vst.ss.lin)
+bdiv.ss.below <- as.vector(dm.vst.ss.below)
+mx.b.group <- cbind(bdiv.inc.lin, bdiv.inc.nss, bdiv.inc.below, bdiv.ss.lin, bdiv.ss.below) # bind vectors into a matrix
+
+boxplot(mx.b.group, las=2) 
+
+t.test(bdiv.inc.lin, bdiv.inc.nss) # in increasing-CH4-flux cores, linear SR zone and non-steady-state SR zone communities do not have different beta-diversity
+t.test(bdiv.inc.lin, bdiv.inc.below) # in increasing-CH4-flux cores, linear SR zone and below-SMT communities do not have different beta-diversity
+t.test(bdiv.inc.nss, bdiv.inc.below) # in increasing-CH4-flux cores, non-steady-state SR zone and below-SMT communities do not have different beta-diversity
+t.test(bdiv.inc.lin, bdiv.ss.lin) # linear SR beta-diversity is higher in steady-state cores than in those with increasing methane flux 
+t.test(bdiv.ss.lin, bdiv.ss.below) # in steady-state cores, beta diversity of below-SMT communities is lower than in linear SR zone, p-value < 2.2e-16
+t.test(bdiv.inc.below, bdiv.ss.below) # but below-SMT beta diversity is not different between increasing-CH4-flux and steady-state communities
+t.test(bdiv.inc.lin, bdiv.ss.below) # these are different too
+```
+Maybe just mention (not show a figure) that beta-diversity decreases below the SMT in steady-state cores, but not in cores where methane flux is decreasing. So as methane flux increases in an area, alpha diversity decreases, and once cores are at steady-state, beta-diversity becomes lower below the SMT. (And even though the beta-diversity is higher in steady-state linear SR regions than in increasing-CH4-flux regions, this difference is not just because of the higher beta-diversity in steady-state linear SR zones). Mention that higher statistical power could be sought by higher resolution community sampling.  
 
 ### DEseq
+Maybe I'll sneak the biomarkers into the main text, instead of as a supplemental?
+```{r}
+# Omit the less-abundant ASVs from the DEseq comparison
+f.ra.top1000names <- names(sort(taxa_sums(f.ra), decreasing=TRUE))[1:1000] # top 1000 
+f.ra.top1000 <- prune_taxa(f.ra.top1000names, f.ra) # writes only the 1000 most abundant ASVs as another phyloseq object
+
+gg.top1000 <- plot_bar(f.ra.top1000, fill="Class") # makes a bar graph 
+
+sum(otu_table(f.ra)[,f.ra.top1000names]) # top 1000 ASVs contain 65.9% of sequences
+mean(otu_table(f.ra)[,which(colnames(otu_table(f.ra))==f.ra.top1000names[1000])]) # mean percent abundance of the 1000th most abundant ASV is 8e-05. 
+
+tax_table(f.ra)[f.ra.top1000names,] # taxonomic info of the top 1000 ASVs
+
+ps.top1000 <- prune_taxa(f.ra.top1000names, ps.frdp) # go back to the untransformed phyloseq object and take only the top 1000 ASVs from it
+
+ps.top1000.above <- subset_samples(ps.top1000, sample_data(ps.top1000)$smtzposition=="above") # subset into above-SMT and below-SMT
+ps.top1000.below <- subset_samples(ps.top1000, sample_data(ps.top1000)$smtzposition=="below")
+
+de.ps.top.above <-  phyloseq_to_deseq2(ps.top1000.above, ~ core_flowtype) # convert phyloseq to deseq object for the above...
+de.ps.top.below <-  phyloseq_to_deseq2(ps.top1000.below, ~ core_flowtype) # and below
+
+de.results.above <- DESeq(de.ps.top.above, test="Wald", fitType="parametric", sfType = "poscounts") # run DESeq 
+de.results.below <- DESeq(de.ps.top.below, test="Wald", fitType="parametric", sfType = "poscounts")
+
+de.results.above.table <- results(de.results.above, cooksCutoff = FALSE) # obtain the results tables
+de.results.above.table # log2 fold change (MLE): core flowtype ss vs inc (interpreting this as ss=positive logfoldchange)
+de.results.below.table <- results(de.results.below, cooksCutoff = FALSE) 
+de.results.below.table # log2 fold change (MLE): core flowtype ss vs inc (interpreting this as ss=positive logfoldchange)
+
+de.results.above.table.sig <- de.results.above.table[which(de.results.above.table$padj < 0.01), ] # using an alpha of 0.01 (benjamini hochberg adjusted p-value)
+de.results.below.table.sig <- de.results.below.table[which(de.results.below.table$padj < 0.01), ] 
+
+# add taxonomic info to the significantly differently abundant tables
+de.results.above.table.sig <- cbind(as(de.results.above.table.sig, "data.frame"), as(tax_table(ps.top1000.above)[rownames(de.results.above.table.sig), ], "matrix")) 
+de.results.below.table.sig <- cbind(as(de.results.below.table.sig, "data.frame"), as(tax_table(ps.top1000.below)[rownames(de.results.below.table.sig), ], "matrix"))
+
+# merge the two dataframes together so they can be easily facet_gridded onto the same plot
+de.results.below.table.sig$smtpos <- "B"
+de.results.above.table.sig$smtpos <- "A"
+de.results.all.table.sig <- rbind(de.results.below.table.sig, de.results.above.table.sig)
+
+# subset by the taxa we want to plot 
+de.results.all.table.sig.deltas <- subset(de.results.all.table.sig,de.results.all.table.sig$Class=="Deltaproteobacteria")
+
+de.results.all.table.sig.anmes <- subset(de.results.all.table.sig, de.results.all.table.sig$Class=="Methanomicrobia")
+
+de.results.rest.table.sig <- subset(de.results.all.table.sig, de.results.all.table.sig$Class!="Deltaproteobacteria")
+de.results.rest.table.sig <- subset(de.results.rest.table.sig, de.results.rest.table.sig$Class!="Methanomicrobia")
+
+# Orders taxonomic groupings by differental abundance 
+xd.g <- tapply(de.results.all.table.sig.deltas$log2FoldChange, de.results.all.table.sig.deltas$Genus, function(xd.g) max(xd.g))
+xd.g <- sort(xd.g, TRUE)
+de.results.all.table.sig.deltas$Genus <- factor(as.character(de.results.all.table.sig.deltas$Genus), levels=names(xd.g)) # Deltaproteobacteria ordered by Genus
+
+xa.f <- tapply(de.results.all.table.sig.anmes$log2FoldChange, de.results.all.table.sig.anmes$Family, function(xa.f) max(xa.f))
+xa.f <- sort(xa.f, TRUE)
+de.results.all.table.sig.anmes$Family <- factor(as.character(de.results.all.table.sig.anmes$Family), levels=names(xa.f)) # ANMEs ordered by Family
+
+x.c <- tapply(de.results.rest.table.sig$log2FoldChange, de.results.rest.table.sig$Class, function(x.c) max(x.c))
+x.c <- sort(x.c, TRUE)
+de.results.rest.table.sig$Class <- factor(as.character(de.results.rest.table.sig$Class), levels=names(x.c)) # others by Class
+
+# plotting
+
+# all classes
+gg.de.rest.by.ssinc <- ggplot(de.results.rest.table.sig, aes(x=Class, y=log2FoldChange, color=Class)) + 
+  geom_point(size=3) + 
+  scale_y_continuous("log2 Differential Abundance Change\n (higher in non-steady-state)                            (higher in steady-state)", position = "right", limits = c(-27,27)) +
+  facet_grid(smtpos~., scales = "free", space = "free") +
+  coord_flip() +
+  geom_hline(yintercept = 0, linetype="dashed")+
+  theme_bw() + theme(legend.position = "none")
+gg.de.rest.by.ssinc # when using scale_x_discrete(limits = rev(levels(de.results.all.table.sig$Class))) 
+# 22 NAs were removed, and facet grid space/scales doesn't work
+
+# ANMEs
+gg.de.anme.by.ssinc <- ggplot(de.results.all.table.sig.anmes, aes(x=Family, y=log2FoldChange, color=Order)) + 
+  geom_point(size=3) + 
+  scale_y_continuous("Methanomicrobia log2 Differential Abundance Change\n (higher in non-steady-state)                             (higher in steady-state)", position = "right", limits = c(-27,27)) +
+  facet_grid(smtpos~.) +
+  coord_flip()+
+  scale_color_manual(values = c("#d73027", "#fdae61"))+
+  geom_hline(yintercept = 0, linetype="dashed")+
+  theme_bw() + theme(legend.position = "bottom")
+gg.de.anme.by.ssinc # there are only 4 points, 2 colors, and they're all above SMT.
+
+gg.de.srb.by.ssinc <- ggplot(de.results.all.table.sig.deltas, aes(x=Genus, y=log2FoldChange, color=Family)) + 
+  geom_point(size=3) + 
+  scale_y_continuous("Deltaproteobacteria log2 Differential Abundance Change\n (higher in non-steady-state)                             (higher in steady-state)", position = "right", limits=c(-27,27)) +
+  facet_grid(smtpos~., scales = "free", space = "free") +
+  coord_flip() +
+  scale_color_manual(values = c("#1a9850", "#66bd63", "#a6d96a", "#d9ef8b"))+ 
+  geom_hline(yintercept = 0, linetype="dashed")+
+  theme_bw() + theme(legend.position = "bottom")
+gg.de.srb.by.ssinc # more points, 4 colors, only one below SMT.
+
+# panel graph
+library(egg)
+diffabund <- ggarrange(gg.de.rest.by.ssinc, gg.de.anme.by.ssinc, gg.de.srb.by.ssinc, ncol=1, nrow=3, heights=c(33,4,9), labels = c("A", "B", "C")) # Figure ...#?
+diffabund <- saveRDS(diffabund, "figures/diffabund") # export
+```
+
+That's still a really busy plot. And it will get even busier at finer taxonomic levels. 
+Maybe just take the top 100 ASVs, and examine at the Genus and Family levels (so it will show SRB genera and ANME families)
+Is ANME-1a even one of the top ASVs? Yes, there are two very abundant ones. But interestingly, they're not more statistically more abundant in ss... but ASV 131 (another ANME-1a) is. 
+Only 12 ASVs are above 1% of the dataset total, in contrast to the OTU dataset.
+Deciding to go with the top 1000 ASVs, but subset by ANME at family level, SRB at genus level, and others at class level (to mirror the panel figures.)
+
 ```{r}
 
+head(counts(de.results.above, normalized=TRUE)) # this is how to find the normalized counts
 ```
+
 
 ### Supplemental figures
 Total methane flux across all cores
-Regression of mcrA counts and modeled AOM rates
-Justification of steady-state vs non-steady-state
-I think I'm forgetting one...
 ```{r}
+coreflux <- read.csv(file="~/Desktop/svalflux/coreflux.csv") # import csv
+coreflux$flux <- as.numeric(as.character(coreflux$flux))
+pc.flux <- subset(coreflux, coreflux$coretype=="PC")
+gc.flux <- subset(coreflux, coreflux$coretype=="GC")
+gc.flux$core.reorder <- factor(gc.flux$core,levels = c("GC1045","GC1081","GC1048","GC1068","GC1069","GC1070"))
 
+pc.f <- ggplot(pc.flux,aes(core,flux,fill=core))
+fluxpc <- pc.f+geom_bar(stat="identity")+
+  scale_fill_manual(values = c("#FB61D7"))+
+  scale_y_continuous(limits = c(0,750),breaks = c(0,250,500,750))+
+  xlab("")+
+  ylab(bquote('Present-day'~CH[4]~'flux (mols'~m^-2~yr^-1*')'))+
+  theme_classic()+
+  theme(legend.position="none", axis.title.y=element_text(size = 13), axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
+
+gc.f <- ggplot(gc.flux,aes(core.reorder,flux,fill=core))
+fluxgc <- gc.f+geom_bar(stat="identity")+
+  scale_fill_manual(values = c("#F8766D","#C49A00","#53B400","#00C094","#00B6EB","#A58AFF"))+
+  scale_y_continuous(limits = c(0,10))+
+  xlab("")+
+  ylab("")+
+  theme_classic()+
+  theme(legend.position="none",axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
+
+library(egg)
+coreflux.fig <- ggarrange(fluxpc,fluxgc,widths = c(1,6),ncol = 2,nrow = 1) 
+coreflux.fig <- saveRDS(coreflux.fig, "figures/coreflux.fig") # export supplemental figure 1
 ```
 
+Regression of mcrA counts and modeled AOM rates
+```{r}
+mcra.aom <- read.csv(file="~/Desktop/svalflux/mcra.aomrate.csv") # import csv
+mcra.aom <- mcra.aom[,1:7] # trim the columns with no data
+
+mcra.aom$logaom <- log10(mcra.aom$aom) # log of AOM rate
+mcra.aom$logmcra <- log10(mcra.aom$mcra) # log of mcrA gene abundance
+mcra.aom$logdsrab <- log10(mcra.aom$dsrab) # log of dsrAB gene abundance
+mcra.aom$coreorder <- factor(mcra.aom$core,levels = c("PC1029","GC1045","GC1081","GC1048","GC1068","GC1069","GC1070")) # reorder cores so they plot to the appropriate color and in the order I describe them in the paper
+
+rate_mcrA <- ggplot(mcra.aom,aes(logaom,logmcra,color=coreorder)) 
+ratemcrA.plot <- rate_mcrA+
+  geom_point(size=2)+
+  scale_color_manual("Core",values = c("#FB61D7","#F8766D","#A58AFF","#C49A00","#53B400","#00C094","#00B6EB"))+
+  scale_x_continuous(expression('log'[10]*" AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
+  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}))+
+  geom_abline(intercept = 5.98785,slope = 0.39939)+
+  theme_bw()+
+  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11), legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
+  annotate("text", x = -4.5, y = 7.5, label = "paste(italic(R) ^ 2, \" = 0.6246\")", parse = TRUE)+
+  annotate("text", x = -4.5, y = 7.2, label = "paste(italic(p), \" = 8.81e-12\")", parse = TRUE)+
+  annotate("text", x = -4.5, y = 6.9, label = "paste(slope, \" = 0.40\")", parse = TRUE)+
+  annotate("rect", xmin = -5.5, xmax = -3.5, ymin = 6.6, ymax = 7.8, alpha = .2)
+ratemcrA.plot # Supplementary figure 2
+ratemcrA.plot <- saveRDS(ratemcrA.plot, "figures/ratemcrA.plot") # export supplemental figure 2
+
+AOM_mcrA.lm <- lm(mcra.aom$logmcra ~ mcra.aom$logaom) # linear raegression
+summary(AOM_mcrA.lm) # multiple R^2 is 0.6246, slope estimate is 0.40, and slope p-value is 8.81e-12
+
+# what if, as one reviewer suggested, the PC1029 plots were removed? Would there still be a positive relationship?
+mcra.aom.noPC <- subset(mcra.aom, mcra.aom$core!="PC1029") # remove PC1029 rows
+AOM_mcrA.lm.noPC <- lm(mcra.aom.noPC$logmcra ~ mcra.aom.noPC$logaom) 
+summary(AOM_mcrA.lm.noPC) # the correlation is still significant, but multiple R^2 is now 0.3349, slope estimate is 0.24, and p-value of slope is 0.000218
+```
+
+Justification of steady-state vs non-steady-state
+```{r}
+ssval <- read.csv(file="~/Desktop/svalflux/steadystate_validation.csv") # import csv
+ssval <- ssval[,1:4] # trim the columns with no data
+ssjp <- ggplot(ssval,aes(depth,value,color=type))
+ssjp.plot <- ssjp+
+  geom_point(data=subset(ssval, type=="empirical"))+
+  geom_line()+
+  coord_flip()+
+  facet_grid(~core)+
+  scale_y_continuous("Sulfate (mM)",limits = c(0,30),position = "right")+
+  scale_color_manual("Sulfate profile data type:",values = c("dodgerblue1","black"))+
+  scale_x_reverse("Depth (cmbsf)",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  theme_bw()+
+  theme(legend.position = "bottom")
+ssjp.plot <- saveRDS(ssjp.plot, "figures/ssjp.plot") # export supplemental figure 3
+```
+
+Supplemental tables:
+Core info
+```{r}
+install.packages("tables")
+library(tables)
+coreinfo <- read.csv(file="~/Desktop/svalflux/coreinfo.csv") # import csv
+names(coreinfo)[1:6] <- c("Core", "Latitude", "Longitude", "Water depth (m)", "Core recovery (cm)", "SMT depth (cm)")
+coreinfo
+coreinfo <- saveRDS(coreinfo, "figures/coreinfo") # export
+```
+
+Methane flux histories of cores where methane flux is increasing
+```{r}
+inc.core <- read.csv(file="~/Desktop/svalflux/increasing.core.flux.table.csv") # import csv
+names(inc.core)[2:4] <- c("Year before sampling", "CH4 flux mols m^-2 yr ^-1", "Peak AOM depth (cm)") # rename columns to be more legible
+inc.core
+inc.core <- saveRDS(inc.core, "figures/inc.core") # export
+```
 
