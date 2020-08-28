@@ -9,7 +9,7 @@ Scott Klasek
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
     ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
     ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
@@ -18,7 +18,7 @@ library(tidyverse)
 
     ## Warning: package 'ggplot2' was built under R version 3.6.2
 
-    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -26,6 +26,17 @@ library(tidyverse)
 library(phyloseq)
 library(png)
 library(grid)
+library(RCurl)
+```
+
+    ## 
+    ## Attaching package: 'RCurl'
+
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     complete
+
+``` r
 library(egg)
 ```
 
@@ -92,6 +103,19 @@ gg.porewater.nss <- ggp.fi+geom_line(size=1.5)+
   theme(axis.text=element_text(size=12),strip.text.y = element_text(size=12),title=element_text(size=11),axis.title=element_text(size=14),legend.text = element_text(size=12),legend.title = element_text(size=12),legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
 
 # steady-state
+biofilm <- readPNG("figures/biofilm_symbol.png") # import biofilm symbol
+# we need to insert biofilms into certain facets (but not others) because we didn't find biofilms in every core. 
+# the function below is from here: https://stackoverflow.com/questions/44688623/adding-custom-images-to-ggplot-facets 
+annotation_custom2 <- 
+function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data){ layer(data = data, stat = StatIdentity, position = PositionIdentity, 
+        geom = ggplot2:::GeomCustomAnn,
+        inherit.aes = TRUE, params = list(grob = grob, 
+                                          xmin = xmin, xmax = xmax, 
+                                          ymin = ymin, ymax = ymax))}
+# create the facet-specific biofilm annotations:
+biofilm1070 <- annotation_custom2(rasterGrob(biofilm, interpolate=TRUE), xmin=-105, xmax=-25, ymin=10, ymax=30, data=pore.ss[1,])
+biofilm1048 <- annotation_custom2(rasterGrob(biofilm, interpolate=TRUE), xmin=-350, xmax=-270, ymin=10, ymax=30, data=pore.ss[78,])
+
 ggp.ss <- ggplot(pore.ss,aes(depth,value,color=species))
 gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
   geom_point(size=3)+
@@ -104,7 +128,11 @@ gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
   labs(title="Porewater Geochemistry")+
   theme_bw()+
   theme(axis.text=element_text(size=12),strip.text.y = element_text(size=12),title=element_text(size=11),axis.title=element_text(size=14),legend.text = element_text(size=12),legend.title = element_text(size=12),legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
+gg.porewater.ss <- gg.porewater.ss + biofilm1070 + biofilm1048
+gg.porewater.ss
 ```
+
+![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ## import and graph aom rate data
 
