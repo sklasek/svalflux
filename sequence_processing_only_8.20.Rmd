@@ -1,0 +1,256 @@
+---
+title: "sequence_processing_only_8.20"
+author: "Scott Klasek"
+date: "8/26/2020"
+output: github_document
+---
+
+# 16S sequence processing and decontamination (not analysis)
+I haven't run this yet. This code has been nearly-all copy-pasted from sequence_processing.Rmd but formatted so that it's somewhat readable. I'll mark this down before publication to get the .md document.
+
+## load necessary libraries
+```{r}
+library(dada2)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(phyloseq)
+library(decontam)
+library(DECIPHER)
+library(phangorn)
+library(here)
+sessioninfo <- sessionInfo()
+```
+
+## run dada2 workflow to get ASVs
+Estimated time to run this chunk on my laptop computer (2019 macbook pro): an hour or two. Taxonomy was the longest single step for me.  
+```{r}
+fqpath <- "/Users/scottklasek/Desktop/flux_resubmission/fastq"
+original_file_names <- list.files(fqpath)
+new_file_names <- list.files(fqpath)
+fnFs.2 <- sort(list.files(fqpath, pattern="_R1.fastq", full.names = TRUE))
+fnRs.2 <- sort(list.files(fqpath, pattern="_R2.fastq", full.names = TRUE))
+sample.names.2 <- sapply(strsplit(basename(fnFs.2), "_"), `[`, 1)
+
+# you can plot profiles of the read quality like this, but I'm omitting it in the markdown
+# plotQualityProfile(fnFs.2[30:35])
+# plotQualityProfile(fnRs.2[30:35])
+
+# problem: some of our samples are sequenced twice. which fastq files are better quality?
+dup_samples <- c("GC1048-305.0A","GC1048-305.0B","GC1070-063.0A","GC1070-063.0B","GC1070-068.0A","GC1070-068.0B")
+dup_vectors <- match(dup_samples,sample.names.2)
+# plotQualityProfile(fnFs.2[dup_vectors])
+# plotQualityProfile(fnRs.2[dup_vectors])
+filtFs.2 <- file.path(fqpath, "filtered", paste0(sample.names.2, "_F_filt.fastq"))
+filtRs.2 <- file.path(fqpath, "filtered", paste0(sample.names.2, "_R_filt.fastq"))
+names(filtFs.2) <- sample.names.2
+names(filtRs.2) <- sample.names.2
+out.2 <- filterAndTrim(fnFs.2, filtFs.2, fnRs.2, filtRs.2, truncLen=c(230,230), trimLeft=c(19,20),
+                       maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE,
+                       compress=TRUE, multithread=TRUE)
+errF.2 <- learnErrors(filtFs.2, multithread=TRUE)
+errR.2 <- learnErrors(filtRs.2, multithread=TRUE)
+plotErrors(errF.2, nominalQ=TRUE)
+plotErrors(errR.2, nominalQ=TRUE)
+dadaFs.2 <- dada(filtFs.2, err=errF.2, multithread=TRUE)
+dadaRs.2 <- dada(filtRs.2, err=errR.2, multithread=TRUE)
+dadaFs.2[[75]]
+dadaRs.2[[75]]
+mergers.2 <- mergePairs(dadaFs.2, filtFs.2, dadaRs.2, filtRs.2, verbose=TRUE)
+
+# quick trim
+seqtab.2 <- makeSequenceTable(mergers.2)
+# can inspect the distribution of sequences like this:
+# table(nchar(getSequences(seqtab.2)))
+seqtab.trim.2 <- seqtab.2[,nchar(colnames(seqtab.2)) %in% 212:217] # trim the sequences to 212-217 bp
+
+# remove chimeras and graph reads through the workflow
+seqtab.nochim.2 <- removeBimeraDenovo(seqtab.trim.2, method="consensus", multithread=TRUE, verbose=TRUE)
+sum(seqtab.nochim.2)/sum(seqtab.trim.2) # 97.9% of sequences are not chimeras
+getN <- function(x) sum(getUniques(x))
+track.2 <- cbind(out.2, sapply(dadaFs.2, getN), sapply(dadaRs.2, getN), sapply(mergers.2, getN), rowSums(seqtab.nochim.2))
+colnames(track.2) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+rownames(track.2) <- sample.names.2
+tdf.2 <- as.data.frame(track.2)
+tdf.2$filtered_out <- tdf.2$input-tdf.2$filtered
+tdf.2$noise_removed <- tdf.2$filtered-with(tdf.2, pmin(denoisedF, denoisedR))
+tdf.2$unmerged <- (tdf.2$filtered-tdf.2$noise_removed)-tdf.2$merged
+tdf.2$chimeras <- tdf.2$merged-tdf.2$nonchim
+tdf.2 <- data.frame(sample = row.names(tdf.2), tdf.2)
+# select only the columns we want to plot:
+tdfs.2 <- tdf.2[,c(1,7,8,9,10,11)]
+tdfl.2 <- gather(tdfs.2, step, reads, nonchim:chimeras, factor_key=FALSE)
+
+# reorder the steps to plot them in an order that makes sense:
+tdfl.2$step <- factor(tdfl.2$step, levels = c("filtered_out","noise_removed","unmerged","chimeras", "nonchim"))
+track.reads.2 <- ggplot(tdfl.2,aes(sample,reads,fill=step))
+track.reads.plot.2 <- track.reads.2+
+  geom_bar(stat="identity")+
+  scale_y_continuous(breaks = c(50000,100000,150000,200000,250000))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+track.reads.plot.2
+
+# assign taxonomy (change this path to wherever your database is!)
+taxa.2 <- assignTaxonomy(seqtab.nochim.2, "~/Desktop/flux_resubmission/silva_nr_v132_train_set.fa", multithread=TRUE)
+taxa.print.2 <- taxa.2
+rownames(taxa.print.2) <- NULL
+
+# print percentages of reads identified to each taxonomic level
+message("% phyla identified is ", (1-(sum(is.na(taxa.print.2[,2]))/length(taxa.print.2[,2])))*100)
+message("% classes identified is ", (1-(sum(is.na(taxa.print.2[,3]))/length(taxa.print.2[,3])))*100)
+message("% orders identified is ", (1-(sum(is.na(taxa.print.2[,4]))/length(taxa.print.2[,4])))*100)
+message("% families identified is ", (1-(sum(is.na(taxa.print.2[,5]))/length(taxa.print.2[,5])))*100)
+message("% genera identified is ", (1-(sum(is.na(taxa.print.2[,6]))/length(taxa.print.2[,6])))*100)
+```
+
+## make a phylogenetic tree
+This took a few hours on my laptop.  
+```{r}
+seqs <- getSequences(seqtab.nochim.2)
+names(seqs) <- seqs
+alignment <- AlignSeqs(DNAStringSet(seqs), anchor=NA) # this took ~50 minutes
+phang.align <- phyDat(as(alignment, "matrix"), type="DNA")
+dm <- dist.ml(phang.align) # started 3:05 pm, finished around an hour later? 
+treeNJ <- NJ(dm) # Note, tip order != sequence order ## this takes at least an hour... started 6:01 pm
+fit <- pml(treeNJ, data=phang.align)
+fitGTR <- update(fit, k=4, inv=0.2)
+```
+
+## Add in metadata and create phyloseq object
+Very quick to run. The metadata file contains sample name, core, depth below seafloor, pingo, sulfate, sulfide, alkalinity concentrations, core_flowtype (increasing "inc" or steady state "ss"), geochem_zone (linear "lin", nss "non-steady-state", or below sulfate-methane transition zone "below"), whether the read quality was ok, stage (fluxincreasing, steadystate, or seep), sample or control, library concentration (ng/ul), who extracted the DNA, and mcrA and dsrAB ddPCR gene counts in copies per gram. 
+```{r}
+metadata.2 <- read.csv(file="~/Desktop/svalflux/metadata.csv")
+rownames(metadata.2) <- sample.names.2
+ps.f <- phyloseq(tax_table(taxa.2),
+                 sample_data(metadata.2),
+                 phy_tree(fitGTR$tree),
+                 otu_table(seqtab.nochim.2, taxa_are_rows = FALSE))
+dna <- Biostrings::DNAStringSet(taxa_names(ps.f))
+names(dna) <- taxa_names(ps.f)
+ps.f <- merge_phyloseq(ps.f, dna)
+taxa_names(ps.f) <- paste0("ASV", seq(ntaxa(ps.f)))
+ps.f # the first phyloseq object
+```
+
+
+## Removal of taxa, pruning, and decontamination steps
+These chunks only took several minutes, and most steps could be run interactively. The decontam steps were the longest ones for me.  
+```{r}
+# first make a table of taxa that I may or may not want to keep:
+ASV_classifications <- c("Bacteria","Archaea","Eukaryota", "Unclassified", "Chloroplast","Mitochondria")
+num_ASVs <- c(sum(tax_table(ps.f)[,1]=="Bacteria", na.rm = TRUE),
+               sum(tax_table(ps.f)[,1]=="Archaea", na.rm=TRUE),
+               sum(tax_table(ps.f)[,1]=="Eukaryota", na.rm=TRUE),
+               sum(is.na(tax_table(ps.f)[,1])),
+               sum(tax_table(ps.f)[,4]=="Chloroplast", na.rm=TRUE), 
+               sum(tax_table(ps.f)[,5]=="Mitochondria", na.rm=TRUE))
+num_ASVcounts <- c(sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Bacteria")], na.rm = TRUE),
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Archaea")], na.rm = TRUE),
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,1]=="Eukaryota")], na.rm = TRUE), 
+              sum(is.na(tax_table(ps.f)[,1])),
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,4]=="Chloroplast")], na.rm = TRUE), 
+              sum(otu_table(ps.f)[,which(tax_table(ps.f)[,5]=="Mitochondria")], na.rm = TRUE))
+asv.table <- cbind.data.frame(ASV_classifications, num_ASVs, num_ASVcounts)
+asv.table
+```
+
+remove Eukarya, Chloroplasts, Mitochondria
+```{r}
+ps.fr <- subset_taxa(ps.f, (Kingdom!="Eukaryota")) # unknown and eukaryote ASVs removed
+ps.fr <- subset_taxa(ps.fr, (Order!="Chloroplast") | is.na(Order)) # chloroplasts removed
+ps.fr <- subset_taxa(ps.fr, (Family!="Mitochondria") | is.na(Family)) # mitochondria removed
+ntaxa(ps.f)-ntaxa(ps.fr) # number of taxa removed 
+ps.fr # phyloseq object with these sequences removed
+```
+
+run decontam using the combined approach, which combines the scores from prevalence and frequency using Fisher's method 
+```{r}
+sample_data(ps.fr)$is.neg <- sample_data(ps.fr)$Sample_or_Control == "Control Sample"
+contamdf.flux.comb <- isContaminant(ps.fr, method="combined", neg="is.neg", conc="quant_reading")
+table(contamdf.flux.comb$contaminant) # prints the number of contaminants
+flux.comb.contam <- (which(contamdf.flux.comb$contaminant))
+flux.comb.contam.mx <- subset(tax_table(ps.fr)[flux.comb.contam,])
+```
+
+plot library sizes of true samples and blanks
+```{r}
+df.flux <- as.data.frame(sample_data(ps.fr)) 
+df.flux$LibrarySize <- sample_sums(ps.fr)
+df.flux <- df.flux[order(df.flux$LibrarySize),]
+df.flux$Index <- seq(nrow(df.flux))
+flux.sample.depth.samples.and.controls <- ggplot(data=df.flux, aes(x=Index, y=LibrarySize, color=Sample_or_Control)) + geom_point() + ggtitle("Before decontamination")
+flux.sample.depth.samples.and.controls 
+```
+
+Remove the contaminants
+```{r}
+contam <- rownames(flux.comb.contam.mx) # the contaminant names
+allnames <- rownames(tax_table(ps.fr)) # the taxa names
+flux.uncontam <- allnames[!allnames %in% contam] # gives us the noncontaminant names
+ps.frd <- prune_taxa(flux.uncontam, ps.fr) # creates new phyloseq object without contaminants
+ps.frd # decontaminated phyloseq object
+```
+
+I remembered there were Micrococcus in some groups that I had removed from my previous OTU dataset. Some of them required manual removal. Just to double check, I plotted library sizes again:  
+```{r}
+which(flux.comb.contam.mx[,6]=="Micrococcus") # no, decontam did not
+sum(otu_table(ps.fr)[,which(tax_table(ps.fr)[,6]=="Micrococcus")])/sum(otu_table(ps.fr))*100 # 0.67% of sequences
+ps.blanks <- subset_samples(ps.fr, Sample_or_Control=="Control Sample") # phyloseq object with only the blanks 
+blanks.top100 <- names(sort(taxa_sums(ps.blanks), decreasing=TRUE))[1:100]
+blanks.ps.ra <- transform_sample_counts(ps.blanks, function(OTU) OTU/sum(OTU))
+blanks.ps.top100 <- prune_taxa(blanks.top100, blanks.ps.ra)
+blanks_barplot <- plot_bar(blanks.ps.top100, fill="Class")
+blanks_barplot # yes indeed these blanks are different
+df.flux["EBkati-000.0A","LibrarySize"] # over 9k reads
+EBkati.ra <- get_taxa(blanks.ps.ra, "EBkati-000.0A") # extract relative abundances from one of our blanks
+EBkati.ra <- subset(EBkati.ra, EBkati.ra>0) # omit ASVs not detected in the blank
+EBkati.ra <- sort(EBkati.ra, decreasing = TRUE) # sort the list of ASVs by descending order
+tax_table(ps.blanks)[names(EBkati.ra)[EBkati.ra>0],] # lists taxonomies of ASVs in the sample by descending relative abundance. Here we see the two most abundant ASVs belong to micrococcus. What is the abundance of Micrococcus across all samples?
+ps.fr.ra <- transform_sample_counts(ps.fr, function(OTU) OTU/sum(OTU)) # first transform ps.fr to relative abundances
+micrococcus <- subset_taxa(ps.fr.ra, Genus=="Micrococcus")
+plot_bar(micrococcus) # only the 1048 201, 260, 261 depths also have Micrococcus in significant amounts, ~20%. They all have >25k reads:
+# plot library sizes of true samples and blanks after decontamination
+df.dc.flux <- as.data.frame(sample_data(ps.frd)) 
+df.dc.flux$LibrarySize <- sample_sums(ps.frd)
+df.dc.flux <- df.dc.flux[order(df.dc.flux$LibrarySize),]
+df.dc.flux$Index <- seq(nrow(df.dc.flux))
+flux.dc.sample.depth.samples.and.controls <- ggplot(data=df.dc.flux, aes(x=Index, y=LibrarySize, color=Sample_or_Control)) + geom_point() + ggtitle("After decontamination")
+flux.dc.sample.depth.samples.and.controls # now the other negative control is lower
+ps.frd <- subset_taxa(ps.frd, (Genus!="Micrococcus") | is.na(Genus)) # removed 4 Micrococcus ASVs from ps.frd
+ps.frd
+```
+
+prune samples with low-abundance reads to create the final phyloseq object
+```{r}
+df.dc.flux[1:13,18] # here are our lowest 13 libraries
+ps.frdp <- prune_samples(sample_sums(ps.frd)>=8931, ps.frd) # 12 samples with less than 8931 reads removed (max library size removed was 3816)
+ps.frdp # PhyloSeq object Flux, Removed unwanted taxa, Decontaminated, Pruned
+```
+
+add more metadata (SMT depth, peakAOM depth, distance above/below peakAOM depth, and classification of samples as above or below SMT) and save it
+```{r}
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),8] <- "ss" # overwrites "inc" to "ss" for core GC1048
+sample_data(ps.frdp)$smt <- NA # write a new metadata column for SMT depth
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1045"),18] <- 82 # assign SMT depths by core
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),18] <- 320
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1068"),18] <- 108
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1069"),18] <- 138
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1070"),18] <- 69
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),18] <- 56
+
+sample_data(ps.frdp)$peakaom <- NA # creates a new metada column for peak AOM depth (CHECK THIS)
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1045"),19] <- 65 # assign peak AOM depths by core
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"),19] <- 313.5
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1068"),19] <- 108
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1069"),19] <- 137
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1070"),19] <- 67
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1081"),19] <- 56
+
+sample_data(ps.frdp)$smtzposition <- "above" # creates default value "above" for samples 
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$geochem_zone=="below"),20] <- "below" # overwrites as "below" for samples where geochem_zone = below
+sample_data(ps.frdp)$dist_above_peakaom <- sample_data(ps.frdp)$peakaom-sample_data(ps.frdp)$depth # creates a new variable, distance above peak AOM
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"&sample_data(ps.frdp)$depth<310),9] <- "lin" # GC1048 is a steady-state core, so geochem zone should be 
+saveRDS(ps.frdp, "ps.frdp") # saved phyloseq object, pushed to Github (need to update with metadata)
+```
