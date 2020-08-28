@@ -405,7 +405,7 @@ bp1029 <- ggplot(sdf1029,aes(tax,depth,size=pctabund))
 bp.seep <- bp1029+
   geom_point(aes(fill=Domain),colour="black",pch=21)+
   xlab("")+
-  scale_y_reverse("", limits=c(30,0), breaks=c(0,5,10,15,20,25,30))+
+  scale_y_reverse("", limits=c(35,0), breaks=c(0,5,10,15,20,25,30,35))+
   scale_fill_discrete("")+
   facet_grid(~level_reorder, scales = "free", space = "free")+
   scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
@@ -442,21 +442,15 @@ bp.steadystate <- bp.ss+
   theme_bw()+
   theme(legend.position = "top",axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), legend.box = "horizontal", plot.margin = margin(0,0,0,-0.5,"cm"))
 bp.steadystate
-
-
-
-
 bp.steadystate <- saveRDS(bp.steadystate, "figures/bp.steadystate") # export
-
-
-
-
-
 ```
 
 ### Import and graph porewater data
 ```{r}
 library(ggplot2)
+library(png)
+library(grid)
+
 # import the porewater data
 porewater <- read.csv(file="porewater.csv")
 
@@ -467,16 +461,24 @@ pore.ss <- subset(porewater, porewater$stage=="ss")
 
 # seep site
 ggp.1029 <- ggplot(pore.1029,aes(depth,value,color=species))
+
+hydrate <- readPNG("figures/hydrates_symbol.png") # import hydrate symbol
+hydrateg <- rasterGrob(hydrate, interpolate=TRUE) # raster-grob the hydrate symbol
+worms <- readPNG("figures/pingo_tubeworms.png") # import tubeworm symbol
+wormsg <- rasterGrob(worms, interpolate=TRUE) # raster-grob the tubeworm symbol
+
 gg.porewater.1029 <- ggp.1029+geom_line(size=1.5)+
   geom_point(size=3)+
   coord_flip()+
   ggtitle("Porewater Geochemistry")+
   scale_y_continuous("",limits = c(0,40),position = "right")+
-  scale_x_reverse("Depth (cmbsf)",breaks=c(0,5,10,15,20,25,30),limits=c(30,0))+
+  scale_x_reverse("Depth (cmbsf)",breaks=c(0,5,10,15,20,25,30,35),limits=c(35,0))+
   scale_color_manual("",values=c("orangered1","black","dodgerblue2","gold3"),guide=guide_legend())+
+  annotation_custom(hydrateg, xmin = -37, xmax = -27, ymin = 0, ymax = 15)+
+  annotation_custom(wormsg, xmin = -11, xmax = Inf, ymin = 13, ymax = 25)+
   theme_bw()+
   theme(legend.position = "bottom", legend.direction = "vertical",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14))
-gg.porewater.1029
+gg.porewater.1029 
 
 # non-steady-state
 ggp.fi <- ggplot(pore.fi,aes(depth,value,color=species))
@@ -526,7 +528,7 @@ aom1029 <- ggplot(aomrates.seep, aes(depth,aom))
 raom1029 <- aom1029+geom_line(size=1.5)+
   coord_flip()+
   scale_y_continuous("",position="right", breaks=c(0,2000,4000,6000,8000))+
-  scale_x_reverse("",breaks=c(0,5,10,15,20,25,30),limits=c(30,0))+
+  scale_x_reverse("",breaks=c(0,5,10,15,20,25,30,35),limits=c(35,0))+
   labs(title=expression("AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
   theme_bw()+
   theme(axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14))
@@ -587,7 +589,7 @@ dd.seep <- dd1029+geom_line(size=1.5)+
   geom_point(size=3)+
   coord_flip()+
   scale_y_continuous("",breaks=c(4,5,6,7,8),limits = c(3.7,8.5),position="right")+
-  scale_x_reverse("",breaks=c(0,5,10,15,20,25,30),limits=c(30,0))+
+  scale_x_reverse("",breaks=c(0,5,10,15,20,25,30,35),limits=c(35,0))+
   scale_color_discrete("")+
   theme_bw()+
   labs(title=expression(paste("log"[10]," gene copies")))+
@@ -927,8 +929,8 @@ nmdsord1 <- ord15+stat_ellipse()+
   theme_bw() # variance-stabilized transformation
 nmdsord1 <- saveRDS(nmdsord1, "figures/nmdsord1") # export
 
-ord16 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "core_flowtype", title = "vst unweighted Unifrac NMDS, stress=0.105") # same ordination as ord11
-ord16+stat_ellipse()
+ord16 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "stage", title = "vst unweighted Unifrac NMDS, stress=0.105") # same ordination as ord11
+nmdsord2 <- ord16+stat_ellipse() # this one is useful too
 ord17 <- plot_ordination(ps.vst.pos, ord.ps.vst.uni.nmds, color = "geochem_zone", title = "vst unweighted Unifrac NMDS, stress=0.105") # same ordination as ord11
 ord17+stat_ellipse()
 ```

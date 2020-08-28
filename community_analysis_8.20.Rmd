@@ -1,0 +1,214 @@
+---
+title: "community_analysis_8.20"
+author: "Scott Klasek"
+date: "8/26/2020"
+output: github_document
+---
+
+## load necessary libraries and data
+```{r}
+library(phyloseq)
+library(tidyverse)
+library(egg)
+library(patchwork)
+library(vegan)
+library(DESeq2)
+library(here)
+sessioninfo <- sessionInfo()
+ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
+```
+
+## alpha diversity
+```{r}
+plotrichness.oc <- plot_richness(ps.frdp, x="dist_above_peakaom", measures=c("Shannon"), color="core")
+plotrichness.oc+
+  facet_grid(core_flowtype~.)+
+  ylab("Shannon diversity index")+
+  xlab("Distance above present-day peak AOM rate (cm)")+
+  scale_color_discrete("Core")+
+  theme_bw()
+
+ps.frdp.ss <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage=="steadystate") # subsetsall steady-state samples
+ps.frdp.nss.seep <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage!="steadystate") # subsets the non-steady-state samples and the seep
+
+alphadiv.ss <- estimate_richness(ps.frdp.ss, split = TRUE, measures=c("Shannon","InvSimpson","Observed")) # calculate tables of alpha diversity
+alphadiv.nss <- estimate_richness(ps.frdp.nss.seep, split = TRUE, measures=c("Shannon","InvSimpson","Observed"))
+
+alphadiv.ss$depth <- substring(rownames(alphadiv.ss), 8,12) # pull out depth values from the sample names
+alphadiv.ss$depth <- as.numeric(alphadiv.ss$depth) # convert them to numeric
+alphadiv.nss$depth <- substring(rownames(alphadiv.nss), 8,12)
+alphadiv.nss$depth <- as.numeric(alphadiv.nss$depth)
+
+alphadiv.ss$core <- substring(rownames(alphadiv.ss), 1,6) # pull out core names from sample names
+alphadiv.nss$core <- substring(rownames(alphadiv.nss), 1,6)
+
+alphadiv.nss$peakaom <- NA # creates a NA value for peak AOM depth
+alphadiv.ss$peakaom <- NA
+alphadiv.nss[which(alphadiv.nss$core=="GC1081"),6] <- 56 # add in SMT depths for all cores
+alphadiv.nss[which(alphadiv.nss$core=="GC1045"),6] <- 65
+alphadiv.nss[which(alphadiv.nss$core=="PC1029"),6] <- 45.3
+alphadiv.ss[which(alphadiv.ss$core=="GC1068"),6] <- 108
+alphadiv.ss[which(alphadiv.ss$core=="GC1069"),6] <- 137
+alphadiv.ss[which(alphadiv.ss$core=="GC1070"),6] <- 67
+alphadiv.ss[which(alphadiv.ss$core=="GC1048"),6] <- 313.5
+alphadiv.ss$dist_above_peakaom <- alphadiv.ss$peakaom-alphadiv.ss$depth # calculate distance above/below SMT
+alphadiv.nss$dist_above_peakaom <- alphadiv.nss$peakaom-alphadiv.nss$depth 
+alphadiv.ss.range <- subset(alphadiv.ss, dist_above_peakaom < 62 & dist_above_peakaom > -46) # subset the dataframe to include steady-state samples from depths across the SMT that correspond to depths of non-steady-state samples
+
+nss.lm <- lm(alphadiv.nss$Shannon~alphadiv.nss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
+ss.lm <- lm(alphadiv.ss$Shannon~alphadiv.ss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
+ss.lm.range <- lm(alphadiv.ss.range$Shannon~alphadiv.ss.range$dist_above_peakaom)
+summary(nss.lm) # summarizes the linear regression: slope is 0.023203, intercept is 3.777779, both are significant. Multiple R^2 is 0.4874, p value of slope is 5.14e-05
+summary(ss.lm) # slope is significant considering all the points across depth 
+summary(ss.lm.range) # slope is 0.006184, intercept is 3.742064, slope not significant across the SMT range. Multiple R^2 is 0.03277, p value of slope is 0.347
+
+alphadiv.nss$core_flowtype_label <- "Non-Steady-State"
+alphadiv.ss$core_flowtype_label <- "Steady-State"
+
+plotrichness.ss <- ggplot(alphadiv.ss, aes(dist_above_peakaom, Shannon, color=core)) 
+ssplot <- plotrichness.ss+
+  geom_point(size=2)+
+  facet_grid(~core_flowtype_label)+
+  scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
+  scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
+  scale_color_manual("Core", values=c("#C49A00","#53B400","#00C094","#00B6EB"))+
+  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
+  geom_segment(x=-45,y=3.482369,xend=61,yend=4.116885, color="black", size=1)+
+  theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
+  theme(strip.text = element_text(size = 11))+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.0328\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.347\")", parse = TRUE)+
+  annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
+
+plotrichness.nss <- ggplot(alphadiv.nss, aes(dist_above_peakaom, Shannon, color=core))
+nssplot <- plotrichness.nss+
+  geom_point(size=2)+
+  facet_grid(~core_flowtype_label)+
+  scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
+  scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
+  scale_color_manual("Core", values=c("#F8766D","#A58AFF","#FB61D7"))+
+  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
+  geom_segment(x=-45,y=2.747481,xend=61,yend=5.204455, color="black", size=1)+
+  theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
+  theme(strip.text = element_text(size = 11))+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.4874\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 5.14e-05\")", parse = TRUE)+
+  annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
+
+div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 5
+div.fig <- saveRDS(div.fig, "figures/figure5") # export alpha diversity figure
+```
+
+## beta diversity
+
+#### transforming ASV table
+```{r}
+# Hellinger transformation
+otu.hel <- otu_table(decostand(otu_table(ps.frdp), method = "hellinger"), taxa_are_rows=FALSE)
+ps.hel <- phyloseq(tax_table(ps.frdp),
+                    sample_data(ps.frdp),
+                    otu_table(otu.hel),
+                    phy_tree(ps.frdp),
+                    refseq(ps.frdp)) 
+```
+
+#### permanova tests
+Testing the influence of stage (seep, non-steady-state, and steady-state) and geochemical zone (linear sulfate-reduction zone, non-steady-state reduction zone, and below-sulfate-methane-transition-zone) on community composition  
+```{r}
+sample_data(ps.hel)$smtpos <- ifelse(sample_data(ps.hel)$geochem_zone == "linear SR zone","above SMTZ",
+                              ifelse(sample_data(ps.hel)$geochem_zone == "nonlinear SR zone","above SMTZ",
+                              ifelse(sample_data(ps.hel)$geochem_zone == "below SMTZ", "below SMTZ", NA))) # writing above-below smtz as another categorical variable
+metadata.ps.hel <- as(sample_data(ps.hel), "data.frame") #  create sample data dataframe
+
+# binary jaccard
+dm.jac <- phyloseq::distance(ps.frdp, method = "jaccard", binary = TRUE) # makes binary Jaccard distance matrix (no need to transform)
+adonis(dm.jac ~ geochem_zone*stage, data=metadata.ps.hel)
+
+# Bray-Curtis
+dm.bc <- phyloseq::distance(ps.hel, method = "bray") # makes bray-curtis distance matrix
+adonis(dm.bc ~ geochem_zone*stage, data=metadata.ps.hel)
+
+# unweighted Unifrac
+set.seed(1)
+dm.hel.unifrac <- UniFrac(ps.hel, weighted = FALSE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # create weighted Unifrac distance matrix
+adonis(dm.hel.unifrac ~ geochem_zone*stage, data=metadata.ps.hel) 
+
+# weighted Unifrac 
+set.seed(1)
+dm.hel.wunifrac <- UniFrac(ps.hel, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # create weighted Unifrac distance matrix
+adonis(dm.hel.wunifrac ~ geochem_zone*stage, data=metadata.ps.hel) # geochem zone is 9.6%
+
+# other variables are all significant, but possibly redundant:
+adonis(dm.hel.wunifrac ~ stage, data=metadata.ps.hel) #  stage alone is 19.9%
+adonis(dm.hel.wunifrac ~ core_flowtype, data=metadata.ps.hel) # significant, but at 13% is less than stage (which it is redundant with)
+adonis(dm.hel.wunifrac ~ SO4_mM, data=metadata.ps.hel) # SO4 more than geochem zone (maybe more helpful, too? but redundant)
+adonis(dm.hel.wunifrac ~ HS_mM, data=metadata.ps.hel) # significant but redundant
+adonis(dm.hel.wunifrac ~ Alk_mM, data=metadata.ps.hel) # significant but redundant
+adonis(dm.hel.wunifrac ~ pingo, data=metadata.ps.hel) # gas hydrate mound the cores are sampled from matters MORE than stage
+adonis(dm.hel.wunifrac ~ smtpos, data=metadata.ps.hel) # above/below SMT explains only 5%
+```
+Using the weighted Unifrac distance, both geochem_zone & stage were significant (stage explaining 16-17% of variance, while zone 8-9%). Interactions were also significant at around 4.9%. This did not vary by the transformation type (I tried variance-stabilizing transformation as well and got nearly the same results). Bray-Curtis, unweighted Unifrac, and Jaccard distance metrics showed the same patterns, though they respectively explained decreasing amounts of variance overall. So it seems relative abundances are a bit more influential than taxonomy alone in explaining differences between these communities, though they both help.  
+
+Pingo (which Gas Hydrate Mound a sample was collected from) explains a bit more variance than does stage. But it is a confounding variable (each pingo is at a separate methane flux stage), and which particular pingo a sample comes from offers no real helpful information.  
+
+#### ordinations 
+weighted Unifrac with Hellinger transformation  
+```{r}
+# make better labels for plotting
+sample_data(ps.hel)$stage <- ifelse(sample_data(ps.hel)$stage == "seep", "active methane seepage",
+                        ifelse(sample_data(ps.hel)$stage == "fluxincreasing", "increasing methane flux",
+                        ifelse(sample_data(ps.hel)$stage == "steadystate", "steady-state", NA)))
+
+sample_data(ps.hel)$geochem_zone <- ifelse(sample_data(ps.hel)$geochem_zone == "lin", "linear SR zone",
+                        ifelse(sample_data(ps.hel)$geochem_zone == "nss", "nonlinear SR zone",
+                        ifelse(sample_data(ps.hel)$geochem_zone == "below", "below SMTZ", NA)))
+
+sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMTZ")) # reorder 
+
+# trying NMDS and PCoAs
+set.seed(1)
+ord.ps.hel.wuni.nmds <- ordinate(ps.hel, "NMDS", "unifrac", weighted=TRUE) # Stress = 0.135
+set.seed(1)
+ord.ps.hel.wuni.pcoa <- ordinate(ps.hel, "PCoA", "unifrac", weighted=TRUE)
+
+# plotting ordinations by stage
+ord1.p.stage <- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "stage")+
+  stat_ellipse()+
+  scale_color_manual("",values = c("#fc8d62", "#66c2a5", "#8da0cb"))+
+  ggtitle("A", subtitle = "Cores classified by methane dynamics")+
+  theme_bw()+
+  theme(legend.position = "bottom")+
+  guides(col = guide_legend(ncol = 1))
+
+# plotting ordinations by redox zone
+ord1.p.zone<- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "geochem_zone")+
+  stat_ellipse()+
+  scale_color_manual("",values = c("#e78ac3","#a6d854","#ffd92f"))+
+  ggtitle("B", subtitle = "Samples classified by redox zone")+
+  theme_bw()+
+  theme(legend.position = "bottom")+
+  guides(col = guide_legend(ncol = 1))
+
+# showing them both together
+ord1.p.stage + ord1.p.zone
+```
+The PCoA has fewer outliers, and explains 25% x 17.4% variance on the two major axes, so I'll stick with that over NMDS.  
+
+Maybe don't even show the plot by geochem zone... it's just a mess that doesn't suggest any clear grouping pattern. Just showing it because it tested as significant doesn't seem a good enough reason...
+
+Can also add the sections "more permanovas" from lines 844-920, and possibly beta-diversity from lines 938-974. Just to be thorough...   
+
+
+## biomarkers (lines 976-1088)
+```{r}
+
+```
+
+
+## supplemental figures (make these a separate document.)
+```{r}
+
+```
+
