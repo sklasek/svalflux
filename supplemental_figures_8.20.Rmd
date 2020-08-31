@@ -1,0 +1,21 @@
+---
+title: "supplemental_figures_8.20.Rmd"
+author: "Scott Klasek"
+date: "8/31/2020"
+output: github_document
+---
+
+## load necessary libraries and data
+```{r}
+library(phyloseq)
+library(tidyverse)
+library(patchwork)
+library(here)
+sessioninfo <- sessionInfo()
+ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
+```
+
+```{r}
+
+```
+

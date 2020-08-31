@@ -10,6 +10,9 @@ output: github_document
 library(phyloseq)
 library(tidyverse)
 library(egg)
+library(lemon)
+library(gridExtra)
+library(grid)
 library(patchwork)
 library(vegan)
 library(DESeq2)
@@ -62,16 +65,21 @@ summary(nss.lm) # summarizes the linear regression: slope is 0.023203, intercept
 summary(ss.lm) # slope is significant considering all the points across depth 
 summary(ss.lm.range) # slope is 0.006184, intercept is 3.742064, slope not significant across the SMT range. Multiple R^2 is 0.03277, p value of slope is 0.347
 
-alphadiv.nss$core_flowtype_label <- "Non-Steady-State"
-alphadiv.ss$core_flowtype_label <- "Steady-State"
+# assign facet grid labels and methane flux stages
+alphadiv.nss$core_flowtype_label <- "High Methane Flux"
+alphadiv.ss$core_flowtype_label <- "Low Methane Flux"
+alphadiv.nss$stage <- "increasing methane flux"
+alphadiv.nss[which(alphadiv.nss$core=="PC1029"),9] <- "active methane seepage"
+alphadiv.ss$stage <- "steady-state"
 
-plotrichness.ss <- ggplot(alphadiv.ss, aes(dist_above_peakaom, Shannon, color=core)) 
+plotrichness.ss <- ggplot(alphadiv.ss, aes(dist_above_peakaom, Shannon, color=stage, shape=core)) 
 ssplot <- plotrichness.ss+
   geom_point(size=2)+
   facet_grid(~core_flowtype_label)+
   scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
-  scale_color_manual("Core", values=c("#C49A00","#53B400","#00C094","#00B6EB"))+
+  scale_color_manual("Methane stage", values=c("#8da0cb"))+
+  scale_shape_manual("Core",values = c(4:7))+
   geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
   geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
   geom_segment(x=-45,y=3.482369,xend=61,yend=4.116885, color="black", size=1)+
@@ -81,13 +89,14 @@ ssplot <- plotrichness.ss+
   annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.347\")", parse = TRUE)+
   annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
 
-plotrichness.nss <- ggplot(alphadiv.nss, aes(dist_above_peakaom, Shannon, color=core))
+plotrichness.nss <- ggplot(alphadiv.nss, aes(dist_above_peakaom, Shannon, color=stage, shape=core))
 nssplot <- plotrichness.nss+
   geom_point(size=2)+
   facet_grid(~core_flowtype_label)+
   scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
-  scale_color_manual("Core", values=c("#F8766D","#A58AFF","#FB61D7"))+
+  scale_color_manual("Methane stage", values=c("#fc8d62", "#66c2a5"))+
+  scale_shape_manual("Core", values = c(1:3))+
   geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
   geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
   geom_segment(x=-45,y=2.747481,xend=61,yend=5.204455, color="black", size=1)+
@@ -146,12 +155,14 @@ adonis(dm.hel.wunifrac ~ core_flowtype, data=metadata.ps.hel) # significant, but
 adonis(dm.hel.wunifrac ~ SO4_mM, data=metadata.ps.hel) # SO4 more than geochem zone (maybe more helpful, too? but redundant)
 adonis(dm.hel.wunifrac ~ HS_mM, data=metadata.ps.hel) # significant but redundant
 adonis(dm.hel.wunifrac ~ Alk_mM, data=metadata.ps.hel) # significant but redundant
-adonis(dm.hel.wunifrac ~ pingo, data=metadata.ps.hel) # gas hydrate mound the cores are sampled from matters MORE than stage
-adonis(dm.hel.wunifrac ~ smtpos, data=metadata.ps.hel) # above/below SMT explains only 5%
+adonis(dm.hel.wunifrac ~ core, data=metadata.ps.hel) # core matters more than any other, but "core" itself is a meaningless variable
+adonis(dm.hel.wunifrac ~ pingo, data=metadata.ps.hel) # gas hydrate mound the cores are sampled from matters more as well, but also a meaningless variable
+adonis(dm.hel.wunifrac ~ smtzposition, data=metadata.ps.hel) # above/below SMT explains only 5%
+adonis(dm.hel.wunifrac ~ geochem_zone*core, data=metadata.ps.hel) # no significant interaction between core and geochem zone
 ```
 Using the weighted Unifrac distance, both geochem_zone & stage were significant (stage explaining 16-17% of variance, while zone 8-9%). Interactions were also significant at around 4.9%. This did not vary by the transformation type (I tried variance-stabilizing transformation as well and got nearly the same results). Bray-Curtis, unweighted Unifrac, and Jaccard distance metrics showed the same patterns, though they respectively explained decreasing amounts of variance overall. So it seems relative abundances are a bit more influential than taxonomy alone in explaining differences between these communities, though they both help.  
 
-Pingo (which Gas Hydrate Mound a sample was collected from) explains a bit more variance than does stage. But it is a confounding variable (each pingo is at a separate methane flux stage), and which particular pingo a sample comes from offers no real helpful information.  
+Pingo (which Gas Hydrate Mound a sample was collected from) explains a bit more variance than does stage, and Core does even more. But it is a confounding variable (each pingo is at a separate methane flux stage), and which particular pingo a sample comes from offers no real helpful information. Core also confounds with pingo, core_flowtype, stage, etc. Even though core was the single variable that explained more of the variance than any other, geochem_zone*stage explained slightly more. Furthermore, core and geochem_zone do not have a significant interaction.  
 
 #### ordinations 
 weighted Unifrac with Hellinger transformation  
@@ -173,26 +184,34 @@ ord.ps.hel.wuni.nmds <- ordinate(ps.hel, "NMDS", "unifrac", weighted=TRUE) # Str
 set.seed(1)
 ord.ps.hel.wuni.pcoa <- ordinate(ps.hel, "PCoA", "unifrac", weighted=TRUE)
 
-# plotting ordinations by stage
+# plotting ordinations by stage 
+lb1 <- paste("R^2 == 0.197")
 ord1.p.stage <- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "stage")+
   stat_ellipse()+
   scale_color_manual("",values = c("#fc8d62", "#66c2a5", "#8da0cb"))+
-  ggtitle("A", subtitle = "Cores classified by methane dynamics")+
+  ggtitle("A", subtitle = "Cores classified by methane stage")+
+  annotate(geom="text", x=-0.1, y=0.28, label="p < 0.001") +
+  annotate(geom="text", x=-0.1, y=0.34, label=lb1, parse=TRUE)+
   theme_bw()+
   theme(legend.position = "bottom")+
   guides(col = guide_legend(ncol = 1))
 
-# plotting ordinations by redox zone
+# plotting ordinations by redox zone 
+lb2 <- paste("R^2 == 0.096")
 ord1.p.zone<- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "geochem_zone")+
   stat_ellipse()+
   scale_color_manual("",values = c("#e78ac3","#a6d854","#ffd92f"))+
   ggtitle("B", subtitle = "Samples classified by redox zone")+
+  annotate(geom="text", x=-0.15, y=0.17, label="p < 0.001", parse=TRUE)+
+  annotate(geom="text", x=-0.15, y=0.23, label=lb2, parse=TRUE)+
   theme_bw()+
   theme(legend.position = "bottom")+
   guides(col = guide_legend(ncol = 1))
 
 # showing them both together
-ord1.p.stage + ord1.p.zone
+ord.fig <- ord1.p.stage + ord1.p.zone
+ord.fig
+ord.fig <- saveRDS(ord.fig, "figures/figure6") # export figure
 ```
 The PCoA has fewer outliers, and explains 25% x 17.4% variance on the two major axes, so I'll stick with that over NMDS.  
 
@@ -200,15 +219,197 @@ Maybe don't even show the plot by geochem zone... it's just a mess that doesn't 
 
 Can also add the sections "more permanovas" from lines 844-920, and possibly beta-diversity from lines 938-974. Just to be thorough...   
 
+## follow-up tests on beta-diversity
+```{r eval=FALSE}
+library(phyloseq)
+# omitting below-SMT samples, is there still a difference by stage?
+ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below") # subset
+set.seed(1)
+dm.hel.above.wunifrac <- UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.above <- as(sample_data(ps.hel.above), "data.frame") # write metadata data frame
+adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521  0.001 ***
 
-## biomarkers (lines 976-1088)
-```{r}
+# considering only below-SMT samples, is there still a difference by stage?
+ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below") # subset
+set.seed(1)
+dm.hel.below.wunifrac <- UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.below <- as(sample_data(ps.hel.below), "data.frame") # write metadata data frame
+adonis(dm.hel.below.wunifrac ~ stage, data=metadata.ps.hel.below) # yes there is a difference: R2, p are 0.18597  0.003 **
 
+# differences between the two stages steady-state and fluxincreasing? 
+ps.hel.gc <- subset_samples(ps.hel, stage!="seep") # subset
+set.seed(1)
+dm.hel.gc.wunifrac <- UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.gc <- as(sample_data(ps.hel.gc), "data.frame") # write metadata data frame
+adonis(dm.hel.gc.wunifrac ~ stage, data=metadata.ps.hel.gc) # there is a difference: R2, p are 0.06055  0.001 ***
+
+# differences between the two stages (steady-state and fluxincreasing) when only considering above-SMT samples? 
+ps.hel.above.gc <- subset_samples(ps.hel.above, stage!="seep") # subset
+set.seed(1)
+dm.hel.above.gc.wunifrac <- UniFrac(ps.hel.above.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.above.gc <- as(sample_data(ps.hel.above.gc), "data.frame") # write metadata data frame
+adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is not really a difference: R2, p are 0.04448  0.056 .
+
+# differences between linear SR and non-steady-state SR across both seep and fluxincreasing?
+ps.hel.above.flux <- subset_samples(ps.hel, stage!="steadystate" & geochem_zone!="below") # subset
+set.seed(1)
+dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.above.flux <- as(sample_data(ps.hel.above.flux), "data.frame") # write metadata data frame
+adonis(dm.hel.above.flux.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.flux) #  there is a difference: R2, p are 0.16792  0.004 **
+
+# differences between linear SR and non-steady-state SR across fluxincreasing only?
+ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="fluxincreasing") # subset
+set.seed(1)
+dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
+adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are ~0.3, ~0.05 depending on set.seed
+
+# differences between linear SR and non-steady-state SR across seep only?
+ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="seep") # subset
+set.seed(1)
+dm.hel.above.fluxseep.wunifrac <- UniFrac(ps.hel.above.fluxseep, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.above.fluxseep <- as(sample_data(ps.hel.above.fluxseep), "data.frame") # write metadata data frame
+adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxseep) #  there is a difference: R2, p are 0.34069  0.002 **
+
+# differences between non-steady-state SR and below-SMT across fluxincreasing only?
+ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="fluxincreasing" & geochem_zone!="lin") # subset
+set.seed(1)
+dm.hel.fluxinc.lower.wunifrac <- UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.fluxinc.lower <- as(sample_data(ps.hel.fluxinc.lower), "data.frame") # write metadata data frame
+adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is no difference: R2, p are 0.12587  0.412 BUT ONLY 8 SAMPLES
+
+# following this up with an ordination of fluxincreasing GC samples and color by geochem_zone
+ps.hel.fluxinc <- subset_samples(ps.hel, stage=="fluxincreasing") # subset
+ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
+plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+stat_ellipse() # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
+
+# t-tests of beta-diversity between stages
+ps.hel.seep <- subset_samples(ps.hel, stage=="seep") # subset
+ps.hel.fluxinc
+ps.hel.ss <- subset_samples(ps.hel, stage=="steadystate")
+
+set.seed(1)
+dm.seep <- UniFrac(ps.hel.seep, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE) # calculate distance matrices for beta-diversity calculations
+set.seed(1)
+dm.fluxinc <- UniFrac(ps.hel.fluxinc, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE)
+set.seed(1)
+dm.ss <- UniFrac(ps.hel.ss, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE)
+
+bdiv.seep <- as.vector(dm.seep) # rewrite the triangle distance matrices as vectors
+bdiv.fluxinc <- as.vector(dm.fluxinc) 
+bdiv.ss <- as.vector(dm.ss) 
+
+t.test(bdiv.seep, bdiv.ss) 
+t.test(bdiv.fluxinc, bdiv.ss) 
+t.test(bdiv.fluxinc, bdiv.seep) 
 ```
 
+Conclusions: all stages are distinctly different from one another. This is true even when considering only above-SMTZ or below-SMTZ samples. There appear to be differences between steady-state and non-steady-state regions of the sulfate-reduction zone, though this difference was more evident in PC1029 samples than in the gravity cores. We saw no evidence of differences between non-steady-state SR zones and below-SMTZ zones in cores where flux was increasing, though this may be a result of inadequate sampling (only 8 samples tested). There is also evidence for lower beta-diversity among seep samples than among the other two stages, suggesting there is some aspect of community convergence (not that surprising).   
 
-## supplemental figures (make these a separate document.)
-```{r}
+## differentially abundant ASVs across methane flux stages and above/below the SMTZ
+We have 76 samples: 15 from seep, 49 from steady-state, and 12 from flux-increasing stages. There are no seep samples from below-SMTZ, 16 from steady-state, and 4 from flux-increasing. In an ideal world, we would have a more balanced sample design for assessing ASVs that are differentially abundant between these three stages (above the SMTZ) and between the latter two stages (below SMTZ). However, DESeq2 is able to handle imbalances in group numbers fairly robustly: https://support.bioconductor.org/p/115433/   
 
+```{r fig.height=3.5}
+# enter logical metadata categories corresponding to whether sample stage is seep or increasing flux or steady-state
+sample_data(ps.frdp)$is.seep <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="seep"),22] <- TRUE
+sample_data(ps.frdp)$is.flux <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="fluxincreasing"),23] <- TRUE
+sample_data(ps.frdp)$is.ss <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="steadystate"),24] <- TRUE
+
+# subset the phyloseq object by above/below SMTZ
+ps.above <- subset_samples(ps.frdp, smtzposition=="above") 
+ps.below <- subset_samples(ps.frdp, smtzposition=="below") 
+
+# make the same phyloseq object, but otu table with relative abundance instead of raw counts
+ps.above.ra <- transform_sample_counts(ps.above, function(OTU) OTU/sum(OTU))
+ps.below.ra <- transform_sample_counts(ps.below, function(OTU) OTU/sum(OTU))
+
+# define a function which will make a table out of deseq biomarker results, and return taxonomy and relative abundance info 
+table.stage.from.deseq <- function(deseq, relabundps, group){
+  de.results <- DESeq(deseq, test = "Wald", fitType = "parametric", sfType = "poscounts")
+  de.results.table <- results(de.results, cooksCutoff = FALSE)
+  de.results.table <- de.results.table[which(de.results.table$padj < 0.05), ]
+  meanabund.vector <- vector("numeric", length(rownames(de.results.table)))
+  for (i in rownames(de.results.table)) {meanabund.vector[[i]] <- mean(otu_table(relabundps)[which(sample_data(relabundps)$stage==group),i])}
+  meanabund.vector <- meanabund.vector[(0.5*length(meanabund.vector)+1):length(meanabund.vector)] 
+  de.results.table <- cbind(as(meanabund.vector, "matrix"), as(de.results.table, "data.frame"), as(tax_table(relabundps)[rownames(de.results.table), ], "matrix"))
+  colnames(de.results.table)[1] <- "relabund"
+  return(de.results.table)
+}
+
+# then convert phyloseq object to deseq, and run the function for each stage of methane dynamics
+de.above.is.seep <- phyloseq_to_deseq2(ps.above, ~ is.seep)
+de.results.table.above.seep <- table.stage.from.deseq(deseq = de.above.is.seep, relabundps = ps.above.ra, group = "seep") 
+de.above.is.flux <- phyloseq_to_deseq2(ps.above, ~ is.flux)
+de.results.table.above.flux <- table.stage.from.deseq(deseq = de.above.is.flux, relabundps = ps.above.ra, group = "fluxincreasing") 
+de.above.is.ss <- phyloseq_to_deseq2(ps.above, ~ is.ss)
+de.results.table.above.ss <- table.stage.from.deseq(deseq = de.above.is.ss, relabundps = ps.above.ra, group = "steadystate") 
+
+de.below.is.flux <- phyloseq_to_deseq2(ps.below, ~ is.flux)
+de.results.table.below.flux <- table.stage.from.deseq(deseq = de.below.is.flux, relabundps = ps.below.ra, group = "fluxincreasing") 
+de.below.is.ss <- phyloseq_to_deseq2(ps.below, ~ is.ss)
+de.results.table.below.ss <- table.stage.from.deseq(deseq = de.below.is.ss, relabundps = ps.below.ra, group = "steadystate") 
+
+# assign category for each de.results.table
+de.results.table.above.seep$de.group <- "above.seep"
+de.results.table.above.flux$de.group <- "above.flux"
+de.results.table.above.ss$de.group <- "above.ss"
+de.results.table.below.flux$de.group <- "below.flux"
+de.results.table.below.ss$de.group <- "below.ss"
+
+# rewrite ASV numbers so rbind will not rename duplicates
+de.results.table.above.seep$asv <- rownames(de.results.table.above.seep)
+de.results.table.above.flux$asv <- rownames(de.results.table.above.flux)
+de.results.table.above.ss$asv <- rownames(de.results.table.above.ss)
+de.results.table.below.flux$asv <- rownames(de.results.table.below.flux)
+de.results.table.below.ss$asv <- rownames(de.results.table.below.ss)
+
+# merge the biomarkers from each block into a single data frame
+all.biomarkers <- rbind(as(de.results.table.above.seep, "data.frame"), 
+                        as(de.results.table.above.flux, "data.frame"), 
+                        as(de.results.table.above.ss, "data.frame"),
+                        as(de.results.table.below.flux, "data.frame"),
+                        as(de.results.table.below.ss, "data.frame")) 
+
+# select only the ones more abundant in the blocks (as opposed to less)
+all.biomarkers <- subset(all.biomarkers, log2FoldChange>0) 
+
+# add in metadata about SMT position only, and stage only
+all.biomarkers$smtpos <- "above"
+all.biomarkers[which(all.biomarkers$de.group=="below.flux"),16] <- "below"
+all.biomarkers[which(all.biomarkers$de.group=="below.ss"),16] <- "below"
+all.biomarkers$stage <- "increasing methane flux"
+all.biomarkers[which(all.biomarkers$de.group=="above.seep"),17] <- "active methane seepage"
+all.biomarkers[which(all.biomarkers$de.group=="above.ss"),17] <- "steady-state"
+all.biomarkers[which(all.biomarkers$de.group=="below.ss"),17] <- "steady-state"
+
+# subset all.biomarkers dataframe by categories we want to graph at
+most.biomarkers <- all.biomarkers %>% filter(Class!="Deltaproteobacteria" & Class!="Methanomicrobia") # remove Deltaproteobacteria & ANMEs because we'll graph them at higher taxonomic resolution, also removes NAs
+anme.biomarkers <- all.biomarkers %>% filter(Class == "Methanomicrobia") # subset ANMEs only (all Methanomicrobial biomarkers are ANME in this dataset)
+delta.biomarkers <- all.biomarkers %>% filter(Class == "Deltaproteobacteria" & is.na(Genus)==FALSE) # subset Deltaproteobacteria only
+
+# when plotting, facet by more than two stages: Plotting most biomarkers at the class level, but ANMEs at Family and Deltas at Genus
+most.biomarkers$plotlevel <- "Class"
+anme.biomarkers$plotlevel <- "Family"
+delta.biomarkers$plotlevel <- "Genus"
+most.biomarkers$taxlevel <- most.biomarkers$Class
+anme.biomarkers$taxlevel <- anme.biomarkers$Family
+delta.biomarkers$taxlevel <- delta.biomarkers$Genus
+biomarkers.to.plot <- rbind(most.biomarkers, anme.biomarkers, delta.biomarkers) # combine all subsetted dataframes for plotting
+
+gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(levels(factor(taxlevel)))), y=log2FoldChange, color=Kingdom)) + 
+  geom_point(aes(size = relabund*100, fill=Kingdom), color="black", pch=21) +
+  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*500)+
+  scale_fill_discrete("Domain")+
+  scale_x_discrete("")+
+  scale_y_continuous("log2 Differential Abundance Change", position = "right", limits = c(0,27)) +
+  facet_grid(smtpos+plotlevel~stage, scales = "free", space = "free") +
+  coord_flip() +
+  theme_bw()+
+  theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
+        axis.text.x = element_text(size=10))
+gg.all.biom
+gg.all.biom <- saveRDS(gg.all.biom, "figures/figure7") # export figure
 ```
-
