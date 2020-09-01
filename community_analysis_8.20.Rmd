@@ -23,14 +23,7 @@ ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
 
 ## alpha diversity
 ```{r}
-plotrichness.oc <- plot_richness(ps.frdp, x="dist_above_peakaom", measures=c("Shannon"), color="core")
-plotrichness.oc+
-  facet_grid(core_flowtype~.)+
-  ylab("Shannon diversity index")+
-  xlab("Distance above present-day peak AOM rate (cm)")+
-  scale_color_discrete("Core")+
-  theme_bw()
-
+# subset by high flux vs low flux 
 ps.frdp.ss <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage=="steadystate") # subsetsall steady-state samples
 ps.frdp.nss.seep <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage!="steadystate") # subsets the non-steady-state samples and the seep
 
@@ -47,23 +40,24 @@ alphadiv.nss$core <- substring(rownames(alphadiv.nss), 1,6)
 
 alphadiv.nss$peakaom <- NA # creates a NA value for peak AOM depth
 alphadiv.ss$peakaom <- NA
-alphadiv.nss[which(alphadiv.nss$core=="GC1081"),6] <- 56 # add in SMT depths for all cores
-alphadiv.nss[which(alphadiv.nss$core=="GC1045"),6] <- 65
-alphadiv.nss[which(alphadiv.nss$core=="PC1029"),6] <- 45.3
-alphadiv.ss[which(alphadiv.ss$core=="GC1068"),6] <- 108
-alphadiv.ss[which(alphadiv.ss$core=="GC1069"),6] <- 137
-alphadiv.ss[which(alphadiv.ss$core=="GC1070"),6] <- 67
-alphadiv.ss[which(alphadiv.ss$core=="GC1048"),6] <- 313.5
-alphadiv.ss$dist_above_peakaom <- alphadiv.ss$peakaom-alphadiv.ss$depth # calculate distance above/below SMT
+alphadiv.nss[which(alphadiv.nss$core=="GC1081"),6] <- 55 # add in peak AOM depths for all cores
+alphadiv.nss[which(alphadiv.nss$core=="GC1045"),6] <- 67.5
+alphadiv.nss[which(alphadiv.nss$core=="PC1029"),6] <- 13
+alphadiv.ss[which(alphadiv.ss$core=="GC1068"),6] <- 74
+alphadiv.ss[which(alphadiv.ss$core=="GC1069"),6] <- 106
+alphadiv.ss[which(alphadiv.ss$core=="GC1070"),6] <- 68
+alphadiv.ss[which(alphadiv.ss$core=="GC1048"),6] <- 302.5
+alphadiv.ss$dist_above_peakaom <- alphadiv.ss$peakaom-alphadiv.ss$depth # calculate distance above/below peak AOM
 alphadiv.nss$dist_above_peakaom <- alphadiv.nss$peakaom-alphadiv.nss$depth 
-alphadiv.ss.range <- subset(alphadiv.ss, dist_above_peakaom < 62 & dist_above_peakaom > -46) # subset the dataframe to include steady-state samples from depths across the SMT that correspond to depths of non-steady-state samples
+
+alphadiv.ss.range <- subset(alphadiv.ss, dist_above_peakaom < 63.5 & dist_above_peakaom > -42.5) # subset the dataframe to include steady-state samples from depths across the SMT that correspond to depths of non-steady-state samples
 
 nss.lm <- lm(alphadiv.nss$Shannon~alphadiv.nss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
 ss.lm <- lm(alphadiv.ss$Shannon~alphadiv.ss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
 ss.lm.range <- lm(alphadiv.ss.range$Shannon~alphadiv.ss.range$dist_above_peakaom)
-summary(nss.lm) # summarizes the linear regression: slope is 0.023203, intercept is 3.777779, both are significant. Multiple R^2 is 0.4874, p value of slope is 5.14e-05
+summary(nss.lm) # summarizes the linear regression: slope is 0.029618, intercept is 4.167367, both are significant. Multiple R^2 is 0.5341, p value of slope is 1.5e-05
 summary(ss.lm) # slope is significant considering all the points across depth 
-summary(ss.lm.range) # slope is 0.006184, intercept is 3.742064, slope not significant across the SMT range. Multiple R^2 is 0.03277, p value of slope is 0.347
+summary(ss.lm.range) # slope is 0.002780, intercept is 3.831772, slope not significant across the SMT range. Multiple R^2 is 0.003901, p value of slope is 0.762
 
 # assign facet grid labels and methane flux stages
 alphadiv.nss$core_flowtype_label <- "High Methane Flux"
@@ -80,13 +74,13 @@ ssplot <- plotrichness.ss+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
   scale_color_manual("Methane stage", values=c("#8da0cb"))+
   scale_shape_manual("Core",values = c(4:7))+
-  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
-  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
-  geom_segment(x=-45,y=3.482369,xend=61,yend=4.116885, color="black", size=1)+
+  geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
+  geom_segment(x=-42.5,y=3.713622,xend=63.5,yend=4.008302, color="black", size=1)+
   theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
   theme(strip.text = element_text(size = 11))+
-  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.0328\")", parse = TRUE)+
-  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.347\")", parse = TRUE)+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.0039\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.762\")", parse = TRUE)+
   annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
 
 plotrichness.nss <- ggplot(alphadiv.nss, aes(dist_above_peakaom, Shannon, color=stage, shape=core))
@@ -97,17 +91,18 @@ nssplot <- plotrichness.nss+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
   scale_color_manual("Methane stage", values=c("#fc8d62", "#66c2a5"))+
   scale_shape_manual("Core", values = c(1:3))+
-  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
-  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
-  geom_segment(x=-45,y=2.747481,xend=61,yend=5.204455, color="black", size=1)+
+  geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
+  geom_segment(x=-42.5,y=2.908602,xend=63.5,yend=6.04811, color="black", size=1)+
   theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
   theme(strip.text = element_text(size = 11))+
-  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.4874\")", parse = TRUE)+
-  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 5.14e-05\")", parse = TRUE)+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.5341\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 1.5e-05\")", parse = TRUE)+
   annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
 
-div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 5
-div.fig <- saveRDS(div.fig, "figures/figure5") # export alpha diversity figure
+div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 6
+div.fig
+div.fig <- saveRDS(div.fig, "figures/figure6") # export alpha diversity figure
 ```
 
 ## beta diversity
@@ -211,7 +206,8 @@ ord1.p.zone<- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "geochem_zon
 # showing them both together
 ord.fig <- ord1.p.stage + ord1.p.zone
 ord.fig
-ord.fig <- saveRDS(ord.fig, "figures/figure6") # export figure
+ord1.p.stage <- saveRDS(ord1.p.stage, "figures/ord1.p.stage")
+ord1.p.zone <- saveRDS(ord1.p.zone, "figures/ord1.p.zone")
 ```
 The PCoA has fewer outliers, and explains 25% x 17.4% variance on the two major axes, so I'll stick with that over NMDS.  
 
@@ -391,9 +387,9 @@ anme.biomarkers <- all.biomarkers %>% filter(Class == "Methanomicrobia") # subse
 delta.biomarkers <- all.biomarkers %>% filter(Class == "Deltaproteobacteria" & is.na(Genus)==FALSE) # subset Deltaproteobacteria only
 
 # when plotting, facet by more than two stages: Plotting most biomarkers at the class level, but ANMEs at Family and Deltas at Genus
-most.biomarkers$plotlevel <- "Class"
-anme.biomarkers$plotlevel <- "Family"
-delta.biomarkers$plotlevel <- "Genus"
+most.biomarkers$plotlevel <- "Community"
+anme.biomarkers$plotlevel <- "ANME"
+delta.biomarkers$plotlevel <- "SRB"
 most.biomarkers$taxlevel <- most.biomarkers$Class
 anme.biomarkers$taxlevel <- anme.biomarkers$Family
 delta.biomarkers$taxlevel <- delta.biomarkers$Genus
@@ -401,7 +397,7 @@ biomarkers.to.plot <- rbind(most.biomarkers, anme.biomarkers, delta.biomarkers) 
 
 gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(levels(factor(taxlevel)))), y=log2FoldChange, color=Kingdom)) + 
   geom_point(aes(size = relabund*100, fill=Kingdom), color="black", pch=21) +
-  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*500)+
+  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*400)+
   scale_fill_discrete("Domain")+
   scale_x_discrete("")+
   scale_y_continuous("log2 Differential Abundance Change", position = "right", limits = c(0,27)) +
@@ -411,5 +407,5 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
   theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
         axis.text.x = element_text(size=10))
 gg.all.biom
-gg.all.biom <- saveRDS(gg.all.biom, "figures/figure7") # export figure
+gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
 ```

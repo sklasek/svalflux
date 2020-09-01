@@ -2,16 +2,17 @@
 title: "Storfjordrenna Manuscript -- Updated Figures"
 author: "Scott Klasek"
 date: "8-31-20"
-output: pdf_document
+output: github_document
 ---
 ```{r, echo=FALSE}
 # this chunk imports figures that have been exported from other documents into /figures
 figure2 <- readRDS(file = "figures/figure2") 
 figure3 <- readRDS(file = "figures/figure3") 
 figure4 <- readRDS(file = "figures/figure4") 
-figure5 <- readRDS(file = "figures/figure5")
-figure6 <- readRDS(file = "figures/figure6")
-figure7 <- readRDS(file = "figures/figure7")
+figure5 <- readRDS(file = "figures/figure5") # biomarkers
+figure6 <- readRDS(file = "figures/figure6") # alpha diversity 
+ord1.p.stage <- readRDS(file = "figures/ord1.p.stage") # figure 7A ordination
+ord1.p.zone <- readRDS(file = "figures/ord1.p.zone") # figure 7B ordination
 
 figureS1flux <- readRDS(file = "figures/figureS1flux")
 figureS3ratemcrAplot <- readRDS(file = "figures/figureS3ratemcrAplot")
@@ -21,12 +22,9 @@ coreinfo <- readRDS(file = "figures/coreinfo")
 inc.core <- readRDS(file = "figures/inc.core")
 ```
 
-## notes to self
-I was using grid::grid.draw(figure3) to render figures previously... is this necessary?
-
 ## Data repository
 
-I've uploaded this data to my Github page. This repository is private, but (fingers crossed) upon publication, I can set it to public so that anyone who wants to reproduce this work or make similar figures can look at the code, import the data, and easily do so. (Does this sound good?)
+I've uploaded this data to my Github page. This repository is private, but (fingers crossed) upon publication, I can set it to public so that anyone who wants to reproduce this work or make similar figures can look at the code, import the data, and easily do so. 
 
 ## The map is unchanged:
 
@@ -36,7 +34,7 @@ I've uploaded this data to my Github page. This repository is private, but (fing
 
 Porewater, microbial community, and gene count data from the seep site (core PC1029). AOM rate data has been removed.   
 
-```{r echo=FALSE, fig.width=5.7, fig.height=2.6, fig.align="center"}
+```{r echo=FALSE, fig.width=9, fig.height=5, fig.align="center"}
 grid::grid.draw(figure2)
 ```
 
@@ -44,7 +42,7 @@ Figure 2. Geochemical, numerical, microbial community, and gene abundance data f
 
 And from cores where methane flux is increasing (GC1045 and GC1081):
 
-```{r echo=FALSE, fig.width=6, fig.height=3, fig.align="center"}
+```{r echo=FALSE, fig.width=13, fig.height=6, fig.align="center"}
 grid::grid.draw(figure3)
 ```
 
@@ -53,7 +51,7 @@ Figure 3. Geochemical, numerical, microbial community, and gene abundance data f
 
 And from four steady-state cores:
 
-```{r echo=FALSE, fig.width=6.5, fig.height=4, fig.align="center"}
+```{r echo=FALSE, fig.width=11.5, fig.height=10, fig.align="center"}
 grid::grid.draw(figure4)
 ```
 
@@ -69,8 +67,8 @@ As before, we still observe ASV-scale niche differences among ANME and SRB subpo
 3) Many ASVs of Aminicenantia and Dehalococcoidia are indicative of steady-state sulfate reduction zones   
 4) Far fewer biomarkers distinguish stages below the SMTZ (and none are unique to below-SMTZ) but Lokiarchaea may be one key taxon associated with steady-state methanogenic zones.   
 
-```{r, fig.height=3.5, echo=FALSE}
-figure7 # yes I know it should be called figure 5
+```{r, fig.height=6.5, fig.width=8, echo=FALSE, fig.align="center"}
+figure5
 ```
 
 Update this figure legend below!
@@ -79,8 +77,8 @@ Figure 5. Differentially abundant ASVs between sites where methane flux is incre
 ### Alpha-diversity (diversity within communities)
 
 This figure is essentially the same, but I'm wondering if it's fair to include PC1029 samples in A if we can't really estimate a peak AOM rate... Think about this  some more.   
-```{r, echo=FALSE}
-grid::grid.draw(figure5) # yes I know it should be called figure 6
+```{r, echo=FALSE,  fig.width=6, fig.height=5, fig.align="center"}
+grid::grid.draw(figure6) 
 ```
 
 Update this figure legend below.  
@@ -91,8 +89,9 @@ Figure 6. Microbial community diversity patterns across peak modeled AOM depths.
 
 The two most helpful categories that explain the most of the variance within these microbial communities are methane stage and redox zone. There is a significant interaction among them too.   
 
-```{r, echo=FALSE}
-figure6 # yes I know it should be called figure 7
+```{r, echo=FALSE, fig.width=6, fig.height=4.5, fig.align="center"}
+library(patchwork)
+ord1.p.stage + ord1.p.zone
 ```
 
 Update this figure legend below.  

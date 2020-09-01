@@ -177,7 +177,13 @@ bp.fluxincreasing <- bp.fi+
   scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
   geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+ # this line returns Error in -x : invalid argument to unary operator
   theme_bw()+
-  theme(legend.position = "top", axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), plot.margin = margin(0,0,0,-0.5,"cm"), legend.box = "vertical")
+  theme(legend.position = "top", 
+        axis.text.x=element_text(angle = 55, hjust = 1, size=12),
+        axis.text = element_text(size=13),
+        legend.text=element_text(size=13),
+        strip.text.x = element_text(size=13), 
+        strip.text.y = element_blank(), 
+        plot.margin = margin(0,0,0,-0.25,"cm"), legend.box = "vertical")
 bp.fluxincreasing 
 bp.fluxincreasing <- saveRDS(bp.fluxincreasing, "figures/bp.fluxincreasing") # export plot
 
@@ -192,7 +198,13 @@ bp.steadystate <- bp.ss+
   scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
   geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
   theme_bw()+
-  theme(legend.position = "top",axis.text.x=element_text(angle = 55, hjust = 1, size=11),axis.text.y=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14),strip.text.x = element_text(size=11), strip.text.y = element_blank(), legend.box = "horizontal", plot.margin = margin(0,0,0,-0.5,"cm"))
+  theme(legend.position = "top",
+        axis.text.x=element_text(angle = 55, hjust = 1, size=12),
+        axis.text.y = element_text(size=13),
+        legend.text=element_text(size=13),
+        strip.text.x = element_text(size=13), 
+        strip.text.y = element_blank(), 
+        legend.box = "vertical", plot.margin = margin(0,0,0,-0.25,"cm"))
 bp.steadystate
 bp.steadystate <- saveRDS(bp.steadystate, "figures/bp.steadystate") # export plot
 ```

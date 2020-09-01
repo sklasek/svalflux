@@ -26,11 +26,11 @@ pore.fi <- subset(porewater, porewater$stage=="inc")
 pore.ss <- subset(porewater, porewater$stage=="ss")
 
 # seep site
-ggp.1029 <- ggplot(pore.1029,aes(depth,value,color=species))
 hydrate <- readPNG("figures/hydrates_symbol.png") # import hydrate symbol
 hydrateg <- rasterGrob(hydrate, interpolate=TRUE) # raster-grob the hydrate symbol
 worms <- readPNG("figures/pingo_tubeworms.png") # import tubeworm symbol
 wormsg <- rasterGrob(worms, interpolate=TRUE) # raster-grob the tubeworm symbol
+ggp.1029 <- ggplot(pore.1029,aes(depth,value,color=species))
 gg.porewater.1029 <- ggp.1029+geom_line(size=1.5)+
   geom_point(size=3)+
   coord_flip()+
@@ -53,11 +53,21 @@ gg.porewater.nss <- ggp.fi+geom_line(size=1.5)+
   scale_y_continuous("",limits = c(0,40),position = "right")+
   scale_x_reverse("Depth (cmbsf)",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
   scale_color_manual("",values=c("orangered1","black","dodgerblue2","gold3"))+
-  labs(title="Porewater Geochemistry")+
+  labs(title="Porewater\nGeochemistry")+
   theme_bw()+
-  theme(axis.text=element_text(size=12),strip.text.y = element_text(size=12),title=element_text(size=11),axis.title=element_text(size=14),legend.text = element_text(size=12),legend.title = element_text(size=12),legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
-
+  theme(axis.text=element_text(size=13),
+        strip.text.y = element_text(size=13),
+        title=element_text(size=13),
+        axis.title=element_text(size=15),
+        legend.text = element_text(size=13),
+        legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
 # steady-state
+biofilm <- readPNG("figures/biofilm_symbol.png") # import biofilm symbol
+# to make sure this image is plotted only within facets corresponding to cores biofilms were found in, use this function found here: https://stackoverflow.com/questions/44688623/adding-custom-images-to-ggplot-facets
+annotation_custom2 <- 
+function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data){ layer(data = data, stat = StatIdentity, position = PositionIdentity, 
+        geom = ggplot2:::GeomCustomAnn,
+        inherit.aes = TRUE, params = list(grob = grob, xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax))} # then add this to the ggplot call, with data corresponding to the facets the image should appear in
 ggp.ss <- ggplot(pore.ss,aes(depth,value,color=species))
 gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
   geom_point(size=3)+
@@ -67,9 +77,17 @@ gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
   scale_y_continuous("",limits = c(0,40),position = "right")+
   scale_x_reverse("Depth (cmbsf)",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
   scale_color_manual("",values=c("orangered1","black","dodgerblue2","gold3"))+
-  labs(title="Porewater Geochemistry")+
+  labs(title="Porewater\nGeochemistry")+
+  annotation_custom2(rasterGrob(biofilm, interpolate=TRUE), xmin=-105, xmax=-20, ymin=0, ymax=40, data=pore.ss[1,])+ # for GC1070
+  annotation_custom2(rasterGrob(biofilm, interpolate=TRUE), xmin=-350, xmax=-260, ymin=0, ymax=40, data=pore.ss[75,])+ # for GC1048
   theme_bw()+
-  theme(axis.text=element_text(size=12),strip.text.y = element_text(size=12),title=element_text(size=11),axis.title=element_text(size=14),legend.text = element_text(size=12),legend.title = element_text(size=12),legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
+  theme(axis.text=element_text(size=13),
+        strip.text.y = element_text(size=13),
+        title=element_text(size=13),
+        axis.title=element_text(size=15),
+        legend.text = element_text(size=13),
+        legend.title = element_text(size=15),
+        legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
 ```
 
 ## import and graph aom rate data
@@ -103,7 +121,14 @@ raom.nss <- aom.nss+geom_line(size=1)+
   scale_y_continuous("",breaks=c(0,100,200),limits = c(-5,220),position = "right")+
   scale_x_reverse("",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
   theme_bw()+
-  theme(axis.text=element_text(size=12),strip.text.y = element_blank(),strip.background = element_blank(),axis.text.y=element_blank(),title=element_text(size=11),plot.margin=margin(1,0,0,-0.25,"cm"))
+  theme(axis.text=element_text(size=13),
+        strip.text.y = element_blank(),
+        strip.background = element_blank(),
+        axis.text.y=element_blank(),
+        title=element_text(size=13),
+        legend.title = element_text(size=13),
+        legend.text = element_text(size=13),
+        plot.margin=margin(1,0,0,-0.25,"cm"))
 
 # graph steady-state rates
 aom.ss <- ggplot(aomrates.ss, aes(depth,aom))
@@ -115,7 +140,14 @@ raom.ss <- aom.ss+geom_line(size=1)+
   scale_x_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
   theme_bw()+
   labs(title=expression("AOM rate \n(µmols L"^{-1}*" day"^{-1}*")"))+
-  theme(axis.text=element_text(size=12),strip.text.y = element_blank(),strip.background = element_blank(),axis.text.y=element_blank(),title=element_text(size=11),plot.margin=margin(1,0,0,-0.25,"cm"))
+  theme(axis.text=element_text(size=13),
+        strip.text.y = element_blank(),
+        strip.background = element_blank(),
+        axis.text.y=element_blank(),
+        title=element_text(size=13),
+        legend.title = element_text(size=13),
+        legend.text = element_text(size=13),
+        plot.margin=margin(1,0,0,-0.25,"cm"))
 ```
 
 ## import bubble plots
@@ -153,8 +185,8 @@ dd.seep <- dd1029+geom_line(size=1.5)+
   scale_color_discrete("")+
   theme_bw()+
   labs(title=expression(paste("log"[10]," gene copies")))+
-  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=8))
-# remove the NAs at 12 cm depth that prevent the lines from being connected
+  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),
+        axis.title=element_text(size=8),axis.text.y = element_blank())
 
 # non-steady-state ddPCR plot
 ddfi<- ggplot(dd.pcr.fi, aes(depth, logcopies, color=gene))
@@ -168,7 +200,12 @@ dd.fi <- ddfi+geom_line(size=1.5)+
   facet_grid(core~.)+
   theme_bw()+
   labs(title=expression(paste("log"[10]," gene copies")))+
-  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=8))
+  theme(legend.position = "top",
+        axis.title=element_text(size=13),
+        axis.text.x = element_text(size=13),
+        legend.text = element_text(size=13),
+        strip.text = element_text(size=13),
+        axis.text.y = element_blank())
 
 # steady-state ddPCR plot
 ddss<- ggplot(dd.pcr.ss, aes(depth, logcopies, color=gene))
@@ -181,36 +218,41 @@ dd.ss <- ddss+geom_line(size=1.5)+
   facet_grid(core~.)+
   theme_bw()+
   labs(title=expression(paste("log"[10]," gene copies")))+
-  theme(legend.position = "top",axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=8))
+  theme(legend.position = "top",
+        legend.text=element_text(size=13),
+        strip.text = element_text(size=13),
+        axis.title=element_text(size=13), 
+        axis.text.x = element_text(size=13),
+        axis.text.y = element_blank())
 # need to remove the samples with zeros that obscure the trend or at least make the graph look really chaotic
 ```
 
-## create and export panel figures
+## create panel figures
 ```{r}
 # Figure 2 (Seep)
-fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.7),ncol = 3,nrow = 1,labels=c("A","B","C"))
-fig1029 <- saveRDS(fig1029, "figures/figure2") # export
+fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),ncol = 3,nrow = 1,labels=c("A","B","C"))
 
 # Figure 3 (Non-steady-state sites)
 fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol = 4, nrow = 1,
-  widths = c(2.4,2.1,5,1.8),labels=c("A","B","C","D"))
-fig.nss <- saveRDS(fig.nss, "figures/figure3") # export
+  widths = c(2.4,2.1,5.4,1.8),labels=c("A","B","C","D"))
 
 # Figure 4 (Steady-state sites)
 fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
                         ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
-fig.ss <- saveRDS(fig.ss, "figures/figure4") # export
 ```
 
-## best dimensions for viewing these figures
+## print figures at their optimal sizes
 ```{r fig.width=5.7, fig.height=2.6}
 fig1029
+fig1029 <- saveRDS(fig1029, "figures/figure2") # export
 ```
 
 ```{r fig.width=6, fig.height=3}
 fig.nss
+fig.nss <- saveRDS(fig.nss, "figures/figure3") # export
 ```
 
 ```{r fig.width=6.5, fig.height=4}
 fig.ss
+fig.ss <- saveRDS(fig.ss, "figures/figure4") # export
 ```

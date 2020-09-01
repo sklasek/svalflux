@@ -26,7 +26,7 @@ maxdepth <- vector("numeric", length(cores)) # define a vector for writing max d
 for (i in cores) {maxdepth[[i]] <- max((aomrates %>% filter(core==i))$depth)} # for-loop to calculate max depth
 maxdepth <- maxdepth[(0.5*length(maxdepth)+1):length(maxdepth)] # omitted zero values
 intflux <- vector("numeric", length(cores)) # define a vector for calculating fluxes
-for (i in cores) {intflux[[i]] <- sum((aomrates %>% filter(core==i))$aom)} # for-loop to calculate flux
+for (i in cores) {intflux[[i]] <- sum((aomrates %>% filter(core==i))$aom)*(1e4 * 365 / 1e9)} # for-loop to calculate flux (converting micromoles per L per day to moles per m^2 per year)
 intflux <- intflux[(0.5*length(intflux)+1):length(intflux)] # omitted zero values
 
 fluxes <- as.data.frame(cbind(maxdepth, intflux)) # combine into data frame
@@ -42,6 +42,7 @@ gg.flux <- gcf+geom_bar(stat="identity")+
   ylab(bquote('Present-day'~CH[4]~'flux (mols'~m^-2~yr^-1*')'))+
   theme_classic()+
   theme(axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
+flux.gc
 gg.flux
 gg.flux <- saveRDS(gg.flux, "figures/figureS1flux") # export figure
 ```

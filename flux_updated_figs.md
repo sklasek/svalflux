@@ -1,43 +1,16 @@
 Storfjordrenna Manuscript – Updated Figures
 ================
 Scott Klasek
-2-17-20
+8-31-20
 
-### Update
+## Data repository
 
-It’s been a while, and lately I’ve been working in R to create
-reproducible data analyses. I’ve also uploaded this data to my Github
-page. This repository is private, but (fingers crossed) upon
-publication, I can set it to public so that anyone who wants to
-reproduce this work or make similar figures can look at the code, import
-the data, and easily do so. (Does this sound good?)
+I’ve uploaded this data to my Github page. This repository is private,
+but (fingers crossed) upon publication, I can set it to public so that
+anyone who wants to reproduce this work or make similar figures can look
+at the code, import the data, and easily do so.
 
-Besides this, the only difference in the data is that I’ve used a
-[different algorithm,
-dada2](https://www.nature.com/articles/nmeth.3869), to infer microbial
-“species”. Instead of OTUs (Operational Taxonomic Units) that
-represent somewhat arbitrary clusterings of sequences that are 97%
-similar to one another, these ASVs (Amplicon Sequence Variants) are
-exact sequence variants whose errors during sequencing have been
-identified and corrected using a machine-learning denoising algorithm.
-This has an impact on the number of unique sequences I end up with:
-originally I got 24,000 OTUs, but after reprocessing the data, I now end
-up with 16,000 ASVs. However it doesn’t really change the big picture
-much.
-
-Soon I’ll send out a google drive link where we can all edit the most
-recent version of the manuscript. I remember we discussed having a
-separate text section for the supplementals where a lot of the model
-assumptions and justifications could be explained in adequate detail.
-
-(As a side note, I discovered Zotero integrates with Google docs now.
-You can even import Word docs with Zotero citations into Google docs and
-they will convert usually without much hassle. Personally, now I don’t
-see any reason to use Word anymore).
-
-Anyway, here is the latest version of all the figures:
-
-### The map is unchanged:
+## The map is unchanged:
 
 ![Figure 1. Bathymetric map of Storfjordrenna gas hydrate mounds and
 modeling approach. (A) Storfjordrenna is located south of the Svalbard
@@ -54,15 +27,11 @@ can be used to estimate how quickly the methane front traveled the
 distance between the current and prior sulfate depletion depths
 (indicated by the orange bracket).](figures/F1.png)
 
-### Panel figures
+## Panel figures
 
-The only change I’ve made is that I’ve subset ANME and SRB as their own
-panels in the bubble plots, because their taxonomic categories are
-different.
-
-Here’s the porewater, modeled rate, microbial community, and gene count
-data from the seep (core
-PC1029):
+Porewater, microbial community, and gene count data from the seep site
+(core PC1029). AOM rate data has been
+removed.
 
 <img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
@@ -113,40 +82,52 @@ indicated by X’s. Macroscopic translucent-to-yellow biofilms, shown as
 yellow symbols in panel (A), were observed at SMT depths in two cores
 (symbol size not to scale with depth axis).
 
-### Differentially abundant ASVs across zones and methane flux types:
+## Differentially abundant ASVs across zones and methane flux types:
 
 This plot shows differentially abundant ASVs, replacing the old figure
-S2. Each point represents a highly-abundant ASV (one of the top 1000 in
-the dataset) whose relative abundance is different between steady-state
-or non-steady-state communities. This is further subset into above-SMT
-and below-SMT communities (A and B vertical panels). I see similar
-patterns as in the previous figure S2. But interestingly, the ANME-1a on
-the right side of panel B is not actually one of the two major ANME-1a
-ASVs in the dataset– those two are not differentially abundant. So this
-might hint at ASV-scale niche differences in this subpopulation that
-would otherwise be undetected with OTUs.
+S2. Each point represents an ASV whose relative abundance is different
+between communities in cores of different methane stages (more abundant
+in one stage as compared to the other two combined). These stages are
+further subset into above-SMT and below-SMT communities and facetted
+into taxonomic Families (for ANMEs), Genera (for Deltaproteobacteria),
+or classes (for all others). NAs at each taxonomic category of plotting
+were omitted from this graph. Note there were no samples taken below
+SMTZ at the seep.
 
-![](flux_updated_figs_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+As before, we still observe ASV-scale niche differences among ANME and
+SRB subpopulations, but this plot allows us to see a few other things:
+1) ASVs associated with seepage are often dominant within communities,
+and include JS1 Atribacteria, several Gammaproteobacteria and
+Campylobacteria, and many genera of Deltaproteobacteria  
+2\) Calditrichia may be associated with recent upwards methane
+migration  
+3\) Many ASVs of Aminicenantia and Dehalococcoidia are indicative of
+steady-state sulfate reduction zones  
+4\) Far fewer biomarkers distinguish stages below the SMTZ (and none are
+unique to below-SMTZ) but Lokiarchaea may be one key taxon associated
+with steady-state methanogenic
+zones.
 
-Figure 5. Common ASVs (the top 1000 in this dataset) that are
-differentially abundant between sites where methane flux is increasing
-(non-steady-state) and sites at geochemical steady-state, facetted
-horizontally on the right by communities from above (A) or below (B) the
-sulfate-methane transition zone. Alpha=0.01, with a Benjamini-Hochberg
-correction for multiple comparisons. Panel (A) shows ASVs colored by
-Class, with Methanomicrobia and Deltaproteobacteria shown in further
-detail in panels (B) and (C) and colored by Order and Family,
-respectively.
+<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+
+Update this figure legend below\! Figure 5. Differentially abundant ASVs
+between sites where methane flux is increasing (non-steady-state) and
+sites at geochemical steady-state, facetted horizontally on the right by
+communities from above (A) or below (B) the sulfate-methane transition
+zone. Alpha=0.01, with a Benjamini-Hochberg correction for multiple
+comparisons. Panel (A) shows ASVs colored by Class, with Methanomicrobia
+and Deltaproteobacteria shown in further detail in panels (B) and (C)
+and colored by Order and Family, respectively.
 
 ### Alpha-diversity (diversity within communities)
 
-Even though community richness has changed because of processing ASVs
-instead of OTUs, the alpha-diversity patterns (factoring in evenness)
-are unchanged. Communities from non-steady-state sites show decreasing
-alpha diversity across the peak AOM rate, whereas steady-state
-communities are unchanged.
-![](flux_updated_figs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+This figure is essentially the same, but I’m wondering if it’s fair to
+include PC1029 samples in A if we can’t really estimate a peak AOM rate…
+Think about this some
+more.  
+<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
+Update this figure legend below.  
 Figure 6. Microbial community diversity patterns across peak modeled AOM
 depths. Shannon diversity indices of microbial communities for
 individual samples plotted by their distance above (positive) or below
@@ -162,19 +143,14 @@ in the others.
 
 ### Beta-diversity (diversity between communities)
 
-I didn’t get any ordinations to work on this dataset before, but I’ve
-tried several on the recent dataset using several combinations of
-transformations, distance metrics, and ordinations. NMDS with unweighted
-Unifrac works well here. Pairwise comparisons between all core types
-(steady-state or non-steady-state) and redox zones shows that every
-community category is different. (This is not what I found earlier,
-where below-SMT communities were not different between non-steady-state
-and steady-state sites… and nonlinear SR zone communities were not
-different from below-SMT ones in non-steady-state sites). This
-ordination below (and mentioning a few t-tests in the text) will replace
-the old Figure 6.
+The two most helpful categories that explain the most of the variance
+within these microbial communities are methane stage and redox zone.
+There is a significant interaction among them
+too.
 
-![](flux_updated_figs_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+
+Update this figure legend below.
 
 Figure 7. Nonmetric Multidimensional Scaling (NMDS) ordination of
 unweighted Unifrac distances between all communities. Distances were
@@ -185,7 +161,9 @@ separating communities from steady-state and non-steady-state sites, and
 when comparing analogous redox zones between steady-state and
 non-steady-state sites (will discuss this more in the text).
 
-### Conceptual figure is unchanged:
+### Conceptual figure still needs some slight modifications:
+
+Just to show we’re not insinuating a successional progression.
 
 ![](figures/flux.conceptual.figure.png)
 
@@ -208,7 +186,7 @@ growth of macroscopic biofilms.
 
 ### Supplemental Figures
 
-These remain unchanged.
+Still need to redo the text for all these…
 
 ![](flux_updated_figs_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 Figure S1. Present-day upwards methane flux integrated from modeled AOM
