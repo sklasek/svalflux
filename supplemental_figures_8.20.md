@@ -10,7 +10,7 @@ library(phyloseq)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
     ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
     ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
@@ -19,7 +19,7 @@ library(tidyverse)
 
     ## Warning: package 'ggplot2' was built under R version 3.6.2
 
-    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -71,7 +71,7 @@ maxdepth <- vector("numeric", length(cores)) # define a vector for writing max d
 for (i in cores) {maxdepth[[i]] <- max((aomrates %>% filter(core==i))$depth)} # for-loop to calculate max depth
 maxdepth <- maxdepth[(0.5*length(maxdepth)+1):length(maxdepth)] # omitted zero values
 intflux <- vector("numeric", length(cores)) # define a vector for calculating fluxes
-for (i in cores) {intflux[[i]] <- sum((aomrates %>% filter(core==i))$aom)} # for-loop to calculate flux
+for (i in cores) {intflux[[i]] <- sum((aomrates %>% filter(core==i))$aom)*(1e4 * 365 / 1e9)} # for-loop to calculate flux (converting micromoles per L per day to moles per m^2 per year)
 intflux <- intflux[(0.5*length(intflux)+1):length(intflux)] # omitted zero values
 
 fluxes <- as.data.frame(cbind(maxdepth, intflux)) # combine into data frame
@@ -84,9 +84,21 @@ gg.flux <- gcf+geom_bar(stat="identity")+
   scale_fill_manual("Methane stage", values = c("#66c2a5", "#8da0cb"))+
   scale_y_continuous()+
   xlab("")+
-  ylab(bquote('Present-day'~CH[4]~'flux (mols'~m^-2~yr^-1*')'))+
+  ylab(bquote(~CH[4]~'flux (mols'~m^-2~yr^-1*') at time of sampling'))+
   theme_classic()+
   theme(axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
+flux.gc
+```
+
+    ##        maxdepth    intflux   core                   stage
+    ## GC1045    175.0 17.4255914 GC1045 increasing methane flux
+    ## GC1048    349.5  0.8491165 GC1048            steady-state
+    ## GC1068    307.5  0.7475539 GC1068            steady-state
+    ## GC1069    307.5  0.5231347 GC1069            steady-state
+    ## GC1070    307.5  0.8259742 GC1070            steady-state
+    ## GC1081    150.0 10.2030182 GC1081 increasing methane flux
+
+``` r
 gg.flux
 ```
 

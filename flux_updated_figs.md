@@ -1,7 +1,7 @@
 Storfjordrenna Manuscript – Updated Figures
 ================
 Scott Klasek
-8-31-20
+9-2-20
 
 ## Data repository
 
@@ -22,9 +22,9 @@ GHM5. The schematic in (B) depicts sulfate and methane concentrations
 throughout a sediment column at a steady-state condition. As methane
 flux increases, (C), SR-AOM is stimulated at shallower depths and
 sulfate profiles show a concave-up curvature. After decades of steadily
-increasing methane flux at a particular area, (D), diffusion modeling
-can be used to estimate how quickly the methane front traveled the
-distance between the current and prior sulfate depletion depths
+increasing methane flux at a particular area, (D), reactive-transport
+modeling can be used to estimate how quickly the methane front diffused
+the distance between the current and prior sulfate depletion depths
 (indicated by the orange bracket).](figures/F1.png)
 
 ## Panel figures
@@ -35,17 +35,17 @@ removed.
 
 <img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
-Figure 2. Geochemical, numerical, microbial community, and gene
-abundance data from an active seep site. Push core PC1029 is located at
-the seep in the center of GHM3. (A) shows porewater sulfate, sulfide,
-and alkalinity, and (B) present-day modeled AOM rates. (C) depicts
-percent abundances of dominant bacterial and archaeal classes within the
-microbial community (left panel), dominant anaerobic methanotrophic
-archaeal (ANME) families (center panel) and sulfate-reducing bacterial
-(SRB) genera (right panel). (D) shows copy numbers of mcrA and dsrAB
-genes per gram bulk sediment, with values below the detectable limit
-(10^3 g-1) indicated by X’s. Gas hydrate nodules several cm in diameter
-(A) were recovered in a replicate core at 40-50 cm below seafloor.
+Figure 2. Geochemical, microbial community, and gene abundance data from
+an active seep site. Push core PC1029 is located at the seep in the
+center of GHM3. (A) shows porewater sulfate, sulfide, and alkalinity
+concentrations in addition to frenulate siboglinid tubeworms and gas
+hydrate nodules several cm in diameter recovered in a replicate core at
+40-50 cm below seafloor. (B) depicts percent abundances of dominant
+Bacterial and Archaeal classes within the microbial community (left
+panel), dominant anaerobic methanotrophic archaeal (ANME) families
+(center panel) and sulfate-reducing bacterial (SRB) genera (right
+panel). (C) shows log10 copy numbers of mcrA and dsrAB genes per gram
+bulk sediment.
 
 And from cores where methane flux is increasing (GC1045 and
 GC1081):
@@ -53,15 +53,16 @@ GC1081):
 <img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 Figure 3. Geochemical, numerical, microbial community, and gene
-abundance data from two sites showing non-steady-state sulfate-methane
-dynamics. Gravity cores GC1045 and GC1081 are located at GHMs 3 and 4,
-respectively. Sulfate-methane transition depths are indicated by dashed
-lines. (A) shows porewater sulfate, sulfide, and alkalinity, and (B) the
-temporal progression of modeled AOM rates from 10 years ago to up to 2
-years into the future. (C) indicates percent abundances of dominant
-bacterial and archaeal classes, dominant anaerobic methanotrophic
-archaeal (ANME) familes, and sulfate-reducing bacterial (SRB) genera.
-(D) shows copy numbers of mcrA and dsrAB genes per gram bulk sediment.
+abundance data from two sites showing sulfate-methane dynamics
+suggestive of recent increases in methane flux. Gravity cores GC1045 and
+GC1081 are located at GHMs 3 and 4, respectively. Sulfate-methane
+transition depths are indicated by dashed lines. (A) shows porewater
+sulfate, sulfide, and alkalinity, and (B) the temporal progression of
+modeled AOM rates from 10 years ago to up to 2 years after sampling. (C)
+indicates percent abundances of dominant bacterial and archaeal classes,
+dominant anaerobic methanotrophic archaeal (ANME) familes, and
+sulfate-reducing bacterial (SRB) genera. (D) shows copy numbers of mcrA
+and dsrAB genes per gram bulk sediment.
 
 And from four steady-state
 cores:
@@ -77,10 +78,11 @@ alkalinity, and (B) present-day modeled AOM rates. (C) indicates percent
 abundances of dominant bacterial and archaeal classes, dominant
 anaerobic methanotrophic archaeal (ANME) familes, and sulfate-reducing
 bacterial (SRB) genera.(D) shows copy numbers of mcrA and dsrAB genes
-per gram bulk sediment, with values below the detectable limit (103 g-1)
-indicated by X’s. Macroscopic translucent-to-yellow biofilms, shown as
-yellow symbols in panel (A), were observed at SMT depths in two cores
-(symbol size not to scale with depth axis).
+per gram bulk sediment, with values below the detectable limit (10^3
+g-1) along the margin of the panel. Macroscopic translucent-to-yellow
+biofilms, shown as yellow symbols in panel (A), were observed at
+approximate SMT depths in cores GC1048 and GC1070 (symbol size not to
+scale with depth axis).
 
 ## Differentially abundant ASVs across zones and methane flux types:
 
@@ -110,14 +112,15 @@ zones.
 
 <img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
-Update this figure legend below\! Figure 5. Differentially abundant ASVs
-between sites where methane flux is increasing (non-steady-state) and
-sites at geochemical steady-state, facetted horizontally on the right by
-communities from above (A) or below (B) the sulfate-methane transition
-zone. Alpha=0.01, with a Benjamini-Hochberg correction for multiple
-comparisons. Panel (A) shows ASVs colored by Class, with Methanomicrobia
-and Deltaproteobacteria shown in further detail in panels (B) and (C)
-and colored by Order and Family, respectively.
+Figure 5. Differentially abundant ASVs between three discrete stages of
+methane dynamics, either above or below the sulfate-methane transition
+zone. Higher differential abundance values represent stronger
+associations between an ASV and a particular group. In addition to
+position relative to the SMTZ, vertical panels convey class-level
+taxonomic annotations for all taxa except ANME (at family level) and SRB
+(at genus level). Bubble sizes represent mean percent abundances within
+each group. Differential abundance was inferred using an alpha of 0.05
+and a Benjamini-Hochberg correction for multiple comparisons.
 
 ### Alpha-diversity (diversity within communities)
 
@@ -127,19 +130,16 @@ Think about this some
 more.  
 <img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
-Update this figure legend below.  
 Figure 6. Microbial community diversity patterns across peak modeled AOM
 depths. Shannon diversity indices of microbial communities for
 individual samples plotted by their distance above (positive) or below
 (negative) the depths corresponding to present-day maximum AOM rates
-across all cores. Cores are divided by panel based on whether
-sulfate-methane dynamics are (A) non-steady-state, or (B) at
-steady-state. Dotted horizontal lines show the distance interval
-corresponding to samples from non-steady-state cores. Multiple R2 and
-slope p-values are shown for linear regressions of points within these
-intervals. These analyses suggest microbial community diversity
-correlates better with the peak AOM depth in non-steady-state cores than
-in the others.
+across all cores. Cores are divided by panel based on whether methane
+flux is (A) high, or (B) low, and colored according to different stages
+of methane dynamics. Dotted horizontal lines show the distance interval
+corresponding to high methane flux samples. Multiple R^2 and slope
+p-values are shown for linear regressions of points within these
+intervals.
 
 ### Beta-diversity (diversity between communities)
 
@@ -150,55 +150,57 @@ too.
 
 <img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
-Update this figure legend below.
+Figure 7. Principal Coordinates Analysis (PCoA) ordination of weighted
+Unifrac distances between all communities, colored according to stages
+of methane dynamics (A), and redox zone within the sediment column (B).
+A Hellinger transformation was applied to ASV count tables before
+calculating the distance matrix. PERMANOVA tests verify distinct
+community structures present across stages and redox zones, with R^2 and
+p-values shown in corresponding plots.
 
-Figure 7. Nonmetric Multidimensional Scaling (NMDS) ordination of
-unweighted Unifrac distances between all communities. Distances were
-calculated based on a variance-stabilizing log transformation with
-negative values removed. Pairwise t-tests verify that community
-structure is distinct among all redox zones. This remains true even when
-separating communities from steady-state and non-steady-state sites, and
-when comparing analogous redox zones between steady-state and
-non-steady-state sites (will discuss this more in the text).
+### An updated conceptual figure
 
-### Conceptual figure still needs some slight modifications:
-
-Just to show we’re not insinuating a successional progression.
-
-![](figures/flux.conceptual.figure.png)
+![](figures/flux.conceptual.2.png)
 
 Figure 8. Conceptual depiction of microbial community changes concurrent
-with evolving methane supply at Storfjordrenna GHMs. Methane and sulfate
-profiles are shown in gray and blue lines, respectively, with microbial
-community changes indicated by blowup circles. ANME and SRB represent
-red and green circles, with all other bacteria and archaea in gray (cell
-shapes represent diversity of other taxa). (A) Gas hydrates at the upper
-limit of stability dissociate and aqueous methane diffuses upwards,
-stimulating AOM and drawing down sulfate while some of the methane
-escapes as bubbles of free gas. (B) Once sulfate drops below 1 mM,
-microbial diversity, rates of AOM, and the thickness of the AOM zone
-decrease. Non-steady-state conditions are still observed in
-sulfate-methane dynamics. (C) By the time a steady-state sulfate profile
-is reached, methane flux is no longer increasing. Gas seepage has
-stopped, microbial diversity rebounds, and the AOM zone is constrained
-to a thinner depth, but peak AOM rates are higher and can support the
-growth of macroscopic biofilms.
+with distinct stages of methane dynamics at Storfjordrenna GHMs. Methane
+and sulfate profiles are shown in gray and blue lines, respectively,
+with microbial community changes indicated by blowup circles. ANME and
+SRB represent red and green ovals, with other bacteria and archaea in
+gray (shapes representing the diversity of other taxa). (A) Methane
+seepage, potentially driven by dissociation of gas hydrates at the upper
+limit of stability, stimulates high rates of AOM and densities of
+ANME/SRB. Sulfide fluxes from AOM are sufficient to support frenulate
+siboglinid tubeworms, which may irrigate sulfate over the upper several
+cm of sediment, increase redox gradients in underlying sediments, and
+further ANME/SRB growth. (B) In the absence of bioirrigation, a
+concave-up bend in porewater sulfate suggests recent methane migration
+into the sulfate-reduction zone that may have resulted from a pulse of
+methane beginning around 290 years ago. Methane travels upward
+throughout the sediment column, and ANME/SRB growth follows with less
+than a year of lag time, driving down alpha diversity. (C) Steady-state
+sulfate profiles suggest no recent methane influx, and low rates of AOM
+are observed at the SMTZ. Stable conditions may allow for higher
+microbial diversity and the growth of macroscopic biofilms.
 
 ### Supplemental Figures
 
-Still need to redo the text for all these…
+I’m not sure about my values for these flux calculations… but basically
+increasing methane flux \>\> steady-state
 
 ![](flux_updated_figs_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-Figure S1. Present-day upwards methane flux integrated from modeled AOM
-rates at all cores. Because sulfate did not drop to 0 mM in PC1029, the
-amount shown here represents a lower boundary.
+Figure S1. Methane fluxes across each core, integrated from modeled AOM
+rates derived from data at the time of sampling. Cores are colored by
+methane stage. PC1029 was omitted due to high uncertainty in modeling
+AOM rates (explain more?)
 
 ![](flux_updated_figs_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 Figure S2. Regression of mcrA gene copy numbers (per gram bulk sediment)
 to modeled AOM rates shows a linear relationship across samples from all
-cores (log-log transformation). Samples that did not contain detectable
-mcrA were not included.
+cores (log-log transformation). Samples are colored according to stages
+of methane dynamics, and those that did not contain detectable mcrA were
+omitted.
 
     ## Warning: Removed 5 rows containing missing values (geom_point).
 
@@ -212,8 +214,6 @@ cores is evidence that they are not experiencing a recent increase in
 methane flux, and are thus characterized as steady-state.
 
 ### Supplemental Tables
-
-These are also unchanged.
 
     ##     Core   Latitude  Longitude Water depth (m) Core recovery (cm)
     ## 1 PC1029  76 06.398  15 58.151             381                 27
@@ -233,8 +233,12 @@ These are also unchanged.
     ## 7             69
 
 Table S1. Latitude, longitude, water depth, core recovery, and
-sulfate-methane transition depth of all cores analyzed in this
-    study.
+sulfate-methane transition depth of all cores analyzed in this study.
+
+In this table below, I realize that the total-core flux values do not
+match those that I showed in the first supplemental figure… so I must
+have made a
+    mistake?
 
     ##      Core Year before sampling CH4 flux mols m^-2 yr ^-1 Peak AOM depth (cm)
     ## 1  GC1045                   21                     3.674               280.0

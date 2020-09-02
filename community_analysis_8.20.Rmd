@@ -219,70 +219,80 @@ Can also add the sections "more permanovas" from lines 844-920, and possibly bet
 ```{r eval=FALSE}
 library(phyloseq)
 # omitting below-SMT samples, is there still a difference by stage?
-ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below") # subset
+nsamples(ps.hel)
+ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMTZ") # subset
+nsamples(ps.hel.above)
 set.seed(1)
 dm.hel.above.wunifrac <- UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above <- as(sample_data(ps.hel.above), "data.frame") # write metadata data frame
-adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521  0.001 ***
+adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521,  0.001 ***
 
 # considering only below-SMT samples, is there still a difference by stage?
-ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below") # subset
+ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMTZ") # subset
+nsamples(ps.hel.below)
 set.seed(1)
 dm.hel.below.wunifrac <- UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.below <- as(sample_data(ps.hel.below), "data.frame") # write metadata data frame
 adonis(dm.hel.below.wunifrac ~ stage, data=metadata.ps.hel.below) # yes there is a difference: R2, p are 0.18597  0.003 **
 
 # differences between the two stages steady-state and fluxincreasing? 
-ps.hel.gc <- subset_samples(ps.hel, stage!="seep") # subset
+ps.hel.gc <- subset_samples(ps.hel, stage!="active methane seepage") # subset
+nsamples(ps.hel.gc)
 set.seed(1)
 dm.hel.gc.wunifrac <- UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.gc <- as(sample_data(ps.hel.gc), "data.frame") # write metadata data frame
 adonis(dm.hel.gc.wunifrac ~ stage, data=metadata.ps.hel.gc) # there is a difference: R2, p are 0.06055  0.001 ***
 
 # differences between the two stages (steady-state and fluxincreasing) when only considering above-SMT samples? 
-ps.hel.above.gc <- subset_samples(ps.hel.above, stage!="seep") # subset
-set.seed(1)
+ps.hel.above.gc <- subset_samples(ps.hel.above, stage!="active methane seepage") # subset
+nsamples(ps.hel.above.gc)
+set.seed(11)
 dm.hel.above.gc.wunifrac <- UniFrac(ps.hel.above.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.gc <- as(sample_data(ps.hel.above.gc), "data.frame") # write metadata data frame
-adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is not really a difference: R2, p are 0.04448  0.056 .
+adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is barely a difference: R2, p are 0.04448  0.056 (Honestly, if you really like p < 0.05, significance depends on which set.seed you use)
 
 # differences between linear SR and non-steady-state SR across both seep and fluxincreasing?
-ps.hel.above.flux <- subset_samples(ps.hel, stage!="steadystate" & geochem_zone!="below") # subset
+ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMTZ") # subset
+nsamples(ps.hel.above.flux)
 set.seed(1)
 dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.flux <- as(sample_data(ps.hel.above.flux), "data.frame") # write metadata data frame
 adonis(dm.hel.above.flux.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.flux) #  there is a difference: R2, p are 0.16792  0.004 **
 
 # differences between linear SR and non-steady-state SR across fluxincreasing only?
-ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="fluxincreasing") # subset
+ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
+nsamples(ps.hel.above.fluxinc) # there are only 8 samples
 set.seed(1)
 dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
-adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are ~0.3, ~0.05 depending on set.seed
+adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.3008  0.052 (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
 
 # differences between linear SR and non-steady-state SR across seep only?
-ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="seep") # subset
+ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="active methane seepage") # subset
+nsamples(ps.hel.above.fluxseep)
 set.seed(1)
 dm.hel.above.fluxseep.wunifrac <- UniFrac(ps.hel.above.fluxseep, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.fluxseep <- as(sample_data(ps.hel.above.fluxseep), "data.frame") # write metadata data frame
 adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxseep) #  there is a difference: R2, p are 0.34069  0.002 **
 
 # differences between non-steady-state SR and below-SMT across fluxincreasing only?
-ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="fluxincreasing" & geochem_zone!="lin") # subset
+ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="lin") # subset
+nsamples(ps.hel.fluxinc.lower)# only 12 samples
 set.seed(1)
 dm.hel.fluxinc.lower.wunifrac <- UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.fluxinc.lower <- as(sample_data(ps.hel.fluxinc.lower), "data.frame") # write metadata data frame
-adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is no difference: R2, p are 0.12587  0.412 BUT ONLY 8 SAMPLES
+adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is a difference: R2, p are 0.36624  0.026 * 
 
 # following this up with an ordination of fluxincreasing GC samples and color by geochem_zone
-ps.hel.fluxinc <- subset_samples(ps.hel, stage=="fluxincreasing") # subset
+ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # subset
+nsamples(ps.hel.fluxinc)
 ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
 plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+stat_ellipse() # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
 
 # t-tests of beta-diversity between stages
-ps.hel.seep <- subset_samples(ps.hel, stage=="seep") # subset
+ps.hel.seep <- subset_samples(ps.hel, stage=="active methane seepage") # subset
 ps.hel.fluxinc
-ps.hel.ss <- subset_samples(ps.hel, stage=="steadystate")
+ps.hel.ss <- subset_samples(ps.hel, stage=="steady-state")
 
 set.seed(1)
 dm.seep <- UniFrac(ps.hel.seep, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE) # calculate distance matrices for beta-diversity calculations
@@ -300,7 +310,11 @@ t.test(bdiv.fluxinc, bdiv.ss)
 t.test(bdiv.fluxinc, bdiv.seep) 
 ```
 
-Conclusions: all stages are distinctly different from one another. This is true even when considering only above-SMTZ or below-SMTZ samples. There appear to be differences between steady-state and non-steady-state regions of the sulfate-reduction zone, though this difference was more evident in PC1029 samples than in the gravity cores. We saw no evidence of differences between non-steady-state SR zones and below-SMTZ zones in cores where flux was increasing, though this may be a result of inadequate sampling (only 8 samples tested). There is also evidence for lower beta-diversity among seep samples than among the other two stages, suggesting there is some aspect of community convergence (not that surprising).   
+Conclusions: all stages are distinctly different from one another. This is true even when considering only above-SMTZ or below-SMTZ samples, though remember that seep stages did not have below-SMTZ samples. The weakest difference (just not quite statistically significant) was between above-SMTZ samples when comparing fluxincreasing and steady-state directly.   
+
+There appear to be differences between steady-state and non-steady-state regions of sulfate-reduction zones, though these difference only tested significant in PC1029 samples. In fluxincreasing cores, samples from the nonlinear SR zone clustered closer with below SMTZ samples than those from linear SR zones, suggesting they have begun to change towards below-SMTZ communities. However, there are only 12 samples here and we'd need more to make this conclusion for sure.   
+
+There is also evidence for lower beta-diversity among seep samples than among the other two stages, suggesting there is some aspect of community convergence (not that surprising). But remember, this stage is represented by only one core, and we saw a lot of inter-core variance.   
 
 ## differentially abundant ASVs across methane flux stages and above/below the SMTZ
 We have 76 samples: 15 from seep, 49 from steady-state, and 12 from flux-increasing stages. There are no seep samples from below-SMTZ, 16 from steady-state, and 4 from flux-increasing. In an ideal world, we would have a more balanced sample design for assessing ASVs that are differentially abundant between these three stages (above the SMTZ) and between the latter two stages (below SMTZ). However, DESeq2 is able to handle imbalances in group numbers fairly robustly: https://support.bioconductor.org/p/115433/   

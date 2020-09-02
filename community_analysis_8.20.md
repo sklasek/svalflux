@@ -10,7 +10,7 @@ library(phyloseq)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
     ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
     ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
@@ -19,7 +19,7 @@ library(tidyverse)
 
     ## Warning: package 'ggplot2' was built under R version 3.6.2
 
-    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -207,28 +207,7 @@ ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
 ## alpha diversity
 
 ``` r
-plotrichness.oc <- plot_richness(ps.frdp, x="dist_above_peakaom", measures=c("Shannon"), color="core")
-```
-
-    ## Warning in estimate_richness(physeq, split = TRUE, measures = measures): The data you have provided does not have
-    ## any singletons. This is highly suspicious. Results of richness
-    ## estimates (for example) are probably unreliable, or wrong, if you have already
-    ## trimmed low-abundance taxa from the data.
-    ## 
-    ## We recommended that you find the un-trimmed data and retry.
-
-``` r
-plotrichness.oc+
-  facet_grid(core_flowtype~.)+
-  ylab("Shannon diversity index")+
-  xlab("Distance above present-day peak AOM rate (cm)")+
-  scale_color_discrete("Core")+
-  theme_bw()
-```
-
-![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
+# subset by high flux vs low flux 
 ps.frdp.ss <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage=="steadystate") # subsetsall steady-state samples
 ps.frdp.nss.seep <- subset_samples(ps.frdp, sample_data(ps.frdp)$stage!="steadystate") # subsets the non-steady-state samples and the seep
 
@@ -264,21 +243,22 @@ alphadiv.nss$core <- substring(rownames(alphadiv.nss), 1,6)
 
 alphadiv.nss$peakaom <- NA # creates a NA value for peak AOM depth
 alphadiv.ss$peakaom <- NA
-alphadiv.nss[which(alphadiv.nss$core=="GC1081"),6] <- 56 # add in SMT depths for all cores
-alphadiv.nss[which(alphadiv.nss$core=="GC1045"),6] <- 65
-alphadiv.nss[which(alphadiv.nss$core=="PC1029"),6] <- 45.3
-alphadiv.ss[which(alphadiv.ss$core=="GC1068"),6] <- 108
-alphadiv.ss[which(alphadiv.ss$core=="GC1069"),6] <- 137
-alphadiv.ss[which(alphadiv.ss$core=="GC1070"),6] <- 67
-alphadiv.ss[which(alphadiv.ss$core=="GC1048"),6] <- 313.5
-alphadiv.ss$dist_above_peakaom <- alphadiv.ss$peakaom-alphadiv.ss$depth # calculate distance above/below SMT
+alphadiv.nss[which(alphadiv.nss$core=="GC1081"),6] <- 55 # add in peak AOM depths for all cores
+alphadiv.nss[which(alphadiv.nss$core=="GC1045"),6] <- 67.5
+alphadiv.nss[which(alphadiv.nss$core=="PC1029"),6] <- 13
+alphadiv.ss[which(alphadiv.ss$core=="GC1068"),6] <- 74
+alphadiv.ss[which(alphadiv.ss$core=="GC1069"),6] <- 106
+alphadiv.ss[which(alphadiv.ss$core=="GC1070"),6] <- 68
+alphadiv.ss[which(alphadiv.ss$core=="GC1048"),6] <- 302.5
+alphadiv.ss$dist_above_peakaom <- alphadiv.ss$peakaom-alphadiv.ss$depth # calculate distance above/below peak AOM
 alphadiv.nss$dist_above_peakaom <- alphadiv.nss$peakaom-alphadiv.nss$depth 
-alphadiv.ss.range <- subset(alphadiv.ss, dist_above_peakaom < 62 & dist_above_peakaom > -46) # subset the dataframe to include steady-state samples from depths across the SMT that correspond to depths of non-steady-state samples
+
+alphadiv.ss.range <- subset(alphadiv.ss, dist_above_peakaom < 63.5 & dist_above_peakaom > -42.5) # subset the dataframe to include steady-state samples from depths across the SMT that correspond to depths of non-steady-state samples
 
 nss.lm <- lm(alphadiv.nss$Shannon~alphadiv.nss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
 ss.lm <- lm(alphadiv.ss$Shannon~alphadiv.ss$dist_above_peakaom) # linear model of shannon alpha diversity over distance to SMT for non-steady-state cores
 ss.lm.range <- lm(alphadiv.ss.range$Shannon~alphadiv.ss.range$dist_above_peakaom)
-summary(nss.lm) # summarizes the linear regression: slope is 0.023203, intercept is 3.777779, both are significant. Multiple R^2 is 0.4874, p value of slope is 5.14e-05
+summary(nss.lm) # summarizes the linear regression: slope is 0.029618, intercept is 4.167367, both are significant. Multiple R^2 is 0.5341, p value of slope is 1.5e-05
 ```
 
     ## 
@@ -287,18 +267,18 @@ summary(nss.lm) # summarizes the linear regression: slope is 0.023203, intercept
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -0.9868 -0.3838 -0.1185  0.2096  1.1947 
+    ## -1.1531 -0.3537  0.2309  0.4064  0.9437 
     ## 
     ## Coefficients:
     ##                                 Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                     3.777779   0.153165  24.665  < 2e-16 ***
-    ## alphadiv.nss$dist_above_peakaom 0.023203   0.004759   4.876 5.14e-05 ***
+    ## (Intercept)                     4.167367   0.115310  36.141  < 2e-16 ***
+    ## alphadiv.nss$dist_above_peakaom 0.029618   0.005532   5.353  1.5e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.6239 on 25 degrees of freedom
-    ## Multiple R-squared:  0.4874, Adjusted R-squared:  0.4669 
-    ## F-statistic: 23.77 on 1 and 25 DF,  p-value: 5.14e-05
+    ## Residual standard error: 0.5948 on 25 degrees of freedom
+    ## Multiple R-squared:  0.5341, Adjusted R-squared:  0.5155 
+    ## F-statistic: 28.66 on 1 and 25 DF,  p-value: 1.497e-05
 
 ``` r
 summary(ss.lm) # slope is significant considering all the points across depth 
@@ -310,21 +290,21 @@ summary(ss.lm) # slope is significant considering all the points across depth
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.1568 -0.4848  0.1290  0.5012  1.4750 
+    ## -3.1816 -0.5484  0.1525  0.4978  1.5101 
     ## 
     ## Coefficients:
     ##                                Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                    3.970973   0.131099  30.290  < 2e-16 ***
-    ## alphadiv.ss$dist_above_peakaom 0.003721   0.001074   3.465  0.00114 ** 
+    ## (Intercept)                    4.036265   0.128180  31.489  < 2e-16 ***
+    ## alphadiv.ss$dist_above_peakaom 0.003526   0.001070   3.294  0.00188 ** 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.8762 on 47 degrees of freedom
-    ## Multiple R-squared:  0.2035, Adjusted R-squared:  0.1866 
-    ## F-statistic: 12.01 on 1 and 47 DF,  p-value: 0.001141
+    ## Residual standard error: 0.885 on 47 degrees of freedom
+    ## Multiple R-squared:  0.1876, Adjusted R-squared:  0.1703 
+    ## F-statistic: 10.85 on 1 and 47 DF,  p-value: 0.001881
 
 ``` r
-summary(ss.lm.range) # slope is 0.006184, intercept is 3.742064, slope not significant across the SMT range. Multiple R^2 is 0.03277, p value of slope is 0.347
+summary(ss.lm.range) # slope is 0.002780, intercept is 3.831772, slope not significant across the SMT range. Multiple R^2 is 0.003901, p value of slope is 0.762
 ```
 
     ## 
@@ -333,18 +313,18 @@ summary(ss.lm.range) # slope is 0.006184, intercept is 3.742064, slope not signi
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -2.94879 -0.44745  0.04744  0.59875  1.60461 
+    ## -2.97898 -0.51723 -0.07824  0.57861  1.71682 
     ## 
     ## Coefficients:
     ##                                      Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                          3.742064   0.217121  17.235 4.27e-16 ***
-    ## alphadiv.ss.range$dist_above_peakaom 0.006184   0.006466   0.956    0.347    
+    ## (Intercept)                          3.831772   0.219516  17.456 3.83e-15 ***
+    ## alphadiv.ss.range$dist_above_peakaom 0.002780   0.009067   0.307    0.762    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.9778 on 27 degrees of freedom
-    ## Multiple R-squared:  0.03277,    Adjusted R-squared:  -0.003049 
-    ## F-statistic: 0.9149 on 1 and 27 DF,  p-value: 0.3473
+    ## Residual standard error: 1.05 on 24 degrees of freedom
+    ## Multiple R-squared:  0.003901,   Adjusted R-squared:  -0.0376 
+    ## F-statistic: 0.09399 on 1 and 24 DF,  p-value: 0.7618
 
 ``` r
 # assign facet grid labels and methane flux stages
@@ -362,13 +342,13 @@ ssplot <- plotrichness.ss+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
   scale_color_manual("Methane stage", values=c("#8da0cb"))+
   scale_shape_manual("Core",values = c(4:7))+
-  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
-  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
-  geom_segment(x=-45,y=3.482369,xend=61,yend=4.116885, color="black", size=1)+
+  geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
+  geom_segment(x=-42.5,y=3.713622,xend=63.5,yend=4.008302, color="black", size=1)+
   theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
   theme(strip.text = element_text(size = 11))+
-  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.0328\")", parse = TRUE)+
-  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.347\")", parse = TRUE)+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.0039\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 0.762\")", parse = TRUE)+
   annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
 
 plotrichness.nss <- ggplot(alphadiv.nss, aes(dist_above_peakaom, Shannon, color=stage, shape=core))
@@ -379,22 +359,28 @@ nssplot <- plotrichness.nss+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
   scale_color_manual("Methane stage", values=c("#fc8d62", "#66c2a5"))+
   scale_shape_manual("Core", values = c(1:3))+
-  geom_vline(aes(xintercept=-45), linetype="dashed", size=0.8)+
-  geom_vline(aes(xintercept=61), linetype="dashed", size=0.8)+
-  geom_segment(x=-45,y=2.747481,xend=61,yend=5.204455, color="black", size=1)+
+  geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
+  geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
+  geom_segment(x=-42.5,y=2.908602,xend=63.5,yend=6.04811, color="black", size=1)+
   theme_bw()+ # now for some reason you need to put the theme_bw() ahead of the theme() or nothing in theme() will work
   theme(strip.text = element_text(size = 11))+
-  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.4874\")", parse = TRUE)+
-  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 5.14e-05\")", parse = TRUE)+
+  annotate("text", x = -150, y = 4.9, label = "paste(italic(R) ^ 2, \" = 0.5341\")", parse = TRUE)+
+  annotate("text", x = -150, y = 5.6, label = "paste(italic(p), \" = 1.5e-05\")", parse = TRUE)+
   annotate("rect", xmin = -225, xmax = -75, ymin = 4.5, ymax = 6, alpha = .2)
 
-div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 5
+div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 6
+```
+
+![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+div.fig
 ```
 
 ![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ``` r
-div.fig <- saveRDS(div.fig, "figures/figure5") # export alpha diversity figure
+div.fig <- saveRDS(div.fig, "figures/figure6") # export alpha diversity figure
 ```
 
 ## beta diversity
@@ -442,7 +428,7 @@ adonis(dm.jac ~ geochem_zone*stage, data=metadata.ps.hel)
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
     ## geochem_zone        2     1.899 0.94929  2.4343 0.05845  0.001 ***
     ## stage               2     2.485 1.24263  3.1865 0.07651  0.001 ***
-    ## geochem_zone:stage  2     1.189 0.59469  1.5250 0.03662  0.002 ** 
+    ## geochem_zone:stage  2     1.189 0.59469  1.5250 0.03662  0.001 ***
     ## Residuals          69    26.908 0.38997         0.82842           
     ## Total              75    32.481                 1.00000           
     ## ---
@@ -466,7 +452,7 @@ adonis(dm.bc ~ geochem_zone*stage, data=metadata.ps.hel)
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
     ## geochem_zone        2    2.4565 1.22825  4.3089 0.09240  0.001 ***
     ## stage               2    3.3416 1.67078  5.8614 0.12570  0.001 ***
-    ## geochem_zone:stage  2    1.1178 0.55891  1.9607 0.04205  0.003 ** 
+    ## geochem_zone:stage  2    1.1178 0.55891  1.9607 0.04205  0.001 ***
     ## Residuals          69   19.6684 0.28505         0.73985           
     ## Total              75   26.5843                 1.00000           
     ## ---
@@ -843,7 +829,8 @@ ord.fig
 ![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
-ord.fig <- saveRDS(ord.fig, "figures/figure6") # export figure
+ord1.p.stage <- saveRDS(ord1.p.stage, "figures/ord1.p.stage")
+ord1.p.zone <- saveRDS(ord1.p.zone, "figures/ord1.p.zone")
 ```
 
 The PCoA has fewer outliers, and explains 25% x 17.4% variance on the
@@ -861,70 +848,80 @@ possibly beta-diversity from lines 938-974. Just to be thorough…
 ``` r
 library(phyloseq)
 # omitting below-SMT samples, is there still a difference by stage?
-ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below") # subset
+nsamples(ps.hel)
+ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMTZ") # subset
+nsamples(ps.hel.above)
 set.seed(1)
 dm.hel.above.wunifrac <- UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above <- as(sample_data(ps.hel.above), "data.frame") # write metadata data frame
-adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521  0.001 ***
+adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521,  0.001 ***
 
 # considering only below-SMT samples, is there still a difference by stage?
-ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below") # subset
+ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMTZ") # subset
+nsamples(ps.hel.below)
 set.seed(1)
 dm.hel.below.wunifrac <- UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.below <- as(sample_data(ps.hel.below), "data.frame") # write metadata data frame
 adonis(dm.hel.below.wunifrac ~ stage, data=metadata.ps.hel.below) # yes there is a difference: R2, p are 0.18597  0.003 **
 
 # differences between the two stages steady-state and fluxincreasing? 
-ps.hel.gc <- subset_samples(ps.hel, stage!="seep") # subset
+ps.hel.gc <- subset_samples(ps.hel, stage!="active methane seepage") # subset
+nsamples(ps.hel.gc)
 set.seed(1)
 dm.hel.gc.wunifrac <- UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.gc <- as(sample_data(ps.hel.gc), "data.frame") # write metadata data frame
 adonis(dm.hel.gc.wunifrac ~ stage, data=metadata.ps.hel.gc) # there is a difference: R2, p are 0.06055  0.001 ***
 
 # differences between the two stages (steady-state and fluxincreasing) when only considering above-SMT samples? 
-ps.hel.above.gc <- subset_samples(ps.hel.above, stage!="seep") # subset
-set.seed(1)
+ps.hel.above.gc <- subset_samples(ps.hel.above, stage!="active methane seepage") # subset
+nsamples(ps.hel.above.gc)
+set.seed(11)
 dm.hel.above.gc.wunifrac <- UniFrac(ps.hel.above.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.gc <- as(sample_data(ps.hel.above.gc), "data.frame") # write metadata data frame
-adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is not really a difference: R2, p are 0.04448  0.056 .
+adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is barely a difference: R2, p are 0.04448  0.056 (Honestly, if you really like p < 0.05, significance depends on which set.seed you use)
 
 # differences between linear SR and non-steady-state SR across both seep and fluxincreasing?
-ps.hel.above.flux <- subset_samples(ps.hel, stage!="steadystate" & geochem_zone!="below") # subset
+ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMTZ") # subset
+nsamples(ps.hel.above.flux)
 set.seed(1)
 dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.flux <- as(sample_data(ps.hel.above.flux), "data.frame") # write metadata data frame
 adonis(dm.hel.above.flux.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.flux) #  there is a difference: R2, p are 0.16792  0.004 **
 
 # differences between linear SR and non-steady-state SR across fluxincreasing only?
-ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="fluxincreasing") # subset
+ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
+nsamples(ps.hel.above.fluxinc) # there are only 8 samples
 set.seed(1)
 dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
-adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are ~0.3, ~0.05 depending on set.seed
+adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.3008  0.052 (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
 
 # differences between linear SR and non-steady-state SR across seep only?
-ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="seep") # subset
+ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="active methane seepage") # subset
+nsamples(ps.hel.above.fluxseep)
 set.seed(1)
 dm.hel.above.fluxseep.wunifrac <- UniFrac(ps.hel.above.fluxseep, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above.fluxseep <- as(sample_data(ps.hel.above.fluxseep), "data.frame") # write metadata data frame
 adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxseep) #  there is a difference: R2, p are 0.34069  0.002 **
 
 # differences between non-steady-state SR and below-SMT across fluxincreasing only?
-ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="fluxincreasing" & geochem_zone!="lin") # subset
+ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="lin") # subset
+nsamples(ps.hel.fluxinc.lower)# only 12 samples
 set.seed(1)
 dm.hel.fluxinc.lower.wunifrac <- UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.fluxinc.lower <- as(sample_data(ps.hel.fluxinc.lower), "data.frame") # write metadata data frame
-adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is no difference: R2, p are 0.12587  0.412 BUT ONLY 8 SAMPLES
+adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is a difference: R2, p are 0.36624  0.026 * 
 
 # following this up with an ordination of fluxincreasing GC samples and color by geochem_zone
-ps.hel.fluxinc <- subset_samples(ps.hel, stage=="fluxincreasing") # subset
+ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # subset
+nsamples(ps.hel.fluxinc)
 ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
 plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+stat_ellipse() # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
 
 # t-tests of beta-diversity between stages
-ps.hel.seep <- subset_samples(ps.hel, stage=="seep") # subset
+ps.hel.seep <- subset_samples(ps.hel, stage=="active methane seepage") # subset
 ps.hel.fluxinc
-ps.hel.ss <- subset_samples(ps.hel, stage=="steadystate")
+ps.hel.ss <- subset_samples(ps.hel, stage=="steady-state")
 
 set.seed(1)
 dm.seep <- UniFrac(ps.hel.seep, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE) # calculate distance matrices for beta-diversity calculations
@@ -943,16 +940,25 @@ t.test(bdiv.fluxinc, bdiv.seep)
 ```
 
 Conclusions: all stages are distinctly different from one another. This
-is true even when considering only above-SMTZ or below-SMTZ samples.
+is true even when considering only above-SMTZ or below-SMTZ samples,
+though remember that seep stages did not have below-SMTZ samples. The
+weakest difference (just not quite statistically significant) was
+between above-SMTZ samples when comparing fluxincreasing and
+steady-state directly.
+
 There appear to be differences between steady-state and non-steady-state
-regions of the sulfate-reduction zone, though this difference was more
-evident in PC1029 samples than in the gravity cores. We saw no evidence
-of differences between non-steady-state SR zones and below-SMTZ zones in
-cores where flux was increasing, though this may be a result of
-inadequate sampling (only 8 samples tested). There is also evidence for
-lower beta-diversity among seep samples than among the other two stages,
-suggesting there is some aspect of community convergence (not that
-surprising).
+regions of sulfate-reduction zones, though these difference only tested
+significant in PC1029 samples. In fluxincreasing cores, samples from the
+nonlinear SR zone clustered closer with below SMTZ samples than those
+from linear SR zones, suggesting they have begun to change towards
+below-SMTZ communities. However, there are only 12 samples here and we’d
+need more to make this conclusion for sure.
+
+There is also evidence for lower beta-diversity among seep samples than
+among the other two stages, suggesting there is some aspect of community
+convergence (not that surprising). But remember, this stage is
+represented by only one core, and we saw a lot of inter-core
+variance.
 
 ## differentially abundant ASVs across methane flux stages and above/below the SMTZ
 
@@ -1185,9 +1191,9 @@ anme.biomarkers <- all.biomarkers %>% filter(Class == "Methanomicrobia") # subse
 delta.biomarkers <- all.biomarkers %>% filter(Class == "Deltaproteobacteria" & is.na(Genus)==FALSE) # subset Deltaproteobacteria only
 
 # when plotting, facet by more than two stages: Plotting most biomarkers at the class level, but ANMEs at Family and Deltas at Genus
-most.biomarkers$plotlevel <- "Class"
-anme.biomarkers$plotlevel <- "Family"
-delta.biomarkers$plotlevel <- "Genus"
+most.biomarkers$plotlevel <- "Community"
+anme.biomarkers$plotlevel <- "ANME"
+delta.biomarkers$plotlevel <- "SRB"
 most.biomarkers$taxlevel <- most.biomarkers$Class
 anme.biomarkers$taxlevel <- anme.biomarkers$Family
 delta.biomarkers$taxlevel <- delta.biomarkers$Genus
@@ -1195,7 +1201,7 @@ biomarkers.to.plot <- rbind(most.biomarkers, anme.biomarkers, delta.biomarkers) 
 
 gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(levels(factor(taxlevel)))), y=log2FoldChange, color=Kingdom)) + 
   geom_point(aes(size = relabund*100, fill=Kingdom), color="black", pch=21) +
-  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*500)+
+  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*400)+
   scale_fill_discrete("Domain")+
   scale_x_discrete("")+
   scale_y_continuous("log2 Differential Abundance Change", position = "right", limits = c(0,27)) +
@@ -1210,5 +1216,5 @@ gg.all.biom
 ![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
-gg.all.biom <- saveRDS(gg.all.biom, "figures/figure7") # export figure
+gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
 ```
