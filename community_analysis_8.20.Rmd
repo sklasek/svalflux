@@ -216,7 +216,7 @@ Maybe don't even show the plot by geochem zone... it's just a mess that doesn't 
 Can also add the sections "more permanovas" from lines 844-920, and possibly beta-diversity from lines 938-974. Just to be thorough...   
 
 ## follow-up tests on beta-diversity
-```{r eval=FALSE}
+```{r }
 library(phyloseq)
 # omitting below-SMT samples, is there still a difference by stage?
 nsamples(ps.hel)

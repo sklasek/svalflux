@@ -10,7 +10,7 @@ library(phyloseq)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
     ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
     ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
@@ -19,7 +19,7 @@ library(tidyverse)
 
     ## Warning: package 'ggplot2' was built under R version 3.6.2
 
-    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -452,7 +452,7 @@ adonis(dm.bc ~ geochem_zone*stage, data=metadata.ps.hel)
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
     ## geochem_zone        2    2.4565 1.22825  4.3089 0.09240  0.001 ***
     ## stage               2    3.3416 1.67078  5.8614 0.12570  0.001 ***
-    ## geochem_zone:stage  2    1.1178 0.55891  1.9607 0.04205  0.001 ***
+    ## geochem_zone:stage  2    1.1178 0.55891  1.9607 0.04205  0.002 ** 
     ## Residuals          69   19.6684 0.28505         0.73985           
     ## Total              75   26.5843                 1.00000           
     ## ---
@@ -849,95 +849,427 @@ possibly beta-diversity from lines 938-974. Just to be thorough…
 library(phyloseq)
 # omitting below-SMT samples, is there still a difference by stage?
 nsamples(ps.hel)
+```
+
+    ## [1] 76
+
+``` r
 ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMTZ") # subset
 nsamples(ps.hel.above)
+```
+
+    ## [1] 56
+
+``` r
 set.seed(1)
 dm.hel.above.wunifrac <- UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE, parallel
+    ## = FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## the data you provided.
+
+``` r
 metadata.ps.hel.above <- as(sample_data(ps.hel.above), "data.frame") # write metadata data frame
 adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521,  0.001 ***
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.above.wunifrac ~ stage, data = metadata.ps.hel.above) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
+    ## stage      2   0.54092 0.270459  7.2669 0.21521  0.001 ***
+    ## Residuals 53   1.97254 0.037218         0.78479           
+    ## Total     55   2.51346                  1.00000           
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # considering only below-SMT samples, is there still a difference by stage?
 ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMTZ") # subset
 nsamples(ps.hel.below)
+```
+
+    ## [1] 20
+
+``` r
 set.seed(1)
 dm.hel.below.wunifrac <- UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE, parallel
+    ## = FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## the data you provided.
+
+``` r
 metadata.ps.hel.below <- as(sample_data(ps.hel.below), "data.frame") # write metadata data frame
 adonis(dm.hel.below.wunifrac ~ stage, data=metadata.ps.hel.below) # yes there is a difference: R2, p are 0.18597  0.003 **
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.below.wunifrac ~ stage, data = metadata.ps.hel.below) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)   
+    ## stage      1   0.13964 0.13964  4.1121 0.18597  0.003 **
+    ## Residuals 18   0.61127 0.03396         0.81403          
+    ## Total     19   0.75092                 1.00000          
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # differences between the two stages steady-state and fluxincreasing? 
 ps.hel.gc <- subset_samples(ps.hel, stage!="active methane seepage") # subset
 nsamples(ps.hel.gc)
+```
+
+    ## [1] 61
+
+``` r
 set.seed(1)
 dm.hel.gc.wunifrac <- UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE, parallel =
+    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## the data you provided.
+
+``` r
 metadata.ps.hel.gc <- as(sample_data(ps.hel.gc), "data.frame") # write metadata data frame
 adonis(dm.hel.gc.wunifrac ~ stage, data=metadata.ps.hel.gc) # there is a difference: R2, p are 0.06055  0.001 ***
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.gc.wunifrac ~ stage, data = metadata.ps.hel.gc) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
+    ## stage      1   0.15017 0.150166  3.8028 0.06055  0.001 ***
+    ## Residuals 59   2.32983 0.039489         0.93945           
+    ## Total     60   2.47999                  1.00000           
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # differences between the two stages (steady-state and fluxincreasing) when only considering above-SMT samples? 
 ps.hel.above.gc <- subset_samples(ps.hel.above, stage!="active methane seepage") # subset
 nsamples(ps.hel.above.gc)
+```
+
+    ## [1] 41
+
+``` r
 set.seed(11)
 dm.hel.above.gc.wunifrac <- UniFrac(ps.hel.above.gc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.above.gc, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV37 -- in the phylogenetic tree in the data you
+    ## provided.
+
+``` r
 metadata.ps.hel.above.gc <- as(sample_data(ps.hel.above.gc), "data.frame") # write metadata data frame
 adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is barely a difference: R2, p are 0.04448  0.056 (Honestly, if you really like p < 0.05, significance depends on which set.seed you use)
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.above.gc.wunifrac ~ stage, data = metadata.ps.hel.above.gc) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
+    ## stage      1   0.03971 0.039705  1.8235 0.04467  0.049 *
+    ## Residuals 39   0.84917 0.021774         0.95533         
+    ## Total     40   0.88888                  1.00000         
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # differences between linear SR and non-steady-state SR across both seep and fluxincreasing?
 ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMTZ") # subset
 nsamples(ps.hel.above.flux)
+```
+
+    ## [1] 23
+
+``` r
 set.seed(1)
 dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## you provided.
+
+``` r
 metadata.ps.hel.above.flux <- as(sample_data(ps.hel.above.flux), "data.frame") # write metadata data frame
 adonis(dm.hel.above.flux.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.flux) #  there is a difference: R2, p are 0.16792  0.004 **
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.above.flux.wunifrac ~ geochem_zone, data = metadata.ps.hel.above.flux) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)   
+    ## geochem_zone  1   0.14455 0.144553   4.238 0.16792  0.004 **
+    ## Residuals    21   0.71628 0.034109         0.83208          
+    ## Total        22   0.86083                  1.00000          
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # differences between linear SR and non-steady-state SR across fluxincreasing only?
 ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
 nsamples(ps.hel.above.fluxinc) # there are only 8 samples
+```
+
+    ## [1] 8
+
+``` r
 set.seed(1)
 dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## you provided.
+
+``` r
 metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
 adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.3008  0.052 (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.above.fluxinc.wunifrac ~ geochem_zone,      data = metadata.ps.hel.above.fluxinc) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
+    ## geochem_zone  1  0.083069 0.083069  2.5926 0.30173  0.046 *
+    ## Residuals     6  0.192242 0.032040         0.69827         
+    ## Total         7  0.275311                  1.00000         
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # differences between linear SR and non-steady-state SR across seep only?
 ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="active methane seepage") # subset
 nsamples(ps.hel.above.fluxseep)
+```
+
+    ## [1] 15
+
+``` r
 set.seed(1)
 dm.hel.above.fluxseep.wunifrac <- UniFrac(ps.hel.above.fluxseep, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.above.fluxseep, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## you provided.
+
+``` r
 metadata.ps.hel.above.fluxseep <- as(sample_data(ps.hel.above.fluxseep), "data.frame") # write metadata data frame
 adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxseep) #  there is a difference: R2, p are 0.34069  0.002 **
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.above.fluxseep.wunifrac ~ geochem_zone,      data = metadata.ps.hel.above.fluxseep) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)   
+    ## geochem_zone  1   0.14696 0.146958  6.7176 0.34069  0.002 **
+    ## Residuals    13   0.28439 0.021876         0.65931          
+    ## Total        14   0.43135                  1.00000          
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # differences between non-steady-state SR and below-SMT across fluxincreasing only?
 ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="lin") # subset
 nsamples(ps.hel.fluxinc.lower)# only 12 samples
+```
+
+    ## [1] 12
+
+``` r
 set.seed(1)
 dm.hel.fluxinc.lower.wunifrac <- UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## you provided.
+
+``` r
 metadata.ps.hel.fluxinc.lower <- as(sample_data(ps.hel.fluxinc.lower), "data.frame") # write metadata data frame
 adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is a difference: R2, p are 0.36624  0.026 * 
+```
 
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.fluxinc.lower.wunifrac ~ geochem_zone,      data = metadata.ps.hel.fluxinc.lower) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
+    ## geochem_zone  2   0.15610 0.078048  2.6005 0.36624  0.026 *
+    ## Residuals     9   0.27011 0.030012         0.63376         
+    ## Total        11   0.42621                  1.00000         
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 # following this up with an ordination of fluxincreasing GC samples and color by geochem_zone
 ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # subset
 nsamples(ps.hel.fluxinc)
-ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
-plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+stat_ellipse() # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
+```
 
+    ## [1] 12
+
+``` r
+ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
+```
+
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV13176 -- in
+    ## the phylogenetic tree in the data you provided.
+
+``` r
+plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+stat_ellipse() # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
+```
+
+![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
 # t-tests of beta-diversity between stages
 ps.hel.seep <- subset_samples(ps.hel, stage=="active methane seepage") # subset
 ps.hel.fluxinc
+```
+
+    ## phyloseq-class experiment-level object
+    ## otu_table()   OTU Table:         [ 16470 taxa and 12 samples ]
+    ## sample_data() Sample Data:       [ 12 samples by 22 sample variables ]
+    ## tax_table()   Taxonomy Table:    [ 16470 taxa by 6 taxonomic ranks ]
+    ## phy_tree()    Phylogenetic Tree: [ 16470 tips and 16468 internal nodes ]
+    ## refseq()      DNAStringSet:      [ 16470 reference sequences ]
+
+``` r
 ps.hel.ss <- subset_samples(ps.hel, stage=="steady-state")
 
 set.seed(1)
 dm.seep <- UniFrac(ps.hel.seep, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE) # calculate distance matrices for beta-diversity calculations
+```
+
+    ## Warning in UniFrac(ps.hel.seep, weighted = TRUE, normalized = TRUE, parallel =
+    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## the data you provided.
+
+``` r
 set.seed(1)
 dm.fluxinc <- UniFrac(ps.hel.fluxinc, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE)
+```
+
+    ## Warning in UniFrac(ps.hel.fluxinc, weighted = TRUE, normalized = TRUE, parallel
+    ## = FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## the data you provided.
+
+``` r
 set.seed(1)
 dm.ss <- UniFrac(ps.hel.ss, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast=TRUE)
+```
 
+    ## Warning in UniFrac(ps.hel.ss, weighted = TRUE, normalized = TRUE, parallel =
+    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## the data you provided.
+
+``` r
 bdiv.seep <- as.vector(dm.seep) # rewrite the triangle distance matrices as vectors
 bdiv.fluxinc <- as.vector(dm.fluxinc) 
 bdiv.ss <- as.vector(dm.ss) 
 
 t.test(bdiv.seep, bdiv.ss) 
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  bdiv.seep and bdiv.ss
+    ## t = -4.3132, df = 117.25, p-value = 3.374e-05
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.05909555 -0.02190421
+    ## sample estimates:
+    ## mean of x mean of y 
+    ## 0.2301890 0.2706889
+
+``` r
 t.test(bdiv.fluxinc, bdiv.ss) 
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  bdiv.fluxinc and bdiv.ss
+    ## t = -0.18916, df = 73.685, p-value = 0.8505
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.02005586  0.01657825
+    ## sample estimates:
+    ## mean of x mean of y 
+    ## 0.2689501 0.2706889
+
+``` r
 t.test(bdiv.fluxinc, bdiv.seep) 
 ```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  bdiv.fluxinc and bdiv.seep
+    ## t = 3.0418, df = 161.6, p-value = 0.002745
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.01359750 0.06392465
+    ## sample estimates:
+    ## mean of x mean of y 
+    ## 0.2689501 0.2301890
 
 Conclusions: all stages are distinctly different from one another. This
 is true even when considering only above-SMTZ or below-SMTZ samples,
