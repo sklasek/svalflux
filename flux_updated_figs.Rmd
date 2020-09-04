@@ -69,7 +69,7 @@ As before, we still observe ASV-scale niche differences among ANME and SRB subpo
 4) Far fewer biomarkers distinguish stages below the SMTZ (and none are unique to below-SMTZ) but Lokiarchaea may be one key taxon associated with steady-state methanogenic zones.   
 
 ```{r, fig.height=6.5, fig.width=9, echo=FALSE, fig.align="center"}
-figure5
+figure5 # actually exported at 9.17 x 6.91
 ```
 
 Figure 5. Differentially abundant ASVs between three discrete stages of methane dynamics, either above or below the sulfate-methane transition zone. Higher differential abundance values represent stronger associations between an ASV and a particular group. In addition to position relative to the SMTZ, vertical panels convey class-level taxonomic annotations for all taxa except ANME (at family level) and SRB (at genus level). Bubble sizes represent mean percent abundances within each group. Differential abundance was inferred using an alpha of 0.05 and a Benjamini-Hochberg correction for multiple comparisons. 
@@ -108,18 +108,18 @@ Figure 8. Conceptual depiction of microbial community changes concurrent with di
 I'm not sure about my values for these flux calculations... but basically increasing methane flux >> steady-state
 
 ```{r, echo=FALSE}
-figureS1flux
+figureS1flux # 5.48 x 4.61
 ```
 Figure S1. Methane fluxes across each core, integrated from modeled AOM rates derived from data at the time of sampling. Cores are colored by methane stage. PC1029 was omitted due to high uncertainty in modeling AOM rates (explain more?)
 
 ```{r, echo=FALSE}
-figureS3ratemcrAplot
+figureS3ratemcrAplot # 6.43 x 4.28
 ```
 
 Figure S2. Regression of mcrA gene copy numbers (per gram bulk sediment) to modeled AOM rates shows a linear relationship across samples from all cores (log-log transformation). Samples are colored according to stages of methane dynamics, and those that did not contain detectable mcrA were omitted. 
 
 ```{r, echo=FALSE}
-figureS3ssjust
+figureS3ssjust # 6.43 x 4.28
 ```
 
 Figure S3. Empirically-measured sulfate porewater profiles from cores taken from steady-state areas, shown with modeled sulfate profiles assuming a non-steady state scenario where methane flux is increasing. The discrepancies in the shapes of these two profiles for these four cores is evidence that they are not experiencing a recent increase in methane flux, and are thus characterized as steady-state.
