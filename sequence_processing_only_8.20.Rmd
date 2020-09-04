@@ -186,7 +186,7 @@ flux.sample.depth.samples.and.controls
 
 Remove the contaminants
 ```{r}
-contam <- rownames(flux.comb.contam.mx) # the contaminant names
+contam <- rownames(flux.comb.contam.mx) # the 81 contaminant names
 allnames <- rownames(tax_table(ps.fr)) # the taxa names
 flux.uncontam <- allnames[!allnames %in% contam] # gives us the noncontaminant names
 ps.frd <- prune_taxa(flux.uncontam, ps.fr) # creates new phyloseq object without contaminants
@@ -220,6 +220,9 @@ flux.dc.sample.depth.samples.and.controls <- ggplot(data=df.dc.flux, aes(x=Index
 flux.dc.sample.depth.samples.and.controls # now the other negative control is lower
 ps.frd <- subset_taxa(ps.frd, (Genus!="Micrococcus") | is.na(Genus)) # removed 4 Micrococcus ASVs from ps.frd
 ps.frd
+
+# of the 85 contaminants, what % of the reads in the dataset?
+sum(otu_table(ps.fr)[,contam])/sum(otu_table(ps.fr))*100 + sum(otu_table(ps.fr)[,which(tax_table(ps.fr)[,6]=="Micrococcus")])/sum(otu_table(ps.fr))*100 # 1.05%
 ```
 
 prune samples with low-abundance reads to create the final phyloseq object

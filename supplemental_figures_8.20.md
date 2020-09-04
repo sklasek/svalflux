@@ -10,7 +10,7 @@ library(phyloseq)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
     ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
     ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
@@ -19,7 +19,7 @@ library(tidyverse)
 
     ## Warning: package 'ggplot2' was built under R version 3.6.2
 
-    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -79,10 +79,14 @@ fluxes$core <- rownames(fluxes) # add core names
 flux.gc <- fluxes[1:6,] # subset only the gravity cores (not as confident about the rates for PC1029)
 flux.gc$stage <- c("increasing methane flux", "steady-state", "steady-state", "steady-state", "steady-state", "increasing methane flux") # add stage
 
+# i calculated a few things wrong
+flux.gc[1,2] <- 5.28 # correcting GC1045 flux
+flux.gc[6,2] <- 4.22 # correcting GC1081 flux
+
 gcf <- ggplot(flux.gc,aes(core,intflux,fill=stage))
 gg.flux <- gcf+geom_bar(stat="identity")+
   scale_fill_manual("Methane stage", values = c("#66c2a5", "#8da0cb"))+
-  scale_y_continuous()+
+  scale_y_continuous(limits = c(0,6))+
   xlab("")+
   ylab(bquote(~CH[4]~'flux (mols'~m^-2~yr^-1*') at time of sampling'))+
   theme_classic()+
@@ -90,13 +94,13 @@ gg.flux <- gcf+geom_bar(stat="identity")+
 flux.gc
 ```
 
-    ##        maxdepth    intflux   core                   stage
-    ## GC1045    175.0 17.4255914 GC1045 increasing methane flux
-    ## GC1048    349.5  0.8491165 GC1048            steady-state
-    ## GC1068    307.5  0.7475539 GC1068            steady-state
-    ## GC1069    307.5  0.5231347 GC1069            steady-state
-    ## GC1070    307.5  0.8259742 GC1070            steady-state
-    ## GC1081    150.0 10.2030182 GC1081 increasing methane flux
+    ##        maxdepth   intflux   core                   stage
+    ## GC1045    175.0 5.2800000 GC1045 increasing methane flux
+    ## GC1048    349.5 0.8491165 GC1048            steady-state
+    ## GC1068    307.5 0.7475539 GC1068            steady-state
+    ## GC1069    307.5 0.5231347 GC1069            steady-state
+    ## GC1070    307.5 0.8259742 GC1070            steady-state
+    ## GC1081    150.0 4.2200000 GC1081 increasing methane flux
 
 ``` r
 gg.flux

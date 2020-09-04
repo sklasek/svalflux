@@ -34,10 +34,14 @@ fluxes$core <- rownames(fluxes) # add core names
 flux.gc <- fluxes[1:6,] # subset only the gravity cores (not as confident about the rates for PC1029)
 flux.gc$stage <- c("increasing methane flux", "steady-state", "steady-state", "steady-state", "steady-state", "increasing methane flux") # add stage
 
+# i calculated a few things wrong
+flux.gc[1,2] <- 5.28 # correcting GC1045 flux
+flux.gc[6,2] <- 4.22 # correcting GC1081 flux
+
 gcf <- ggplot(flux.gc,aes(core,intflux,fill=stage))
 gg.flux <- gcf+geom_bar(stat="identity")+
   scale_fill_manual("Methane stage", values = c("#66c2a5", "#8da0cb"))+
-  scale_y_continuous()+
+  scale_y_continuous(limits = c(0,6))+
   xlab("")+
   ylab(bquote(~CH[4]~'flux (mols'~m^-2~yr^-1*') at time of sampling'))+
   theme_classic()+
