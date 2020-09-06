@@ -1,20 +1,20 @@
 ---
 title: "sequence_processing_only_8.20"
 author: "Scott Klasek"
-date: "8/26/2020"
+date: "9/3/2020"
 output: github_document
 ---
 
-# 16S sequence processing and decontamination (not analysis)
-I haven't run this yet. This code has been nearly-all copy-pasted from sequence_processing.Rmd but formatted so that it's somewhat readable. I'll mark this down before publication to get the .md document.
+## 16S sequence processing and decontamination 
+Analyses are in the documents:   
+bubble_plots (making community composition bubble plots)   
+core_info_and_panel_figures (adding in geochemistry, modeled AOM rates, and gene count data along with community composition)   
+community_analysis (alpha and beta diversity, ordinations, biomarkers between different methane flux stages)   
 
 ## load necessary libraries
 ```{r}
 library(dada2)
-library(tidyr)
-library(plyr)
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 library(phyloseq)
 library(decontam)
 library(DECIPHER)
