@@ -16,9 +16,26 @@ sessioninfo <- sessionInfo()
 ```
 
 ## import phyloseq object
-ps.frdp from sequence_processing Rmd script  
+ps.frdp is from sequence_processing Rmd script  
+also calculate a few stats of abundant ASVs
 ```{r}
 ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
+
+# what are the most abundant ASVs?
+ps.ra <- transform_sample_counts(ps.frdp, function(OTU) OTU/sum(OTU))
+asv.ras <- colSums(otu_table(ps.ra)*100/(nsamples(ps.ra))) # calculates the average percent abundance of each ASV in dataset
+asvpcts <- data.frame(cbind(names(asv.ras), asv.ras, tax_table(ps.ra))) # combine taxonomy and percent abundances of most abundant ASVs
+colnames(asvpcts)[1] <- "ASV" # rename column
+colnames(asvpcts)[2] <- "percent_abundance" # rename column
+asvpcts$percent_abundance <- as.numeric(as.character(asvpcts$percent_abundance)) # convert to numeric
+asvpcts.abund <- asvpcts %>% filter(percent_abundance > 1) # select only the ones above 1% 
+asvpcts.abund
+
+# how abundant are ANME and SRB?
+asvANMEs <- asvpcts %>% filter(Family=="ANME-1a" | Family=="ANME-1b" | Family=="ANME-2a-2b" | Family=="ANME-2c")
+sum(asvANMEs$percent_abundance) # ANME at 10.0%
+asvSRBs <- asvpcts %>% filter(Genus=="SEEP-SRB1" | Genus=="SEEP-SRB2" | Genus=="Desulfatiglans" | Genus=="Desulfobulbus" | Genus=="Desulfococcus")
+sum(asvSRBs$percent_abundance) # SRB at 12.0%
 ```
 
 ## Pull out and subset taxonomic and relative abundance data
@@ -29,7 +46,7 @@ classes.ps.frdp <- classes.ps.frdp[!is.na(classes.ps.frdp)] # removes the NA
 
 mx.f.asv <- as.matrix(otu_table(ps.frdp)) # creates a matrix  from the phyloseq object
 class.ra <- vector("list",0)
-for (i in classes.ps.frdp) {class.ra[[i]] <- sum(mx.f.asv[,which(tax_table(ps.frdp)[,3]==i)])/31170.40}
+for (i in classes.ps.frdp) {class.ra[[i]] <- sum(mx.f.asv[,which(tax_table(ps.frdp)[,3]==i)])/(sum(otu_table(ps.frdp))/100)}
 class.output <- cbind(class.ra) 
 # cab print list of classes by their relative abundance: print(class.output) 
 top.c <- c("JS1","Deltaproteobacteria","Methanomicrobia","Dehalococcoidia","Anaerolineae","Campylobacteria","Aminicenantia","Bacteroidia","Phycisphaerae","Lokiarchaeia","Woesearchaeia","Gammaproteobacteria","Thermoplasmata","Alphaproteobacteria", "Nitrososphaeria") # all classes > 1% relabund
@@ -145,6 +162,17 @@ metasuperdf$level_reorder <- factor(metasuperdf$level, levels=c("Community","ANM
 sdf1029 <- subset(metasuperdf, metasuperdf$stage=="seep") 
 sdf.fi <- subset(metasuperdf, metasuperdf$stage=="fluxincreasing") 
 sdf.ss <- subset(metasuperdf, metasuperdf$stage=="steadystate")
+
+
+# stats calculating ANME abundances in total communities
+anme76 <- sdf.fi %>% filter(level=="ANME" & depth==76)
+anme110 <- sdf.fi %>% filter(level=="ANME" & depth==110)
+srb76 <- sdf.fi %>% filter(level=="SRB" & depth==76)
+srb110 <- sdf.fi %>% filter(level=="SRB" & depth==110)
+
+sample_data(ps.frdp)
+
+sdf.fi %>% filter(level=="ANME" & tax_reorder=="ANME-1b" & core=="GC1081" & depth==69)
 ```
 
 ## Graph community composition bubble plots

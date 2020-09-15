@@ -154,6 +154,8 @@ adonis(dm.hel.wunifrac ~ core, data=metadata.ps.hel) # core matters more than an
 adonis(dm.hel.wunifrac ~ pingo, data=metadata.ps.hel) # gas hydrate mound the cores are sampled from matters more as well, but also a meaningless variable
 adonis(dm.hel.wunifrac ~ smtzposition, data=metadata.ps.hel) # above/below SMT explains only 5%
 adonis(dm.hel.wunifrac ~ geochem_zone*core, data=metadata.ps.hel) # no significant interaction between core and geochem zone
+
+adonis(dm.hel.wunifrac ~ stage * geochem_zone, data=metadata.ps.hel)
 ```
 Using the weighted Unifrac distance, both geochem_zone & stage were significant (stage explaining 16-17% of variance, while zone 8-9%). Interactions were also significant at around 4.9%. This did not vary by the transformation type (I tried variance-stabilizing transformation as well and got nearly the same results). Bray-Curtis, unweighted Unifrac, and Jaccard distance metrics showed the same patterns, though they respectively explained decreasing amounts of variance overall. So it seems relative abundances are a bit more influential than taxonomy alone in explaining differences between these communities, though they both help.  
 
@@ -169,9 +171,11 @@ sample_data(ps.hel)$stage <- ifelse(sample_data(ps.hel)$stage == "seep", "active
 
 sample_data(ps.hel)$geochem_zone <- ifelse(sample_data(ps.hel)$geochem_zone == "lin", "linear SR zone",
                         ifelse(sample_data(ps.hel)$geochem_zone == "nss", "nonlinear SR zone",
-                        ifelse(sample_data(ps.hel)$geochem_zone == "below", "below SMTZ", NA)))
+                        ifelse(sample_data(ps.hel)$geochem_zone == "below", "below SMT", NA)))
 
-sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMTZ")) # reorder 
+sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMT")) # reorder 
+
+sample_data(ps.hel)
 
 # trying NMDS and PCoAs
 set.seed(1)
@@ -422,4 +426,7 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
         axis.text.x = element_text(size=10))
 gg.all.biom
 gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
+
+biomarkers.to.plot %>% filter(Phylum=="Atribacteria") # shows biomarker ASVs for different stages and positions relative to SMT
+length(which(tax_table(ps.frdp)[,3]=="Calditrichia")) # shows numbers ASVs from a certain taxa
 ```
