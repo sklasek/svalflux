@@ -175,8 +175,6 @@ sample_data(ps.hel)$geochem_zone <- ifelse(sample_data(ps.hel)$geochem_zone == "
 
 sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMT")) # reorder 
 
-sample_data(ps.hel)
-
 # trying NMDS and PCoAs
 set.seed(1)
 ord.ps.hel.wuni.nmds <- ordinate(ps.hel, "NMDS", "unifrac", weighted=TRUE) # Stress = 0.135
@@ -188,7 +186,7 @@ lb1 <- paste("R^2 == 0.197")
 ord1.p.stage <- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "stage")+
   stat_ellipse()+
   scale_color_manual("",values = c("#fc8d62", "#66c2a5", "#8da0cb"))+
-  ggtitle("A", subtitle = "Cores classified by methane stage")+
+  ggtitle("A", subtitle = "Cores classified by methane stages")+
   annotate(geom="text", x=-0.1, y=0.28, label="p < 0.001") +
   annotate(geom="text", x=-0.1, y=0.34, label=lb1, parse=TRUE)+
   theme_bw()+
@@ -200,7 +198,7 @@ lb2 <- paste("R^2 == 0.096")
 ord1.p.zone<- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "geochem_zone")+
   stat_ellipse()+
   scale_color_manual("",values = c("#e78ac3","#a6d854","#ffd92f"))+
-  ggtitle("B", subtitle = "Samples classified by redox zone")+
+  ggtitle("B", subtitle = "Samples classified by redox zones")+
   annotate(geom="text", x=-0.15, y=0.17, label="p < 0.001", parse=TRUE)+
   annotate(geom="text", x=-0.15, y=0.23, label=lb2, parse=TRUE)+
   theme_bw()+
@@ -222,10 +220,9 @@ Can also add the sections "more permanovas" from lines 844-920, and possibly bet
 ## follow-up tests on beta-diversity
 ```{r }
 library(phyloseq)
+
 # omitting below-SMT samples, is there still a difference by stage?
-nsamples(ps.hel)
-ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMTZ") # subset
-nsamples(ps.hel.above)
+ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMT") # subset
 set.seed(1)
 dm.hel.above.wunifrac <- UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.above <- as(sample_data(ps.hel.above), "data.frame") # write metadata data frame
@@ -263,14 +260,6 @@ dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normal
 metadata.ps.hel.above.flux <- as(sample_data(ps.hel.above.flux), "data.frame") # write metadata data frame
 adonis(dm.hel.above.flux.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.flux) #  there is a difference: R2, p are 0.16792  0.004 **
 
-# differences between linear SR and non-steady-state SR across fluxincreasing only?
-ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
-nsamples(ps.hel.above.fluxinc) # there are only 8 samples
-set.seed(1)
-dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
-metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
-adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.3008  0.052 (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
-
 # differences between linear SR and non-steady-state SR across seep only?
 ps.hel.above.fluxseep <- subset_samples(ps.hel.above.flux, stage=="active methane seepage") # subset
 nsamples(ps.hel.above.fluxseep)
@@ -279,13 +268,30 @@ dm.hel.above.fluxseep.wunifrac <- UniFrac(ps.hel.above.fluxseep, weighted = TRUE
 metadata.ps.hel.above.fluxseep <- as(sample_data(ps.hel.above.fluxseep), "data.frame") # write metadata data frame
 adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxseep) #  there is a difference: R2, p are 0.34069  0.002 **
 
+# differences between linear SR and non-steady-state SR across fluxincreasing only?
+sample_data(ps.hel.above.flux)
+ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="fluxincreasing") # subset
+nsamples(ps.hel.above.fluxinc) # there are only 8 samples
+set.seed(1)
+dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
+adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.30173, 0.046 * (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
+
 # differences between non-steady-state SR and below-SMT across fluxincreasing only?
-ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="lin") # subset
+ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="linear SR zone") # subset
 nsamples(ps.hel.fluxinc.lower)# only 12 samples
 set.seed(1)
 dm.hel.fluxinc.lower.wunifrac <- UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 metadata.ps.hel.fluxinc.lower <- as(sample_data(ps.hel.fluxinc.lower), "data.frame") # write metadata data frame
-adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is a difference: R2, p are 0.36624  0.026 * 
+adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is NO difference: R2, p are 0.12485  0.435 
+
+# differences between linear SR and below-SMT?
+ps.hel.fluxinc.d <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="nonlinear SR zone") # subset
+nsamples(ps.hel.fluxinc.d)# only 12 samples
+set.seed(1)
+dm.hel.fluxinc.d.wunifrac <- UniFrac(ps.hel.fluxinc.d, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+metadata.ps.hel.fluxinc.d <- as(sample_data(ps.hel.fluxinc.d), "data.frame") # write metadata data frame
+adonis(dm.hel.fluxinc.d.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.d) # yes difference 0.42094  0.023 *
 
 # following this up with an ordination of fluxincreasing GC samples and color by geochem_zone
 ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # subset
@@ -423,7 +429,7 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
   coord_flip() +
   theme_bw()+
   theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
-        axis.text.x = element_text(size=10))
+        axis.text.x = element_text(size=10), legend.position = "bottom", legend.box = "vertical")
 gg.all.biom
 gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
 
