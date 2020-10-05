@@ -72,7 +72,7 @@ ssplot <- plotrichness.ss+
   facet_grid(~core_flowtype_label)+
   scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
-  scale_color_manual("Methane stage", values=c("#8da0cb"))+
+  scale_color_manual("Methane regime", values=c("#8da0cb"))+
   scale_shape_manual("Core",values = c(4:7))+
   geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
   geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
@@ -89,7 +89,7 @@ nssplot <- plotrichness.nss+
   facet_grid(~core_flowtype_label)+
   scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
-  scale_color_manual("Methane stage", values=c("#fc8d62", "#66c2a5"))+
+  scale_color_manual("Methane regime", values=c("#fc8d62", "#66c2a5"))+
   scale_shape_manual("Core", values = c(1:3))+
   geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
   geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
@@ -186,7 +186,7 @@ lb1 <- paste("R^2 == 0.197")
 ord1.p.stage <- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "stage")+
   stat_ellipse()+
   scale_color_manual("",values = c("#fc8d62", "#66c2a5", "#8da0cb"))+
-  ggtitle("A", subtitle = "Cores classified by methane stages")+
+  ggtitle("A", subtitle = "Cores classified by methane regimes")+
   annotate(geom="text", x=-0.1, y=0.28, label="p < 0.001") +
   annotate(geom="text", x=-0.1, y=0.34, label=lb1, parse=TRUE)+
   theme_bw()+
@@ -229,7 +229,7 @@ metadata.ps.hel.above <- as(sample_data(ps.hel.above), "data.frame") # write met
 adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is a difference: R2, p are 0.21521,  0.001 ***
 
 # considering only below-SMT samples, is there still a difference by stage?
-ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMTZ") # subset
+ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMT") # subset
 nsamples(ps.hel.below)
 set.seed(1)
 dm.hel.below.wunifrac <- UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
@@ -253,7 +253,7 @@ metadata.ps.hel.above.gc <- as(sample_data(ps.hel.above.gc), "data.frame") # wri
 adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there is barely a difference: R2, p are 0.04448  0.056 (Honestly, if you really like p < 0.05, significance depends on which set.seed you use)
 
 # differences between linear SR and non-steady-state SR across both seep and fluxincreasing?
-ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMTZ") # subset
+ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMT") # subset
 nsamples(ps.hel.above.flux)
 set.seed(1)
 dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
@@ -269,8 +269,7 @@ metadata.ps.hel.above.fluxseep <- as(sample_data(ps.hel.above.fluxseep), "data.f
 adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxseep) #  there is a difference: R2, p are 0.34069  0.002 **
 
 # differences between linear SR and non-steady-state SR across fluxincreasing only?
-sample_data(ps.hel.above.flux)
-ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="fluxincreasing") # subset
+ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
 nsamples(ps.hel.above.fluxinc) # there are only 8 samples
 set.seed(1)
 dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
@@ -435,4 +434,26 @@ gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
 
 biomarkers.to.plot %>% filter(Phylum=="Atribacteria") # shows biomarker ASVs for different stages and positions relative to SMT
 length(which(tax_table(ps.frdp)[,3]=="Calditrichia")) # shows numbers ASVs from a certain taxa
+
+# how many ASVs are differentially abundant? what average %s are they of communities across stages?
+length(unique(biomarkers.to.plot$asv))
+sum(biomarkers.to.plot %>% filter(stage=="active methane seepage") %>% select(relabund))*100 # 12.7%
+sum(biomarkers.to.plot %>% filter(stage=="steady-state") %>% select(relabund))*100 # 9.7%
+sum(biomarkers.to.plot %>% filter(stage=="increasing methane flux") %>% select(relabund))*100 # 1.6%
 ```
+
+## there was a nitrate-sulfide transition? were sulfurovum present there?
+```{r echo=FALSE, eval=FALSE}
+ps.frdp.seep <- subset_samples(ps.frdp, sample_data(ps.frdp)$core=="PC1029") # subset all PC1029 samples
+ps.frdp.seep.ra <- transform_sample_counts(ps.frdp.seep, function(OTU) OTU/sum(OTU)) # relative abundances
+ps.sulfurovum <- subset_taxa(ps.frdp.seep.ra, Genus=="Sulfurovum")
+plot_bar(ps.sulfurovum, "depth", "Abundance", "OTU") # ASV5 is most abundant throughout core, but ASVs 31 and 105 are most abundant in the top two samples (1-2 cm). ASV72 also abundant, all others are very rare.
+
+# prints the sequences of the dominant Sulfurovum ASVs in PC1029:
+as.character(refseq(ps.frdp.seep)["ASV5"]) 
+as.character(refseq(ps.frdp.seep)["ASV31"])
+as.character(refseq(ps.frdp.seep)["ASV105"])
+as.character(refseq(ps.frdp.seep)["ASV72"])
+```
+
+All of these ASVs have the same BLAST best match: Sulfurovum lithotrophicum 42BKT, from Inagaki et al 2004.

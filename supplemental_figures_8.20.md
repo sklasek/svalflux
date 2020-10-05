@@ -7,6 +7,16 @@ Scott Klasek
 
 ``` r
 library(phyloseq)
+library(vegan)
+```
+
+    ## Loading required package: permute
+
+    ## Loading required package: lattice
+
+    ## This is vegan 2.5-6
+
+``` r
 library(tidyverse)
 ```
 
@@ -29,8 +39,6 @@ library(tables)
 ```
 
     ## Loading required package: Hmisc
-
-    ## Loading required package: lattice
 
     ## Loading required package: survival
 
@@ -60,8 +68,9 @@ ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
 
 ## depth-integrated fluxes from each core
 
-PC1029 is only estimated, others can be
-calculated
+PC1029 is only estimated, others can be calculated  
+This is Figure S2 (worm pics are Figure
+S1)
 
 ``` r
 aomrates <- read.csv(file="~/Desktop/svalflux/aomrates2020update.csv") # import csv
@@ -85,7 +94,7 @@ flux.gc[6,2] <- 4.22 # correcting GC1081 flux
 
 gcf <- ggplot(flux.gc,aes(core,intflux,fill=stage))
 gg.flux <- gcf+geom_bar(stat="identity")+
-  scale_fill_manual("Methane stage", values = c("#66c2a5", "#8da0cb"))+
+  scale_fill_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
   scale_y_continuous(limits = c(0,6))+
   xlab("")+
   ylab(bquote(~CH[4]~'flux (mols'~m^-2~yr^-1*') at time of sampling'))+
@@ -113,6 +122,9 @@ gg.flux <- saveRDS(gg.flux, "figures/figureS1flux") # export figure
 ```
 
 ## regression of mcrA counts vs modeled AOM rates
+
+This is figure
+S3
 
 ``` r
 mcra.aom <- read.csv(file="~/Desktop/svalflux/mcra.aomrate.2020.csv") # import csv
@@ -151,7 +163,7 @@ summary(AOM_mcrA.lm) # multiple R^2 is 0.3364, slope estimate is 0.1892, and slo
 rate_mcrA <- ggplot(mcra.aom,aes(logaom,logmcra,color=stage)) 
 gg.ratemcrA <- rate_mcrA+
   geom_point(size=2)+
-  scale_color_manual("Methane stage", values = c("#66c2a5", "#8da0cb"))+
+  scale_color_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
   scale_x_continuous(expression('log'[10]*" AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
   scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}))+
   geom_abline(intercept = 5.3889, slope = 0.18917)+
@@ -170,7 +182,53 @@ gg.ratemcrA
 gg.ratemcrA <- saveRDS(gg.ratemcrA, "figures/figureS3ratemcrAplot") # export figure
 ```
 
+## Ordination of just increasing-flux cores by geochem\_zone
+
+Would be Figure S4 if we want to include it.
+
+``` r
+# transform the phyloseq object
+otu.hel <- otu_table(decostand(otu_table(ps.frdp), method = "hellinger"), taxa_are_rows=FALSE)
+ps.hel <- phyloseq(tax_table(ps.frdp),
+                    sample_data(ps.frdp),
+                    otu_table(otu.hel),
+                    phy_tree(ps.frdp),
+                    refseq(ps.frdp)) 
+
+# make better labels for plotting
+sample_data(ps.hel)$stage <- ifelse(sample_data(ps.hel)$stage == "seep", "active methane seepage",
+                        ifelse(sample_data(ps.hel)$stage == "fluxincreasing", "increasing methane flux",
+                        ifelse(sample_data(ps.hel)$stage == "steadystate", "steady-state", NA)))
+sample_data(ps.hel)$geochem_zone <- ifelse(sample_data(ps.hel)$geochem_zone == "lin", "linear SR zone",
+                        ifelse(sample_data(ps.hel)$geochem_zone == "nss", "nonlinear SR zone",
+                        ifelse(sample_data(ps.hel)$geochem_zone == "below", "below SMT", NA)))
+sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMT")) 
+
+ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # subset for samples experiencing methane flux increase
+ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
+```
+
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV5031 -- in the
+    ## phylogenetic tree in the data you provided.
+
+``` r
+fluxord <- plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+
+  scale_color_manual("Redox zones",values = c("#e78ac3","#a6d854","#ffd92f"))+
+  stat_ellipse()+
+  theme_bw()
+fluxord # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
+```
+
+![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+fluxord <- saveRDS(fluxord, "figures/figureSfluxord") # export figure
+```
+
 ## justification of steady-state dynamics
+
+Would be Figure
+S5
 
 ``` r
 ssval <- read.csv(file="~/Desktop/svalflux/steadystate_validation.csv") # import csv
@@ -191,10 +249,88 @@ ssjp.plot
 
     ## Warning: Removed 5 rows containing missing values (geom_point).
 
-![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 ssjp.plot <- saveRDS(ssjp.plot, "figures/figureS3ssjust") # export figure
+```
+
+## fitting sulfate profiles
+
+This is Figure S6, as WeiLi made Figure S5 (add Fig.S+1 if including the
+ordination as a supplemental)
+
+``` r
+so4fit <- read.csv(file="~/Desktop/svalflux/so4fit.csv") # import csv
+
+so4fit[which(so4fit$core=="PC1029"),2] <- 100*so4fit[which(so4fit$core=="PC1029"),2] # oops these depths were in meters. fixed
+so4fit[which(so4fit$core=="GC1045"),2] <- 100*so4fit[which(so4fit$core=="GC1045"),2]
+so4fit[which(so4fit$core=="GC1081"),2] <- 100*so4fit[which(so4fit$core=="GC1081"),2]
+
+# solution: subset them (short cores on one, long on other) and plot two with patchwork
+so4fit.short <- so4fit %>% filter(core=="GC1045" | core=="GC1081")
+so4fit.long <- so4fit %>% filter(core=="GC1068" | core=="GC1069" | core=="GC1070")
+so4fit.48 <- so4fit %>% filter(core=="GC1048")
+so4fit.pc <- so4fit %>% filter(core=="PC1029")
+
+gg.fit.s <- ggplot(so4fit.short, aes(depth, value, color=type))
+gg.so4fit.s <- gg.fit.s+
+  geom_point(data=subset(so4fit.short, type=="e"))+
+  geom_line(data=subset(so4fit.short, type=="m"))+
+  coord_flip()+
+  facet_grid(~core)+
+  scale_y_continuous("Sulfate (mM)", limits = c(0,30), position = "right")+
+  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
+  scale_x_reverse("Depth (cmbsf)")+
+  theme_bw()+
+  theme(legend.position = "none")
+
+gg.fit.l <- ggplot(so4fit.long, aes(depth, value, color=type))
+gg.so4fit.l <- gg.fit.l+
+  geom_point(data=subset(so4fit.long, type=="e"))+
+  geom_line(data=subset(so4fit.long, type=="m"))+
+  coord_flip()+
+  facet_grid(~core)+
+  scale_y_continuous("", limits = c(0,30), position = "right")+
+  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
+  scale_x_reverse("Depth (cmbsf)")+
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+gg.fit.pc <- ggplot(so4fit.pc, aes(depth, value, color=type))
+gg.so4fit.pc <- gg.fit.pc+
+  geom_point(data=subset(so4fit.pc, type=="e"))+
+  geom_line(data=subset(so4fit.pc, type=="m"), linetype="dashed")+
+  coord_flip()+
+  facet_grid(~core)+
+  scale_y_continuous("Sulfate (mM)", limits = c(0,30), position = "right")+
+  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
+  scale_x_reverse("Depth (cmbsf)")+
+  theme_bw()+
+  theme(legend.position = "none")
+
+gg.fit.48 <- ggplot(so4fit.48, aes(depth, value, color=type))
+gg.so4fit.48 <- gg.fit.48+
+  geom_point(data=subset(so4fit.48, type=="e"))+
+  geom_line(data=subset(so4fit.48, type=="m"))+
+  geom_line(data=subset(so4fit.48, type=="i"), color="red")+
+  coord_flip()+
+  facet_grid(~core)+
+  scale_y_continuous("", limits = c(0,30), position = "right")+
+  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
+  scale_x_reverse("Depth (cmbsf)")+
+  theme_bw()+
+  annotate(geom="text", x=320, y=20, label="initial state", color="red")+
+  theme(legend.position = "none")
+
+so4fitplot <- gg.so4fit.s / gg.so4fit.l | gg.so4fit.pc / gg.so4fit.48
+so4fitplot
+```
+
+![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+so4fitplot <- saveRDS(so4fitplot, "figures/figureSso4fit") # export figure
 ```
 
 ## table of core info

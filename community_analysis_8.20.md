@@ -10,7 +10,7 @@ library(phyloseq)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
     ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
     ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
@@ -19,7 +19,7 @@ library(tidyverse)
 
     ## Warning: package 'ggplot2' was built under R version 3.6.2
 
-    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -267,18 +267,18 @@ summary(nss.lm) # summarizes the linear regression: slope is 0.029618, intercept
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -1.1531 -0.3537  0.2309  0.4064  0.9437 
+    ## -1.1542 -0.3540  0.2308  0.4062  0.9431 
     ## 
     ## Coefficients:
     ##                                 Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                     4.167367   0.115310  36.141  < 2e-16 ***
-    ## alphadiv.nss$dist_above_peakaom 0.029618   0.005532   5.353  1.5e-05 ***
+    ## (Intercept)                     4.168572   0.115451  36.107  < 2e-16 ***
+    ## alphadiv.nss$dist_above_peakaom 0.029654   0.005539   5.353  1.5e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.5948 on 25 degrees of freedom
+    ## Residual standard error: 0.5956 on 25 degrees of freedom
     ## Multiple R-squared:  0.5341, Adjusted R-squared:  0.5155 
-    ## F-statistic: 28.66 on 1 and 25 DF,  p-value: 1.497e-05
+    ## F-statistic: 28.66 on 1 and 25 DF,  p-value: 1.498e-05
 
 ``` r
 summary(ss.lm) # slope is significant considering all the points across depth 
@@ -290,18 +290,18 @@ summary(ss.lm) # slope is significant considering all the points across depth
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.1816 -0.5484  0.1525  0.4978  1.5101 
+    ## -3.1827 -0.5436  0.1470  0.5018  1.5107 
     ## 
     ## Coefficients:
     ##                                Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                    4.036265   0.128180  31.489  < 2e-16 ***
-    ## alphadiv.ss$dist_above_peakaom 0.003526   0.001070   3.294  0.00188 ** 
+    ## (Intercept)                    4.037319   0.128234  31.484  < 2e-16 ***
+    ## alphadiv.ss$dist_above_peakaom 0.003532   0.001071   3.298  0.00186 ** 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.885 on 47 degrees of freedom
-    ## Multiple R-squared:  0.1876, Adjusted R-squared:  0.1703 
-    ## F-statistic: 10.85 on 1 and 47 DF,  p-value: 0.001881
+    ## Residual standard error: 0.8853 on 47 degrees of freedom
+    ## Multiple R-squared:  0.188,  Adjusted R-squared:  0.1707 
+    ## F-statistic: 10.88 on 1 and 47 DF,  p-value: 0.001859
 
 ``` r
 summary(ss.lm.range) # slope is 0.002780, intercept is 3.831772, slope not significant across the SMT range. Multiple R^2 is 0.003901, p value of slope is 0.762
@@ -313,18 +313,18 @@ summary(ss.lm.range) # slope is 0.002780, intercept is 3.831772, slope not signi
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -2.97898 -0.51723 -0.07824  0.57861  1.71682 
+    ## -2.97997 -0.52032 -0.08007  0.57834  1.71744 
     ## 
     ## Coefficients:
     ##                                      Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                          3.831772   0.219516  17.456 3.83e-15 ***
-    ## alphadiv.ss.range$dist_above_peakaom 0.002780   0.009067   0.307    0.762    
+    ## (Intercept)                          3.832791   0.219654  17.449 3.86e-15 ***
+    ## alphadiv.ss.range$dist_above_peakaom 0.002792   0.009073   0.308    0.761    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 1.05 on 24 degrees of freedom
-    ## Multiple R-squared:  0.003901,   Adjusted R-squared:  -0.0376 
-    ## F-statistic: 0.09399 on 1 and 24 DF,  p-value: 0.7618
+    ## Residual standard error: 1.051 on 24 degrees of freedom
+    ## Multiple R-squared:  0.00393,    Adjusted R-squared:  -0.03757 
+    ## F-statistic: 0.0947 on 1 and 24 DF,  p-value: 0.7609
 
 ``` r
 # assign facet grid labels and methane flux stages
@@ -340,7 +340,7 @@ ssplot <- plotrichness.ss+
   facet_grid(~core_flowtype_label)+
   scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
-  scale_color_manual("Methane stage", values=c("#8da0cb"))+
+  scale_color_manual("Methane regime", values=c("#8da0cb"))+
   scale_shape_manual("Core",values = c(4:7))+
   geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
   geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
@@ -357,7 +357,7 @@ nssplot <- plotrichness.nss+
   facet_grid(~core_flowtype_label)+
   scale_y_continuous("Shannon diversity index", breaks=c(1,2,3,4,5,6), limits = c(0.8,6.5))+
   scale_x_continuous("Distance above present-day peak AOM rate (cm)", limits = c(-250,306))+
-  scale_color_manual("Methane stage", values=c("#fc8d62", "#66c2a5"))+
+  scale_color_manual("Methane regime", values=c("#fc8d62", "#66c2a5"))+
   scale_shape_manual("Core", values = c(1:3))+
   geom_vline(aes(xintercept=-42.5), linetype="dashed", size=0.8)+
   geom_vline(aes(xintercept=63.5), linetype="dashed", size=0.8)+
@@ -426,11 +426,11 @@ adonis(dm.jac ~ geochem_zone*stage, data=metadata.ps.hel)
     ## Terms added sequentially (first to last)
     ## 
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## geochem_zone        2     1.899 0.94929  2.4343 0.05845  0.001 ***
-    ## stage               2     2.485 1.24263  3.1865 0.07651  0.001 ***
-    ## geochem_zone:stage  2     1.189 0.59469  1.5250 0.03662  0.001 ***
-    ## Residuals          69    26.908 0.38997         0.82842           
-    ## Total              75    32.481                 1.00000           
+    ## geochem_zone        2     1.900 0.94980  2.4357 0.05848  0.001 ***
+    ## stage               2     2.487 1.24336  3.1885 0.07655  0.001 ***
+    ## geochem_zone:stage  2     1.192 0.59598  1.5284 0.03669  0.001 ***
+    ## Residuals          69    26.906 0.38995         0.82828           
+    ## Total              75    32.485                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -450,11 +450,11 @@ adonis(dm.bc ~ geochem_zone*stage, data=metadata.ps.hel)
     ## Terms added sequentially (first to last)
     ## 
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## geochem_zone        2    2.4565 1.22825  4.3089 0.09240  0.001 ***
-    ## stage               2    3.3416 1.67078  5.8614 0.12570  0.001 ***
-    ## geochem_zone:stage  2    1.1178 0.55891  1.9607 0.04205  0.002 ** 
-    ## Residuals          69   19.6684 0.28505         0.73985           
-    ## Total              75   26.5843                 1.00000           
+    ## geochem_zone        2    2.4566 1.22832  4.3081 0.09239  0.001 ***
+    ## stage               2    3.3414 1.67071  5.8597 0.12566  0.001 ***
+    ## geochem_zone:stage  2    1.1192 0.55961  1.9627 0.04209  0.003 ** 
+    ## Residuals          69   19.6731 0.28512         0.73986           
+    ## Total              75   26.5904                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -465,7 +465,7 @@ dm.hel.unifrac <- UniFrac(ps.hel, weighted = FALSE, normalized = TRUE,  parallel
 ```
 
     ## Warning in UniFrac(ps.hel, weighted = FALSE, normalized = TRUE, parallel =
-    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -482,11 +482,11 @@ adonis(dm.hel.unifrac ~ geochem_zone*stage, data=metadata.ps.hel)
     ## Terms added sequentially (first to last)
     ## 
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## geochem_zone        2    1.5197 0.75983  2.7836 0.06519  0.001 ***
-    ## stage               2    2.0504 1.02522  3.7559 0.08796  0.001 ***
-    ## geochem_zone:stage  2    0.9067 0.45337  1.6609 0.03890  0.002 ** 
-    ## Residuals          69   18.8346 0.27297         0.80796           
-    ## Total              75   23.3115                 1.00000           
+    ## geochem_zone        2    1.5220 0.76099  2.7785 0.06510  0.001 ***
+    ## stage               2    2.0553 1.02764  3.7521 0.08791  0.001 ***
+    ## geochem_zone:stage  2    0.9048 0.45240  1.6518 0.03870  0.002 ** 
+    ## Residuals          69   18.8981 0.27389         0.80830           
+    ## Total              75   23.3802                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -497,7 +497,7 @@ dm.hel.wunifrac <- UniFrac(ps.hel, weighted = TRUE, normalized = TRUE,  parallel
 ```
 
     ## Warning in UniFrac(ps.hel, weighted = TRUE, normalized = TRUE, parallel =
-    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -513,12 +513,12 @@ adonis(dm.hel.wunifrac ~ geochem_zone*stage, data=metadata.ps.hel) # geochem zon
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##                    Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## geochem_zone        2    0.3328 0.166388  4.8776 0.09650  0.001 ***
-    ## stage               2    0.5932 0.296596  8.6945 0.17202  0.001 ***
-    ## geochem_zone:stage  2    0.1686 0.084296  2.4711 0.04889  0.002 ** 
-    ## Residuals          69    2.3538 0.034113         0.68258           
-    ## Total              75    3.4483                  1.00000           
+    ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
+    ## geochem_zone        2    0.3694 0.18469  4.6933 0.09463  0.001 ***
+    ## stage               2    0.6364 0.31822  8.0864 0.16304  0.001 ***
+    ## geochem_zone:stage  2    0.1823 0.09117  2.3167 0.04671  0.003 ** 
+    ## Residuals          69    2.7153 0.03935         0.69561           
+    ## Total              75    3.9035                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -537,9 +537,9 @@ adonis(dm.hel.wunifrac ~ stage, data=metadata.ps.hel) #  stage alone is 19.9%
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## stage      2    0.6872 0.34359  9.0837 0.19928  0.001 ***
-    ## Residuals 73    2.7612 0.03782         0.80072           
-    ## Total     75    3.4483                 1.00000           
+    ## stage      2    0.7399 0.36995  8.5368 0.18955  0.001 ***
+    ## Residuals 73    3.1636 0.04334         0.81045           
+    ## Total     75    3.9035                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -557,9 +557,9 @@ adonis(dm.hel.wunifrac ~ core_flowtype, data=metadata.ps.hel) # significant, but
     ## Terms added sequentially (first to last)
     ## 
     ##               Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## core_flowtype  1    0.4786 0.47859  11.925 0.13879  0.001 ***
-    ## Residuals     74    2.9698 0.04013         0.86121           
-    ## Total         75    3.4483                 1.00000           
+    ## core_flowtype  1    0.5237 0.52374  11.467 0.13417  0.001 ***
+    ## Residuals     74    3.3797 0.04567         0.86583           
+    ## Total         75    3.9035                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -577,9 +577,9 @@ adonis(dm.hel.wunifrac ~ SO4_mM, data=metadata.ps.hel) # SO4 more than geochem z
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## SO4_mM     1    0.3746 0.37464  9.0196 0.10864  0.001 ***
-    ## Residuals 74    3.0737 0.04154         0.89136           
-    ## Total     75    3.4483                 1.00000           
+    ## SO4_mM     1    0.4100 0.41001   8.685 0.10504  0.001 ***
+    ## Residuals 74    3.4934 0.04721         0.89496           
+    ## Total     75    3.9035                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -597,9 +597,9 @@ adonis(dm.hel.wunifrac ~ HS_mM, data=metadata.ps.hel) # significant but redundan
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## HS_mM      1    0.2088 0.208804  4.7696 0.06055  0.001 ***
-    ## Residuals 74    3.2395 0.043778         0.93945           
-    ## Total     75    3.4483                  1.00000           
+    ## HS_mM      1    0.2348 0.234827  4.7367 0.06016  0.001 ***
+    ## Residuals 74    3.6686 0.049576         0.93984           
+    ## Total     75    3.9035                  1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -617,9 +617,9 @@ adonis(dm.hel.wunifrac ~ Alk_mM, data=metadata.ps.hel) # significant but redunda
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## Alk_mM     1    0.2735 0.273485  6.3744 0.07931  0.001 ***
-    ## Residuals 74    3.1749 0.042904         0.92069           
-    ## Total     75    3.4483                  1.00000           
+    ## Alk_mM     1    0.3046 0.304620  6.2637 0.07804  0.001 ***
+    ## Residuals 74    3.5988 0.048633         0.92196           
+    ## Total     75    3.9035                  1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -636,10 +636,10 @@ adonis(dm.hel.wunifrac ~ core, data=metadata.ps.hel) # core matters more than an
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##           Df SumsOfSqs  MeanSqs F.Model     R2 Pr(>F)    
-    ## core       6    1.1273 0.187880  5.5852 0.3269  0.001 ***
-    ## Residuals 69    2.3211 0.033639         0.6731           
-    ## Total     75    3.4483                  1.0000           
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
+    ## core       6    1.2485 0.208077  5.4077 0.31984  0.001 ***
+    ## Residuals 69    2.6550 0.038478         0.68016           
+    ## Total     75    3.9035                  1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -656,10 +656,10 @@ adonis(dm.hel.wunifrac ~ pingo, data=metadata.ps.hel) # gas hydrate mound the co
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##           Df SumsOfSqs  MeanSqs F.Model     R2 Pr(>F)    
-    ## pingo      3    0.7893 0.263114  7.1245 0.2289  0.001 ***
-    ## Residuals 72    2.6590 0.036931         0.7711           
-    ## Total     75    3.4483                  1.0000           
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
+    ## pingo      3    0.8669 0.288976   6.852 0.22209  0.001 ***
+    ## Residuals 72    3.0365 0.042174         0.77791           
+    ## Total     75    3.9035                  1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -677,9 +677,9 @@ adonis(dm.hel.wunifrac ~ smtzposition, data=metadata.ps.hel) # above/below SMT e
     ## Terms added sequentially (first to last)
     ## 
     ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## smtzposition  1    0.1840 0.183970  4.1704 0.05335  0.001 ***
-    ## Residuals    74    3.2644 0.044113         0.94665           
-    ## Total        75    3.4483                  1.00000           
+    ## smtzposition  1    0.2099 0.209870  4.2047 0.05377  0.001 ***
+    ## Residuals    74    3.6936 0.049913         0.94623           
+    ## Total        75    3.9035                  1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -697,11 +697,33 @@ adonis(dm.hel.wunifrac ~ geochem_zone*core, data=metadata.ps.hel) # no significa
     ## Terms added sequentially (first to last)
     ## 
     ##                   Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## geochem_zone       2    0.3328 0.166388  5.3888 0.09650  0.001 ***
-    ## core               6    0.9888 0.164803  5.3375 0.28675  0.001 ***
-    ## geochem_zone:core  5    0.2124 0.042484  1.3759 0.06160  0.071 .  
-    ## Residuals         62    1.9143 0.030876         0.55515           
-    ## Total             75    3.4483                  1.00000           
+    ## geochem_zone       2    0.3694 0.184692  5.1972 0.09463  0.001 ***
+    ## core               6    1.0931 0.182176  5.1264 0.28002  0.001 ***
+    ## geochem_zone:core  5    0.2377 0.047547  1.3380 0.06090  0.081 .  
+    ## Residuals         62    2.2033 0.035537         0.56444           
+    ## Total             75    3.9035                  1.00000           
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+adonis(dm.hel.wunifrac ~ stage * geochem_zone, data=metadata.ps.hel)
+```
+
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.wunifrac ~ stage * geochem_zone, data = metadata.ps.hel) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
+    ## stage               2    0.7399 0.36995  9.4010 0.18955  0.001 ***
+    ## geochem_zone        2    0.2659 0.13296  3.3786 0.06812  0.001 ***
+    ## stage:geochem_zone  2    0.1823 0.09117  2.3167 0.04671  0.005 ** 
+    ## Residuals          69    2.7153 0.03935         0.69561           
+    ## Total              75    3.9035                 1.00000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -738,54 +760,50 @@ sample_data(ps.hel)$stage <- ifelse(sample_data(ps.hel)$stage == "seep", "active
 
 sample_data(ps.hel)$geochem_zone <- ifelse(sample_data(ps.hel)$geochem_zone == "lin", "linear SR zone",
                         ifelse(sample_data(ps.hel)$geochem_zone == "nss", "nonlinear SR zone",
-                        ifelse(sample_data(ps.hel)$geochem_zone == "below", "below SMTZ", NA)))
+                        ifelse(sample_data(ps.hel)$geochem_zone == "below", "below SMT", NA)))
 
-sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMTZ")) # reorder 
+sample_data(ps.hel)$geochem_zone <- factor(sample_data(ps.hel)$geochem_zone, levels = c("linear SR zone", "nonlinear SR zone", "below SMT")) # reorder 
 
 # trying NMDS and PCoAs
 set.seed(1)
 ord.ps.hel.wuni.nmds <- ordinate(ps.hel, "NMDS", "unifrac", weighted=TRUE) # Stress = 0.135
 ```
 
-    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV4966 -- in the
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV4959 -- in the
     ## phylogenetic tree in the data you provided.
 
-    ## Run 0 stress 0.1306678 
-    ## Run 1 stress 0.1246761 
+    ## Run 0 stress 0.1329787 
+    ## Run 1 stress 0.1304329 
     ## ... New best solution
-    ## ... Procrustes: rmse 0.02366616  max resid 0.1580323 
-    ## Run 2 stress 0.134905 
-    ## Run 3 stress 0.1246751 
+    ## ... Procrustes: rmse 0.02185547  max resid 0.1562176 
+    ## Run 2 stress 0.1634134 
+    ## Run 3 stress 0.1304212 
     ## ... New best solution
-    ## ... Procrustes: rmse 0.0001182949  max resid 0.0007144867 
+    ## ... Procrustes: rmse 0.00129451  max resid 0.008624816 
     ## ... Similar to previous best
-    ## Run 4 stress 0.1306665 
-    ## Run 5 stress 0.1413206 
-    ## Run 6 stress 0.1246746 
-    ## ... New best solution
-    ## ... Procrustes: rmse 0.0008163292  max resid 0.005657734 
+    ## Run 4 stress 0.1343964 
+    ## Run 5 stress 0.1329784 
+    ## Run 6 stress 0.1304212 
+    ## ... Procrustes: rmse 9.918053e-05  max resid 0.0005606112 
     ## ... Similar to previous best
-    ## Run 7 stress 0.1349034 
-    ## Run 8 stress 0.1365192 
-    ## Run 9 stress 0.1306541 
-    ## Run 10 stress 0.1246775 
-    ## ... Procrustes: rmse 0.0003118379  max resid 0.002190585 
+    ## Run 7 stress 0.14597 
+    ## Run 8 stress 0.146743 
+    ## Run 9 stress 0.1304215 
+    ## ... Procrustes: rmse 0.0001729211  max resid 0.0009902311 
     ## ... Similar to previous best
-    ## Run 11 stress 0.1585576 
-    ## Run 12 stress 0.1246767 
-    ## ... Procrustes: rmse 0.0009869864  max resid 0.006751837 
+    ## Run 10 stress 0.1435387 
+    ## Run 11 stress 0.1446159 
+    ## Run 12 stress 0.1304213 
+    ## ... Procrustes: rmse 0.0001678746  max resid 0.0008453784 
     ## ... Similar to previous best
-    ## Run 13 stress 0.134899 
-    ## Run 14 stress 0.124674 
-    ## ... New best solution
-    ## ... Procrustes: rmse 0.0001310897  max resid 0.0008783968 
-    ## ... Similar to previous best
-    ## Run 15 stress 0.134901 
-    ## Run 16 stress 0.1702664 
-    ## Run 17 stress 0.1306596 
-    ## Run 18 stress 0.1349008 
-    ## Run 19 stress 0.1389394 
-    ## Run 20 stress 0.1349014 
+    ## Run 13 stress 0.1527894 
+    ## Run 14 stress 0.1329786 
+    ## Run 15 stress 0.1421989 
+    ## Run 16 stress 0.1744108 
+    ## Run 17 stress 0.1575138 
+    ## Run 18 stress 0.1421987 
+    ## Run 19 stress 0.1430028 
+    ## Run 20 stress 0.1429802 
     ## *** Solution reached
 
 ``` r
@@ -793,7 +811,7 @@ set.seed(1)
 ord.ps.hel.wuni.pcoa <- ordinate(ps.hel, "PCoA", "unifrac", weighted=TRUE)
 ```
 
-    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV4966 -- in the
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV4959 -- in the
     ## phylogenetic tree in the data you provided.
 
 ``` r
@@ -802,7 +820,7 @@ lb1 <- paste("R^2 == 0.197")
 ord1.p.stage <- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "stage")+
   stat_ellipse()+
   scale_color_manual("",values = c("#fc8d62", "#66c2a5", "#8da0cb"))+
-  ggtitle("A", subtitle = "Cores classified by methane stage")+
+  ggtitle("A", subtitle = "Cores classified by methane regimes")+
   annotate(geom="text", x=-0.1, y=0.28, label="p < 0.001") +
   annotate(geom="text", x=-0.1, y=0.34, label=lb1, parse=TRUE)+
   theme_bw()+
@@ -814,7 +832,7 @@ lb2 <- paste("R^2 == 0.096")
 ord1.p.zone<- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "geochem_zone")+
   stat_ellipse()+
   scale_color_manual("",values = c("#e78ac3","#a6d854","#ffd92f"))+
-  ggtitle("B", subtitle = "Samples classified by redox zone")+
+  ggtitle("B", subtitle = "Samples classified by redox zones")+
   annotate(geom="text", x=-0.15, y=0.17, label="p < 0.001", parse=TRUE)+
   annotate(geom="text", x=-0.15, y=0.23, label=lb2, parse=TRUE)+
   theme_bw()+
@@ -847,26 +865,15 @@ possibly beta-diversity from lines 938-974. Just to be thorough…
 
 ``` r
 library(phyloseq)
+
 # omitting below-SMT samples, is there still a difference by stage?
-nsamples(ps.hel)
-```
-
-    ## [1] 76
-
-``` r
-ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMTZ") # subset
-nsamples(ps.hel.above)
-```
-
-    ## [1] 56
-
-``` r
+ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMT") # subset
 set.seed(1)
 dm.hel.above.wunifrac <- UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
 ```
 
     ## Warning in UniFrac(ps.hel.above, weighted = TRUE, normalized = TRUE, parallel
-    ## = FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## = FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -883,16 +890,16 @@ adonis(dm.hel.above.wunifrac ~ stage, data=metadata.ps.hel.above) # yes there is
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## stage      2   0.54092 0.270459  7.2669 0.21521  0.001 ***
-    ## Residuals 53   1.97254 0.037218         0.78479           
-    ## Total     55   2.51346                  1.00000           
+    ##           Df SumsOfSqs MeanSqs F.Model     R2 Pr(>F)    
+    ## stage      2   0.58124 0.29062  6.8461 0.2053  0.001 ***
+    ## Residuals 53   2.24986 0.04245         0.7947           
+    ## Total     55   2.83110                 1.0000           
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
 # considering only below-SMT samples, is there still a difference by stage?
-ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMTZ") # subset
+ps.hel.below <- subset_samples(ps.hel, geochem_zone=="below SMT") # subset
 nsamples(ps.hel.below)
 ```
 
@@ -904,7 +911,7 @@ dm.hel.below.wunifrac <- UniFrac(ps.hel.below, weighted = TRUE, normalized = TRU
 ```
 
     ## Warning in UniFrac(ps.hel.below, weighted = TRUE, normalized = TRUE, parallel
-    ## = FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## = FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -921,10 +928,10 @@ adonis(dm.hel.below.wunifrac ~ stage, data=metadata.ps.hel.below) # yes there is
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)   
-    ## stage      1   0.13964 0.13964  4.1121 0.18597  0.003 **
-    ## Residuals 18   0.61127 0.03396         0.81403          
-    ## Total     19   0.75092                 1.00000          
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)   
+    ## stage      1   0.15582 0.155818  3.9689 0.18066  0.004 **
+    ## Residuals 18   0.70667 0.039259         0.81934          
+    ## Total     19   0.86248                  1.00000          
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -942,7 +949,7 @@ dm.hel.gc.wunifrac <- UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE,  pa
 ```
 
     ## Warning in UniFrac(ps.hel.gc, weighted = TRUE, normalized = TRUE, parallel =
-    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -959,10 +966,10 @@ adonis(dm.hel.gc.wunifrac ~ stage, data=metadata.ps.hel.gc) # there is a differe
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-    ## stage      1   0.15017 0.150166  3.8028 0.06055  0.001 ***
-    ## Residuals 59   2.32983 0.039489         0.93945           
-    ## Total     60   2.47999                  1.00000           
+    ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)   
+    ## stage      1   0.16818 0.168178  3.6577 0.05838  0.003 **
+    ## Residuals 59   2.71277 0.045979         0.94162          
+    ## Total     60   2.88095                  1.00000          
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -998,15 +1005,15 @@ adonis(dm.hel.above.gc.wunifrac ~ stage, data=metadata.ps.hel.above.gc) #  there
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
-    ## stage      1   0.03971 0.039705  1.8235 0.04467  0.049 *
-    ## Residuals 39   0.84917 0.021774         0.95533         
-    ## Total     40   0.88888                  1.00000         
+    ## stage      1   0.03960 0.039602  1.8169 0.04451   0.05 *
+    ## Residuals 39   0.85004 0.021796         0.95549         
+    ## Total     40   0.88964                  1.00000         
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
 # differences between linear SR and non-steady-state SR across both seep and fluxincreasing?
-ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMTZ") # subset
+ps.hel.above.flux <- subset_samples(ps.hel, stage!="steady-state" & geochem_zone!="below SMT") # subset
 nsamples(ps.hel.above.flux)
 ```
 
@@ -1018,7 +1025,7 @@ dm.hel.above.flux.wunifrac <- UniFrac(ps.hel.above.flux, weighted = TRUE, normal
 ```
 
     ## Warning in UniFrac(ps.hel.above.flux, weighted = TRUE, normalized = TRUE, :
-    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in the data
     ## you provided.
 
 ``` r
@@ -1036,47 +1043,9 @@ adonis(dm.hel.above.flux.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.flu
     ## Terms added sequentially (first to last)
     ## 
     ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)   
-    ## geochem_zone  1   0.14455 0.144553   4.238 0.16792  0.004 **
-    ## Residuals    21   0.71628 0.034109         0.83208          
-    ## Total        22   0.86083                  1.00000          
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-# differences between linear SR and non-steady-state SR across fluxincreasing only?
-ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
-nsamples(ps.hel.above.fluxinc) # there are only 8 samples
-```
-
-    ## [1] 8
-
-``` r
-set.seed(1)
-dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
-```
-
-    ## Warning in UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE, :
-    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
-    ## you provided.
-
-``` r
-metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
-adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.3008  0.052 (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
-```
-
-    ## 
-    ## Call:
-    ## adonis(formula = dm.hel.above.fluxinc.wunifrac ~ geochem_zone,      data = metadata.ps.hel.above.fluxinc) 
-    ## 
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Terms added sequentially (first to last)
-    ## 
-    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
-    ## geochem_zone  1  0.083069 0.083069  2.5926 0.30173  0.046 *
-    ## Residuals     6  0.192242 0.032040         0.69827         
-    ## Total         7  0.275311                  1.00000         
+    ## geochem_zone  1   0.14841 0.148414  4.0475 0.16159  0.005 **
+    ## Residuals    21   0.77003 0.036668         0.83841          
+    ## Total        22   0.91844                  1.00000          
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1094,7 +1063,7 @@ dm.hel.above.fluxseep.wunifrac <- UniFrac(ps.hel.above.fluxseep, weighted = TRUE
 ```
 
     ## Warning in UniFrac(ps.hel.above.fluxseep, weighted = TRUE, normalized = TRUE, :
-    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in the data
     ## you provided.
 
 ``` r
@@ -1112,19 +1081,57 @@ adonis(dm.hel.above.fluxseep.wunifrac ~ geochem_zone, data=metadata.ps.hel.above
     ## Terms added sequentially (first to last)
     ## 
     ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)   
-    ## geochem_zone  1   0.14696 0.146958  6.7176 0.34069  0.002 **
-    ## Residuals    13   0.28439 0.021876         0.65931          
-    ## Total        14   0.43135                  1.00000          
+    ## geochem_zone  1   0.15063 0.150632  6.5242 0.33416  0.002 **
+    ## Residuals    13   0.30015 0.023088         0.66584          
+    ## Total        14   0.45078                  1.00000          
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+# differences between linear SR and non-steady-state SR across fluxincreasing only?
+ps.hel.above.fluxinc <- subset_samples(ps.hel.above.flux, stage=="increasing methane flux") # subset
+nsamples(ps.hel.above.fluxinc) # there are only 8 samples
+```
+
+    ## [1] 8
+
+``` r
+set.seed(1)
+dm.hel.above.fluxinc.wunifrac <- UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.above.fluxinc, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in the data
+    ## you provided.
+
+``` r
+metadata.ps.hel.above.fluxinc <- as(sample_data(ps.hel.above.fluxinc), "data.frame") # write metadata data frame
+adonis(dm.hel.above.fluxinc.wunifrac ~ geochem_zone, data=metadata.ps.hel.above.fluxinc) #  there is barely a difference: R2, p are 0.30173, 0.046 * (Honestly, if you really like p < 0.05, significance might depend on which set.seed you use)
+```
+
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.above.fluxinc.wunifrac ~ geochem_zone,      data = metadata.ps.hel.above.fluxinc) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
+    ## geochem_zone  1  0.090597 0.090597  2.5254 0.29622  0.046 *
+    ## Residuals     6  0.215247 0.035875         0.70378         
+    ## Total         7  0.305844                  1.00000         
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
 # differences between non-steady-state SR and below-SMT across fluxincreasing only?
-ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="lin") # subset
+ps.hel.fluxinc.lower <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="linear SR zone") # subset
 nsamples(ps.hel.fluxinc.lower)# only 12 samples
 ```
 
-    ## [1] 12
+    ## [1] 8
 
 ``` r
 set.seed(1)
@@ -1132,12 +1139,12 @@ dm.hel.fluxinc.lower.wunifrac <- UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, 
 ```
 
     ## Warning in UniFrac(ps.hel.fluxinc.lower, weighted = TRUE, normalized = TRUE, :
-    ## Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in the data
+    ## Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in the data
     ## you provided.
 
 ``` r
 metadata.ps.hel.fluxinc.lower <- as(sample_data(ps.hel.fluxinc.lower), "data.frame") # write metadata data frame
-adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is a difference: R2, p are 0.36624  0.026 * 
+adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.lower) #  there is NO difference: R2, p are 0.12485  0.435 
 ```
 
     ## 
@@ -1149,10 +1156,46 @@ adonis(dm.hel.fluxinc.lower.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxin
     ## 
     ## Terms added sequentially (first to last)
     ## 
+    ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)
+    ## geochem_zone  1  0.028046 0.028046 0.85599 0.12485  0.435
+    ## Residuals     6  0.196586 0.032764         0.87515       
+    ## Total         7  0.224633                  1.00000
+
+``` r
+# differences between linear SR and below-SMT?
+ps.hel.fluxinc.d <- subset_samples(ps.hel, stage=="increasing methane flux" & geochem_zone!="nonlinear SR zone") # subset
+nsamples(ps.hel.fluxinc.d)# only 12 samples
+```
+
+    ## [1] 8
+
+``` r
+set.seed(1)
+dm.hel.fluxinc.d.wunifrac <- UniFrac(ps.hel.fluxinc.d, weighted = TRUE, normalized = TRUE,  parallel = FALSE, fast = TRUE) # run unifrac
+```
+
+    ## Warning in UniFrac(ps.hel.fluxinc.d, weighted = TRUE, normalized = TRUE, :
+    ## Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in the data
+    ## you provided.
+
+``` r
+metadata.ps.hel.fluxinc.d <- as(sample_data(ps.hel.fluxinc.d), "data.frame") # write metadata data frame
+adonis(dm.hel.fluxinc.d.wunifrac ~ geochem_zone, data=metadata.ps.hel.fluxinc.d) # yes difference 0.42094  0.023 *
+```
+
+    ## 
+    ## Call:
+    ## adonis(formula = dm.hel.fluxinc.d.wunifrac ~ geochem_zone, data = metadata.ps.hel.fluxinc.d) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
     ##              Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)  
-    ## geochem_zone  2   0.15610 0.078048  2.6005 0.36624  0.026 *
-    ## Residuals     9   0.27011 0.030012         0.63376         
-    ## Total        11   0.42621                  1.00000         
+    ## geochem_zone  1   0.13725 0.137246  4.3617 0.42094  0.023 *
+    ## Residuals     6   0.18880 0.031466         0.57906         
+    ## Total         7   0.32604                  1.00000         
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1168,7 +1211,7 @@ nsamples(ps.hel.fluxinc)
 ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
 ```
 
-    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV13176 -- in
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV10236 -- in
     ## the phylogenetic tree in the data you provided.
 
 ``` r
@@ -1184,11 +1227,11 @@ ps.hel.fluxinc
 ```
 
     ## phyloseq-class experiment-level object
-    ## otu_table()   OTU Table:         [ 16470 taxa and 12 samples ]
+    ## otu_table()   OTU Table:         [ 16489 taxa and 12 samples ]
     ## sample_data() Sample Data:       [ 12 samples by 22 sample variables ]
-    ## tax_table()   Taxonomy Table:    [ 16470 taxa by 6 taxonomic ranks ]
-    ## phy_tree()    Phylogenetic Tree: [ 16470 tips and 16468 internal nodes ]
-    ## refseq()      DNAStringSet:      [ 16470 reference sequences ]
+    ## tax_table()   Taxonomy Table:    [ 16489 taxa by 6 taxonomic ranks ]
+    ## phy_tree()    Phylogenetic Tree: [ 16489 tips and 16487 internal nodes ]
+    ## refseq()      DNAStringSet:      [ 16489 reference sequences ]
 
 ``` r
 ps.hel.ss <- subset_samples(ps.hel, stage=="steady-state")
@@ -1198,7 +1241,7 @@ dm.seep <- UniFrac(ps.hel.seep, weighted=TRUE, normalized=TRUE, parallel=FALSE, 
 ```
 
     ## Warning in UniFrac(ps.hel.seep, weighted = TRUE, normalized = TRUE, parallel =
-    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -1207,7 +1250,7 @@ dm.fluxinc <- UniFrac(ps.hel.fluxinc, weighted=TRUE, normalized=TRUE, parallel=F
 ```
 
     ## Warning in UniFrac(ps.hel.fluxinc, weighted = TRUE, normalized = TRUE, parallel
-    ## = FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## = FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -1216,7 +1259,7 @@ dm.ss <- UniFrac(ps.hel.ss, weighted=TRUE, normalized=TRUE, parallel=FALSE, fast
 ```
 
     ## Warning in UniFrac(ps.hel.ss, weighted = TRUE, normalized = TRUE, parallel =
-    ## FALSE, : Randomly assigning root as -- ASV4966 -- in the phylogenetic tree in
+    ## FALSE, : Randomly assigning root as -- ASV4959 -- in the phylogenetic tree in
     ## the data you provided.
 
 ``` r
@@ -1231,13 +1274,13 @@ t.test(bdiv.seep, bdiv.ss)
     ##  Welch Two Sample t-test
     ## 
     ## data:  bdiv.seep and bdiv.ss
-    ## t = -4.3132, df = 117.25, p-value = 3.374e-05
+    ## t = -6.149, df = 117.05, p-value = 1.116e-08
     ## alternative hypothesis: true difference in means is not equal to 0
     ## 95 percent confidence interval:
-    ##  -0.05909555 -0.02190421
+    ##  -0.07979666 -0.04091739
     ## sample estimates:
     ## mean of x mean of y 
-    ## 0.2301890 0.2706889
+    ## 0.2344213 0.2947783
 
 ``` r
 t.test(bdiv.fluxinc, bdiv.ss) 
@@ -1247,13 +1290,13 @@ t.test(bdiv.fluxinc, bdiv.ss)
     ##  Welch Two Sample t-test
     ## 
     ## data:  bdiv.fluxinc and bdiv.ss
-    ## t = -0.18916, df = 73.685, p-value = 0.8505
+    ## t = -1.2378, df = 73.72, p-value = 0.2197
     ## alternative hypothesis: true difference in means is not equal to 0
     ## 95 percent confidence interval:
-    ##  -0.02005586  0.01657825
+    ##  -0.030775463  0.007190915
     ## sample estimates:
     ## mean of x mean of y 
-    ## 0.2689501 0.2706889
+    ## 0.2829860 0.2947783
 
 ``` r
 t.test(bdiv.fluxinc, bdiv.seep) 
@@ -1263,13 +1306,13 @@ t.test(bdiv.fluxinc, bdiv.seep)
     ##  Welch Two Sample t-test
     ## 
     ## data:  bdiv.fluxinc and bdiv.seep
-    ## t = 3.0418, df = 161.6, p-value = 0.002745
+    ## t = 3.6606, df = 162.22, p-value = 0.0003401
     ## alternative hypothesis: true difference in means is not equal to 0
     ## 95 percent confidence interval:
-    ##  0.01359750 0.06392465
+    ##  0.02236652 0.07476298
     ## sample estimates:
     ## mean of x mean of y 
-    ## 0.2689501 0.2301890
+    ## 0.2829860 0.2344213
 
 Conclusions: all stages are distinctly different from one another. This
 is true even when considering only above-SMTZ or below-SMTZ samples,
@@ -1355,7 +1398,7 @@ de.results.table.above.seep <- table.stage.from.deseq(deseq = de.above.is.seep, 
 
     ## fitting model and testing
 
-    ## -- replacing outliers and refitting for 5102 genes
+    ## -- replacing outliers and refitting for 5111 genes
     ## -- DESeq argument 'minReplicatesForReplace' = 7 
     ## -- original counts are preserved in counts(dds)
 
@@ -1385,7 +1428,7 @@ de.results.table.above.flux <- table.stage.from.deseq(deseq = de.above.is.flux, 
 
     ## fitting model and testing
 
-    ## -- replacing outliers and refitting for 5301 genes
+    ## -- replacing outliers and refitting for 5313 genes
     ## -- DESeq argument 'minReplicatesForReplace' = 7 
     ## -- original counts are preserved in counts(dds)
 
@@ -1415,7 +1458,7 @@ de.results.table.above.ss <- table.stage.from.deseq(deseq = de.above.is.ss, rela
 
     ## fitting model and testing
 
-    ## -- replacing outliers and refitting for 5536 genes
+    ## -- replacing outliers and refitting for 5544 genes
     ## -- DESeq argument 'minReplicatesForReplace' = 7 
     ## -- original counts are preserved in counts(dds)
 
@@ -1445,7 +1488,7 @@ de.results.table.below.flux <- table.stage.from.deseq(deseq = de.below.is.flux, 
 
     ## fitting model and testing
 
-    ## -- replacing outliers and refitting for 1312 genes
+    ## -- replacing outliers and refitting for 1316 genes
     ## -- DESeq argument 'minReplicatesForReplace' = 7 
     ## -- original counts are preserved in counts(dds)
 
@@ -1475,7 +1518,7 @@ de.results.table.below.ss <- table.stage.from.deseq(deseq = de.below.is.ss, rela
 
     ## fitting model and testing
 
-    ## -- replacing outliers and refitting for 1312 genes
+    ## -- replacing outliers and refitting for 1316 genes
     ## -- DESeq argument 'minReplicatesForReplace' = 7 
     ## -- original counts are preserved in counts(dds)
 
@@ -1541,7 +1584,7 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
   coord_flip() +
   theme_bw()+
   theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
-        axis.text.x = element_text(size=10))
+        axis.text.x = element_text(size=10), legend.position = "bottom", legend.box = "vertical")
 gg.all.biom
 ```
 
@@ -1549,4 +1592,61 @@ gg.all.biom
 
 ``` r
 gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
+
+biomarkers.to.plot %>% filter(Phylum=="Atribacteria") # shows biomarker ASVs for different stages and positions relative to SMT
 ```
+
+    ##      relabund   baseMean log2FoldChange    lfcSE     stat       pvalue
+    ## 1 0.022631625 380.377599       3.233291 1.192675 2.710957 6.708934e-03
+    ## 2 0.001979528   2.804745      24.078315 4.135229 5.822729 5.789453e-09
+    ## 3 0.002133357  24.133924      22.183626 2.702806 8.207629 2.255994e-16
+    ## 4 0.001269432   9.107875      23.822456 3.644526 6.536504 6.297356e-11
+    ## 5 0.002709721 102.172114      21.872405 3.626727 6.030894 1.630547e-09
+    ##           padj  Kingdom       Phylum Class Order Family Genus   de.group   asv
+    ## 1 4.814092e-02 Bacteria Atribacteria   JS1  <NA>   <NA>  <NA> above.seep ASV24
+    ## 2 2.585956e-07 Bacteria Atribacteria   JS1  <NA>   <NA>  <NA> above.flux ASV38
+    ## 3 4.539500e-15 Bacteria Atribacteria   JS1  <NA>   <NA>  <NA>   above.ss ASV91
+    ## 4 2.397718e-08 Bacteria Atribacteria   JS1  <NA>   <NA>  <NA> below.flux ASV91
+    ## 5 3.104154e-07 Bacteria Atribacteria   JS1  <NA>   <NA>  <NA>   below.ss ASV68
+    ##   smtpos                   stage plotlevel taxlevel
+    ## 1  above  active methane seepage Community      JS1
+    ## 2  above increasing methane flux Community      JS1
+    ## 3  above            steady-state Community      JS1
+    ## 4  below increasing methane flux Community      JS1
+    ## 5  below            steady-state Community      JS1
+
+``` r
+length(which(tax_table(ps.frdp)[,3]=="Calditrichia")) # shows numbers ASVs from a certain taxa
+```
+
+    ## [1] 87
+
+``` r
+# how many ASVs are differentially abundant? what average %s are they of communities across stages?
+length(unique(biomarkers.to.plot$asv))
+```
+
+    ## [1] 99
+
+``` r
+sum(biomarkers.to.plot %>% filter(stage=="active methane seepage") %>% select(relabund))*100 # 12.7%
+```
+
+    ## [1] 12.66915
+
+``` r
+sum(biomarkers.to.plot %>% filter(stage=="steady-state") %>% select(relabund))*100 # 9.7%
+```
+
+    ## [1] 9.727948
+
+``` r
+sum(biomarkers.to.plot %>% filter(stage=="increasing methane flux") %>% select(relabund))*100 # 1.6%
+```
+
+    ## [1] 1.622178
+
+## there was a nitrate-sulfide transition? were sulfurovum present there?
+
+All of these ASVs have the same BLAST best match: Sulfurovum
+lithotrophicum 42BKT, from Inagaki et al 2004.
