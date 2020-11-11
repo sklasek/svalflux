@@ -19,6 +19,9 @@ ord1.p.zone <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/ord1.
 
 ## Figure 1: Map of study area
 
+[In case the link doesn’t work, try
+here](https://github.com/sklasek/svalflux/blob/master/figures/F1.png)
+
 ``` r
 knitr::include_graphics("/Users/scottklasek/Desktop/svalflux/figures/F1.png")
 ```
@@ -146,10 +149,12 @@ of methane dynamics (A), and redox zone within the sediment column (B).
 A Hellinger transformation was applied to ASV count tables before
 calculating the distance matrix. PERMANOVA tests verify distinct
 community structures present across stages and redox zones, with R^2 and
-p-values shown in corresponding
-plots.
+p-values shown in corresponding plots.
 
 ## Figure 8, conceptual figure
+
+[In case the link doesn’t work, try
+here](https://github.com/sklasek/svalflux/blob/master/figures/flux.conceptual.2.png)
 
 ``` r
 knitr::include_graphics("/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png")
