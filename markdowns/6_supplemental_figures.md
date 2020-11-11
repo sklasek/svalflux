@@ -207,7 +207,7 @@ ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # sub
 ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
 ```
 
-    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV16286 -- in
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV16687 -- in
     ## the phylogenetic tree in the data you provided.
 
 ``` r
