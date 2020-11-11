@@ -19,7 +19,7 @@ ord1.p.zone <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/ord1.
 
 ## Figure 1: Map of study area
 
-![](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
+![here’s figure 1](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
 
 Figure 1. Bathymetric map of Storfjordrenna gas hydrate mounds and
 modeling approach. (A) Storfjordrenna is located south of the Svalbard
@@ -146,7 +146,8 @@ p-values shown in corresponding plots.
 
 ## Figure 8, conceptual figure
 
-![](/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png)
+![here’s figure
+8](/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png)
 
 Figure 8. Conceptual depiction of microbial community changes concurrent
 with distinct stages of methane dynamics at Storfjordrenna GHMs. Methane

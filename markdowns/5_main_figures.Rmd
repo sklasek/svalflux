@@ -19,7 +19,7 @@ ord1.p.zone <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/ord1.
 
 ## Figure 1: Map of study area
 
-![](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
+![here's figure 1](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
 
 Figure 1. Bathymetric map of Storfjordrenna gas hydrate mounds and modeling approach. (A) Storfjordrenna is located south of the Svalbard Archipelago. Locations of cores and gas hydrate mounds (GHMs) are shown. White polygons indicate areas of seafloor gas release observed at the time of the cruise. All cores were collected from GHMs, with the exception of the reference core GC1048, which was sampled 400 m west of GHM5. The schematic in (B) depicts sulfate and methane concentrations throughout a sediment column at a steady-state condition. As methane flux increases, (C), SR-AOM is stimulated at shallower depths and sulfate profiles show a concave-up curvature. After decades of steadily increasing methane flux at a particular area, (D), reactive-transport modeling can be used to estimate how quickly the methane front diffused the distance between the current and prior sulfate depletion depths (indicated by the orange bracket).
 
@@ -81,7 +81,7 @@ Figure 7. Principal Coordinates Analysis (PCoA) ordination of weighted Unifrac d
 
 ## Figure 8, conceptual figure 
 
-![](/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png)
+![here's figure 8](/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png)
 
 Figure 8. Conceptual depiction of microbial community changes concurrent with distinct stages of methane dynamics at Storfjordrenna GHMs. Methane and sulfate profiles are shown in gray and blue lines, respectively, with microbial community changes indicated by blowup circles. ANME and SRB represent red and green ovals, with other bacteria and archaea in gray (shapes representing the diversity of other taxa). (A) Methane seepage, potentially driven by dissociation of gas hydrates at the upper limit of stability, stimulates high rates of AOM and densities of ANME/SRB. Sulfide fluxes from AOM are sufficient to support frenulate siboglinid tubeworms, which may irrigate sulfate over the upper several cm of sediment, increase redox gradients in underlying sediments, and further ANME/SRB growth. (B) In the absence of bioirrigation, a concave-up bend in porewater sulfate suggests recent methane migration into the sulfate-reduction zone that may have resulted from a pulse of methane beginning around 290 years ago. Methane travels upward throughout the sediment column, and ANME/SRB growth follows with less than a year of lag time, driving down alpha diversity. (C) Steady-state sulfate profiles suggest no recent methane influx, and low rates of AOM are observed at the SMTZ. Stable conditions may allow for higher microbial diversity and the growth of macroscopic biofilms.  
 
