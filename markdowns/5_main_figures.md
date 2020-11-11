@@ -19,7 +19,11 @@ ord1.p.zone <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/ord1.
 
 ## Figure 1: Map of study area
 
-![here’s figure 1](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
+``` r
+knitr::include_graphics("/Users/scottklasek/Desktop/svalflux/figures/F1.png")
+```
+
+<img src="/Users/scottklasek/Desktop/svalflux/figures/F1.png" width="900" />
 
 Figure 1. Bathymetric map of Storfjordrenna gas hydrate mounds and
 modeling approach. (A) Storfjordrenna is located south of the Svalbard
@@ -41,7 +45,7 @@ bracket).
 
 ### Figure 2, steady-state cores:
 
-<img src="5_main_figures_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 Figure 2. Geochemical, numerical, microbial community, and gene
 abundance data from four sites showing steady-state sulfate-methane
@@ -61,7 +65,7 @@ axis).
 
 ### Figure 3, increasing methane flux:
 
-<img src="5_main_figures_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 Figure 3. Geochemical, numerical, microbial community, and gene
 abundance data from two sites showing sulfate-methane dynamics
@@ -78,7 +82,7 @@ sediment.
 
 ### Figure 4, active methane seepage:
 
-<img src="5_main_figures_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 Figure 4. Geochemical, microbial community, and gene abundance data from
 an active seep site. Push core PC1029 is located at the seep in the
@@ -95,7 +99,7 @@ sediment.
 
 ## Figure 5, differentially abundant ASVs across zones and methane flux types:
 
-<img src="5_main_figures_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
 Figure 5. Differentially abundant ASVs between three discrete stages of
 methane dynamics, either above or below the sulfate-methane transition
@@ -110,7 +114,7 @@ comparisons.
 
 ## Figure 6, alpha-diversity (diversity within communities):
 
-<img src="5_main_figures_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 Figure 6. Microbial community diversity patterns across peak modeled AOM
 depths. Shannon diversity indices of microbial communities for
@@ -134,7 +138,7 @@ library(patchwork)
 ord1.p.stage + ord1.p.zone
 ```
 
-<img src="5_main_figures_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
 Figure 7. Principal Coordinates Analysis (PCoA) ordination of weighted
 Unifrac distances between all communities, colored according to stages
@@ -142,12 +146,16 @@ of methane dynamics (A), and redox zone within the sediment column (B).
 A Hellinger transformation was applied to ASV count tables before
 calculating the distance matrix. PERMANOVA tests verify distinct
 community structures present across stages and redox zones, with R^2 and
-p-values shown in corresponding plots.
+p-values shown in corresponding
+plots.
 
 ## Figure 8, conceptual figure
 
-![here’s figure
-8](/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png)
+``` r
+knitr::include_graphics("/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png")
+```
+
+<img src="/Users/scottklasek/Desktop/svalflux/figures/flux.conceptual.2.png" width="2836" />
 
 Figure 8. Conceptual depiction of microbial community changes concurrent
 with distinct stages of methane dynamics at Storfjordrenna GHMs. Methane
