@@ -46,7 +46,7 @@ gg.flux <- gcf+geom_bar(stat="identity")+
   scale_fill_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
   scale_y_continuous(limits = c(0,6))+
   xlab("")+
-  ylab(bquote(~CH[4]~'flux (mols'~m^-2~yr^-1*') at time of sampling'))+
+  ylab(bquote(~CH[4]~'flux (mol'~m^-2~yr^-1*') at time of sampling'))+
   theme_classic()+
   theme(axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
 flux.gc

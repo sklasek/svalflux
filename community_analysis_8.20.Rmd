@@ -429,7 +429,7 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
   theme_bw()+
   theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
         axis.text.x = element_text(size=10), legend.position = "bottom", legend.box = "vertical")
-gg.all.biom
+gg.all.biom # export dimensions 6.3 x 6.9
 gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
 
 biomarkers.to.plot %>% filter(Phylum=="Atribacteria") # shows biomarker ASVs for different stages and positions relative to SMT

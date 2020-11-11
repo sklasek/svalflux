@@ -1,13 +1,13 @@
 ---
 title: "core_info_and_panel_figures_8.20"
 author: "Scott Klasek"
-date: "8/26/2020"
+date: "11/09/2020"
 output: github_document
 ---
 
 ## load necessary libraries
 ```{r}
-library(ggplot2)
+library(tidyverse)
 library(png)
 library(grid)
 library(egg)
@@ -19,6 +19,12 @@ sessioninfo <- sessionInfo()
 ```{r}
 # import the porewater data
 porewater <- read.csv(file="porewater.csv")
+
+# add in +/- 4% error bars on sulfate measurements
+porewater$maxerror <- 0
+porewater$minerror <- 0
+porewater <- porewater %>% mutate(maxerror = ifelse(species=="sulfate (mM)", value*1.04, ifelse(species!="sulfate (mM)", value*1, maxerror)))
+porewater <- porewater %>% mutate(minerror = ifelse(species=="sulfate (mM)", value*0.96, ifelse(species!="sulfate (mM)", value*1, minerror)))
 
 # subset by core flowtype 
 pore.1029 <- subset(porewater, porewater$stage=="seep") 
@@ -33,6 +39,7 @@ wormsg <- rasterGrob(worms, interpolate=TRUE) # raster-grob the tubeworm symbol
 ggp.1029 <- ggplot(pore.1029,aes(depth,value,color=species))
 gg.porewater.1029 <- ggp.1029+geom_line(size=1.5)+
   geom_point(size=3)+
+  geom_errorbar(aes(ymin = minerror, ymax = maxerror))+
   coord_flip()+
   ggtitle("Porewater Geochemistry")+
   scale_y_continuous("",limits = c(0,40),position = "right")+
@@ -47,6 +54,7 @@ gg.porewater.1029 <- ggp.1029+geom_line(size=1.5)+
 ggp.fi <- ggplot(pore.fi,aes(depth,value,color=species))
 gg.porewater.nss <- ggp.fi+geom_line(size=1.5)+
   geom_point(size=3)+
+  geom_errorbar(aes(ymin = minerror, ymax = maxerror))+
   geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
   coord_flip()+
   facet_grid(core~.)+
@@ -71,6 +79,7 @@ function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data){ layer(d
 ggp.ss <- ggplot(pore.ss,aes(depth,value,color=species))
 gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
   geom_point(size=3)+
+  geom_errorbar(aes(ymin = minerror, ymax = maxerror))+
   geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
   coord_flip()+
   facet_grid(core~.)+
@@ -105,7 +114,7 @@ raom1029 <- aom1029+geom_line(size=1.5)+
   coord_flip()+
   scale_y_continuous("",position="right", breaks=c(0,2000,4000,6000,8000))+
   scale_x_reverse("",breaks=c(0,5,10,15,20,25,30,35),limits=c(35,0))+
-  labs(title=expression("AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
+  labs(title=expression("AOM rate (nmol cm"^{-3}*" d"^{-1}*")"))+
   theme_bw()+
   theme(axis.text=element_text(size=12),legend.text=element_text(size=11),axis.title=element_text(size=14))
 
@@ -117,7 +126,7 @@ raom.nss <- aom.nss+geom_line(size=1)+
   geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
   coord_flip()+
   facet_grid(core~.)+
-  labs(title=expression("AOM rate\n(µmols L"^{-1}*" day"^{-1}*")"))+
+  labs(title=expression("AOM rate (nmol cm"^{-3}*" d"^{-1}*")"))+
   scale_y_continuous("",breaks=c(0,100,200),limits = c(-5,220),position = "right")+
   scale_x_reverse("",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
   theme_bw()+
@@ -139,7 +148,7 @@ raom.ss <- aom.ss+geom_line(size=1)+
   scale_y_continuous("",limits = c(0,20),position = "right")+
   scale_x_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
   theme_bw()+
-  labs(title=expression("AOM rate \n(µmols L"^{-1}*" day"^{-1}*")"))+
+  labs(title=expression("AOM rate (nmol cm"^{-3}*" d"^{-1}*")"))+
   theme(axis.text=element_text(size=13),
         strip.text.y = element_blank(),
         strip.background = element_blank(),
@@ -212,7 +221,7 @@ ddss<- ggplot(dd.pcr.ss, aes(depth, logcopies, color=gene))
 dd.ss <- ddss+geom_line(size=1.5)+
   geom_point(size=3)+
   coord_flip()+
-  scale_y_continuous("", breaks=c(4,5,6,7), limits = c(3.7,7.4), position="right")+
+  scale_y_continuous("", breaks=c(4,5,6,7), limits = c(3.7,7.6), position="right")+
   scale_x_reverse("", breaks=c(0,50,100,150,200,250,300,350), limits=c(350,0))+
   geom_vline(aes(xintercept=smt), linetype="dashed",size=0.8)+
   facet_grid(core~.)+
@@ -224,21 +233,21 @@ dd.ss <- ddss+geom_line(size=1.5)+
         axis.title=element_text(size=13), 
         axis.text.x = element_text(size=13),
         axis.text.y = element_blank())
-# need to remove the samples with zeros that obscure the trend or at least make the graph look really chaotic
+dd.ss
 ```
 
 ## create panel figures
 ```{r}
-# Figure 2 (Seep)
-fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),ncol = 3,nrow = 1,labels=c("A","B","C"))
-
-# Figure 3 (Non-steady-state sites)
+# Figure 2 (Steady-state sites) export dimensions at 12 x 8.4
+fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
+                        ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
+      
+# Figure 3 (Non-steady-state sites) export dimensions at 12 x 6
 fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol = 4, nrow = 1,
   widths = c(2.4,2.1,5.4,1.8),labels=c("A","B","C","D"))
 
-# Figure 4 (Steady-state sites)
-fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
-                        ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
+# Figure 4 (Seep) export dimensions at 9.8 x 4.9
+fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),ncol = 3,nrow = 1,labels=c("A","B","C"))
 ```
 
 ## print figures at their optimal sizes
