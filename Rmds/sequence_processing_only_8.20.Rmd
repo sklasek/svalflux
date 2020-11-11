@@ -25,6 +25,9 @@ sessioninfo <- sessionInfo()
 
 ## run dada2 workflow to get ASVs
 Estimated time to run this chunk on my laptop computer (2019 macbook pro): an hour or two. Taxonomy was the longest single step for me.  
+forward quality scores: the extraction blanks and samples with low reads (like <1000) are really bad, other samples drop off at ~230
+reverse quality scores: same pattern, but drop off ~220
+my f primer is 19 bp, reverse is 20: forward, GTGCCAGCMGCCGCGGTAA; reverse, TAATCTWTGGGVHCATCAGG
 ```{r}
 fqpath <- "/Users/scottklasek/Desktop/flux_resubmission/fastq"
 original_file_names <- list.files(fqpath)
