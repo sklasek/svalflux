@@ -19,7 +19,9 @@ ord1.p.zone <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/ord1.
 
 ## Figure 1: Map of study area
 
-![Figure 1. Bathymetric map of Storfjordrenna gas hydrate mounds and
+![](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
+
+Figure 1. Bathymetric map of Storfjordrenna gas hydrate mounds and
 modeling approach. (A) Storfjordrenna is located south of the Svalbard
 Archipelago. Locations of cores and gas hydrate mounds (GHMs) are shown.
 White polygons indicate areas of seafloor gas release observed at the
@@ -33,7 +35,7 @@ increasing methane flux at a particular area, (D), reactive-transport
 modeling can be used to estimate how quickly the methane front diffused
 the distance between the current and prior sulfate depletion depths
 (indicated by the orange
-bracket).](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
+bracket).
 
 ## Panel figures from three methane flux regimes:
 
