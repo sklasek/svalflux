@@ -1,7 +1,7 @@
-core\_info\_and\_panel\_figures\_8.20
+3\_core\_info\_and\_panel\_figures
 ================
 Scott Klasek
-11/09/2020
+11/11/2020
 
 ## load necessary libraries
 
@@ -285,7 +285,7 @@ fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
 
     ## Warning: Removed 5 rows containing missing values (geom_point).
 
-![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 # Figure 3 (Non-steady-state sites) export dimensions at 12 x 6
@@ -295,7 +295,7 @@ fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol 
 
     ## Warning: Removed 62 row(s) containing missing values (geom_path).
 
-![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 # Figure 4 (Seep) export dimensions at 9.8 x 4.9
@@ -306,7 +306,7 @@ fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),
 
     ## Warning: Removed 3 rows containing missing values (geom_point).
 
-![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 ## print figures at their optimal sizes
 

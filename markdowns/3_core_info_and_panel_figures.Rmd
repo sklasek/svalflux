@@ -1,7 +1,7 @@
 ---
-title: "core_info_and_panel_figures_8.20"
+title: "3_core_info_and_panel_figures"
 author: "Scott Klasek"
-date: "11/09/2020"
+date: "11/11/2020"
 output: github_document
 ---
 

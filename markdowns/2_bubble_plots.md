@@ -1,7 +1,7 @@
-bubble\_plots\_8.20
+2\_bubble\_plots
 ================
 Scott Klasek
-8/26/2020
+11/11/2020
 
 ## recreate bubble plots from the phyloseq object
 
@@ -328,7 +328,7 @@ bp.seep <- bp1029+
 bp.seep
 ```
 
-![](bubble_plots_8.20_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](2_bubble_plots_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 bp.seep <- saveRDS(bp.seep, "/Users/scottklasek/Desktop/svalflux/figures/bp.seep") # export plot
@@ -354,7 +354,7 @@ bp.fluxincreasing <- bp.fi+
 bp.fluxincreasing 
 ```
 
-![](bubble_plots_8.20_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+![](2_bubble_plots_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ``` r
 bp.fluxincreasing <- saveRDS(bp.fluxincreasing, "/Users/scottklasek/Desktop/svalflux/figures/bp.fluxincreasing") # export plot
@@ -380,7 +380,7 @@ bp.steadystate <- bp.ss+
 bp.steadystate
 ```
 
-![](bubble_plots_8.20_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+![](2_bubble_plots_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
 
 ``` r
 bp.steadystate <- saveRDS(bp.steadystate, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate") # export plot
