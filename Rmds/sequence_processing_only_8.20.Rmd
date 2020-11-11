@@ -24,12 +24,17 @@ sessioninfo <- sessionInfo()
 ```
 
 ## run dada2 workflow to get ASVs
+
+Sequences are publicly available on NCBI [here under BioProject PRJNA533183](https://dataview.ncbi.nlm.nih.gov/object/18261478).   
+
+Run notes:   
 Estimated time to run this chunk on my laptop computer (2019 macbook pro): an hour or two. Taxonomy was the longest single step for me.  
 forward quality scores: the extraction blanks and samples with low reads (like <1000) are really bad, other samples drop off at ~230
 reverse quality scores: same pattern, but drop off ~220
 my f primer is 19 bp, reverse is 20: forward, GTGCCAGCMGCCGCGGTAA; reverse, TAATCTWTGGGVHCATCAGG
+
 ```{r}
-fqpath <- "/Users/scottklasek/Desktop/flux_resubmission/fastq"
+fqpath <- "/Users/scottklasek/Desktop/flux_resubmission/fastq" # change path
 original_file_names <- list.files(fqpath)
 new_file_names <- list.files(fqpath)
 fnFs.2 <- sort(list.files(fqpath, pattern="_R1.fastq", full.names = TRUE))
@@ -124,7 +129,7 @@ fitGTR <- update(fit, k=4, inv=0.2)
 ## Add in metadata and create phyloseq object
 Very quick to run. The metadata file contains sample name, core, depth below seafloor, pingo, sulfate, sulfide, alkalinity concentrations, core_flowtype (increasing "inc" or steady state "ss"), geochem_zone (linear "lin", nss "non-steady-state", or below sulfate-methane transition zone "below"), whether the read quality was ok, stage (fluxincreasing, steadystate, or seep), sample or control, library concentration (ng/ul), who extracted the DNA, and mcrA and dsrAB ddPCR gene counts in copies per gram. 
 ```{r}
-metadata.2 <- read.csv(file="~/Desktop/svalflux/metadata.csv")
+metadata.2 <- read.csv(file="~/Desktop/svalflux/data/metadata.csv") # change path to github repo
 rownames(metadata.2) <- sample.names.2
 ps.f <- phyloseq(tax_table(taxa.2),
                  sample_data(metadata.2),
@@ -258,5 +263,5 @@ sample_data(ps.frdp)$smtzposition <- "above" # creates default value "above" for
 sample_data(ps.frdp)[which(sample_data(ps.frdp)$geochem_zone=="below"),20] <- "below" # overwrites as "below" for samples where geochem_zone = below
 sample_data(ps.frdp)$dist_above_peakaom <- sample_data(ps.frdp)$peakaom-sample_data(ps.frdp)$depth # creates a new variable, distance above peak AOM
 sample_data(ps.frdp)[which(sample_data(ps.frdp)$core=="GC1048"&sample_data(ps.frdp)$depth<310),9] <- "lin" # GC1048 is a steady-state core, so geochem zone should be 
-saveRDS(ps.frdp, "ps.frdp") # saved phyloseq object, pushed to Github (need to update with metadata)
+saveRDS(ps.frdp, "data/ps.frdp") # saved phyloseq object, pushed to Github 
 ```
