@@ -1,7 +1,7 @@
-community\_analysis\_8.20
+4\_community\_analysis
 ================
 Scott Klasek
-8/26/2020
+11/11/2020
 
 ## load necessary libraries and data
 
@@ -371,13 +371,13 @@ nssplot <- plotrichness.nss+
 div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 6
 ```
 
-![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](4_community_analysis_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 div.fig
 ```
 
-![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
+![](4_community_analysis_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ``` r
 div.fig <- saveRDS(div.fig, "/Users/scottklasek/Desktop/svalflux/figures/figure6") # export alpha diversity figure
@@ -428,7 +428,7 @@ adonis(dm.jac ~ geochem_zone*stage, data=metadata.ps.hel)
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
     ## geochem_zone        2     1.900 0.94980  2.4357 0.05848  0.001 ***
     ## stage               2     2.487 1.24336  3.1885 0.07655  0.001 ***
-    ## geochem_zone:stage  2     1.192 0.59598  1.5284 0.03669  0.001 ***
+    ## geochem_zone:stage  2     1.192 0.59598  1.5284 0.03669  0.002 ** 
     ## Residuals          69    26.906 0.38995         0.82828           
     ## Total              75    32.485                 1.00000           
     ## ---
@@ -452,7 +452,7 @@ adonis(dm.bc ~ geochem_zone*stage, data=metadata.ps.hel)
     ##                    Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
     ## geochem_zone        2    2.4566 1.22832  4.3081 0.09239  0.001 ***
     ## stage               2    3.3414 1.67071  5.8597 0.12566  0.001 ***
-    ## geochem_zone:stage  2    1.1192 0.55961  1.9627 0.04209  0.001 ***
+    ## geochem_zone:stage  2    1.1192 0.55961  1.9627 0.04209  0.007 ** 
     ## Residuals          69   19.6731 0.28512         0.73986           
     ## Total              75   26.5904                 1.00000           
     ## ---
@@ -844,7 +844,7 @@ ord.fig <- ord1.p.stage + ord1.p.zone
 ord.fig
 ```
 
-![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](4_community_analysis_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 ord1.p.stage <- saveRDS(ord1.p.stage, "/Users/scottklasek/Desktop/svalflux/figures/ord1.p.stage")
@@ -1216,7 +1216,7 @@ ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weigh
 plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+stat_ellipse() # from the very few samples we have here, the idea that the linear SR zone is the outlier is supported
 ```
 
-![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](4_community_analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 # t-tests of beta-diversity between stages
@@ -1586,7 +1586,7 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
 gg.all.biom # export dimensions 6.3 x 6.9
 ```
 
-![](community_analysis_8.20_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](4_community_analysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 gg.all.biom <- saveRDS(gg.all.biom, "/Users/scottklasek/Desktop/svalflux/figures/figure5") # export figure

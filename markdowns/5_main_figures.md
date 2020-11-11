@@ -39,7 +39,7 @@ bracket).](/Users/scottklasek/Desktop/svalflux/figures/F1.png)
 
 ### Figure 2, steady-state cores:
 
-<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
 Figure 2. Geochemical, numerical, microbial community, and gene
 abundance data from four sites showing steady-state sulfate-methane
@@ -59,7 +59,7 @@ axis).
 
 ### Figure 3, increasing methane flux:
 
-<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 Figure 3. Geochemical, numerical, microbial community, and gene
 abundance data from two sites showing sulfate-methane dynamics
@@ -76,7 +76,7 @@ sediment.
 
 ### Figure 4, active methane seepage:
 
-<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 Figure 4. Geochemical, microbial community, and gene abundance data from
 an active seep site. Push core PC1029 is located at the seep in the
@@ -93,7 +93,7 @@ sediment.
 
 ## Figure 5, differentially abundant ASVs across zones and methane flux types:
 
-<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 Figure 5. Differentially abundant ASVs between three discrete stages of
 methane dynamics, either above or below the sulfate-methane transition
@@ -108,7 +108,7 @@ comparisons.
 
 ## Figure 6, alpha-diversity (diversity within communities):
 
-<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
 Figure 6. Microbial community diversity patterns across peak modeled AOM
 depths. Shannon diversity indices of microbial communities for
@@ -132,7 +132,7 @@ library(patchwork)
 ord1.p.stage + ord1.p.zone
 ```
 
-<img src="flux_updated_figs_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="5_main_figures_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 Figure 7. Principal Coordinates Analysis (PCoA) ordination of weighted
 Unifrac distances between all communities, colored according to stages

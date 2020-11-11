@@ -1,5 +1,5 @@
 ---
-title: "supplemental_figures_8.20.Rmd"
+title: "Supplemental figures and tables from Distinct methane-dependent biogeochemical regimes in Arctic seafloor gas hydrate mounds"
 author: "Scott Klasek"
 date: "11/11/2020"
 output: github_document

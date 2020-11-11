@@ -1,4 +1,5 @@
-supplemental\_figures\_8.20.Rmd
+Supplemental figures and tables from Distinct methane-dependent
+biogeochemical regimes in Arctic seafloor gas hydrate mounds
 ================
 Scott Klasek
 11/11/2020
@@ -114,7 +115,7 @@ flux.gc
 gg.flux
 ```
 
-![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 Figure S1. Methane fluxes across each core, integrated from modeled AOM
 rates derived from data at the time of sampling. Cores are colored by
 methane stage. PC1029 was omitted due to high uncertainty in modeling
@@ -175,7 +176,7 @@ gg.ratemcrA <- rate_mcrA+
 gg.ratemcrA 
 ```
 
-![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 Figure S3. Regression of mcrA gene copy numbers (per gram bulk sediment)
 to modeled AOM rates shows a linear relationship across samples from all
 cores (log-log transformation). Samples are colored according to stages
@@ -206,7 +207,7 @@ ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # sub
 ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
 ```
 
-    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV14815 -- in
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV16286 -- in
     ## the phylogenetic tree in the data you provided.
 
 ``` r
@@ -217,7 +218,7 @@ fluxord <- plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = 
 fluxord 
 ```
 
-![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 Fig. S4: From the very few samples we have here, the idea that the
 linear SR zone is the outlier is
 supported.
@@ -243,7 +244,7 @@ ssjp.plot
 
     ## Warning: Removed 5 rows containing missing values (geom_point).
 
-![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 Figure S5. Empirically-measured sulfate porewater profiles from cores
 taken from steady-state areas, shown with modeled sulfate profiles
 assuming a non-steady state scenario where methane flux is increasing.
@@ -323,7 +324,7 @@ so4fitplot <- gg.so4fit.s / gg.so4fit.l | gg.so4fit.pc / gg.so4fit.48
 so4fitplot
 ```
 
-![](supplemental_figures_8.20_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ## Table S1: table of core info
 
