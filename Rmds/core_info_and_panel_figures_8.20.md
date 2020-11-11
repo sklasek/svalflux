@@ -1,23 +1,56 @@
----
-title: "core_info_and_panel_figures_8.20"
-author: "Scott Klasek"
-date: "11/09/2020"
-output: github_document
----
+core\_info\_and\_panel\_figures\_8.20
+================
+Scott Klasek
+11/09/2020
 
 ## load necessary libraries
-```{r}
+
+``` r
 library(tidyverse)
+```
+
+    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+
+    ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
+    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
+    ## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
+
+    ## Warning: package 'ggplot2' was built under R version 3.6.2
+
+    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
 library(phyloseq)
 library(png)
 library(grid)
 library(egg)
+```
+
+    ## Loading required package: gridExtra
+
+    ## 
+    ## Attaching package: 'gridExtra'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     combine
+
+``` r
 library(here)
+```
+
+    ## here() starts at /Users/scottklasek/Desktop/svalflux
+
+``` r
 sessioninfo <- sessionInfo()
 ```
 
 ## import and graph porewater data
-```{r}
+
+``` r
 # import the porewater data
 porewater <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/porewater.csv")
 
@@ -101,7 +134,8 @@ gg.porewater.ss <- ggp.ss+geom_line(size=1.5)+
 ```
 
 ## import and graph aom rate data
-```{r}
+
+``` r
 aomrates <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/aomrates2020update.csv") # import rate data
 
 # subset by methane flux condition
@@ -161,14 +195,16 @@ raom.ss <- aom.ss+geom_line(size=1)+
 ```
 
 ## import bubble plots
-```{r}
+
+``` r
 bp.seep <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/bp.seep") 
 bp.fluxincreasing <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/bp.fluxincreasing") 
 bp.steadystate <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate") 
 ```
 
 ## graph ddpcr data (already in phyloseq object)
-```{r}
+
+``` r
 # import phyloseq object
 ps.frdp <- readRDS(file="/Users/scottklasek/Desktop/svalflux/data/ps.frdp") # imports the final phyloseq object
 
@@ -240,29 +276,48 @@ dd.ss <- ddss+geom_line(size=1.5)+
 ```
 
 ## create panel figures
-```{r}
+
+``` r
 # Figure 2 (Steady-state sites) export dimensions at 12 x 8.4
 fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
                         ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
-      
+```
+
+    ## Warning: Removed 5 rows containing missing values (geom_point).
+
+![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
 # Figure 3 (Non-steady-state sites) export dimensions at 12 x 6
 fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol = 4, nrow = 1,
   widths = c(2.4,2.1,5.4,1.8),labels=c("A","B","C","D"))
+```
 
+    ## Warning: Removed 62 row(s) containing missing values (geom_path).
+
+![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+``` r
 # Figure 4 (Seep) export dimensions at 9.8 x 4.9
 fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),ncol = 3,nrow = 1,labels=c("A","B","C"))
 ```
 
+    ## Warning: Removed 1 row(s) containing missing values (geom_path).
+
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](core_info_and_panel_figures_8.20_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+
 ## print figures at their optimal sizes
 
-```{r fig.width=6.5, fig.height=4}
+``` r
 fig.ss <- saveRDS(fig.ss, "/Users/scottklasek/Desktop/svalflux/figures/figure2") # export
 ```
 
-```{r fig.width=6, fig.height=3}
+``` r
 fig.nss <- saveRDS(fig.nss, "/Users/scottklasek/Desktop/svalflux/figures/figure3") # export
 ```
 
-```{r fig.width=5.7, fig.height=2.6}
+``` r
 fig1029 <- saveRDS(fig1029, "/Users/scottklasek/Desktop/svalflux/figures/figure4") # export
 ```
