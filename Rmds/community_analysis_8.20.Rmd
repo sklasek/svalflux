@@ -18,7 +18,7 @@ library(vegan)
 library(DESeq2)
 library(here)
 sessioninfo <- sessionInfo()
-ps.frdp <- readRDS(file="ps.frdp") # imports the final phyloseq object
+ps.frdp <- readRDS(file="/Users/scottklasek/Desktop/svalflux/data/ps.frdp") # imports the final phyloseq object
 ```
 
 ## alpha diversity
@@ -102,7 +102,7 @@ nssplot <- plotrichness.nss+
 
 div.fig <- ggarrange(nssplot,ssplot, heights = c(1,1), ncol=1, nrow=2, labels = c("A", "B")) # Figure 6
 div.fig
-div.fig <- saveRDS(div.fig, "figures/figure6") # export alpha diversity figure
+div.fig <- saveRDS(div.fig, "/Users/scottklasek/Desktop/svalflux/figures/figure6") # export alpha diversity figure
 ```
 
 ## beta diversity
@@ -208,8 +208,8 @@ ord1.p.zone<- plot_ordination(ps.hel, ord.ps.hel.wuni.pcoa, color = "geochem_zon
 # showing them both together
 ord.fig <- ord1.p.stage + ord1.p.zone
 ord.fig
-ord1.p.stage <- saveRDS(ord1.p.stage, "figures/ord1.p.stage")
-ord1.p.zone <- saveRDS(ord1.p.zone, "figures/ord1.p.zone")
+ord1.p.stage <- saveRDS(ord1.p.stage, "/Users/scottklasek/Desktop/svalflux/figures/ord1.p.stage")
+ord1.p.zone <- saveRDS(ord1.p.zone, "/Users/scottklasek/Desktop/svalflux/figures/ord1.p.zone")
 ```
 The PCoA has fewer outliers, and explains 25% x 17.4% variance on the two major axes, so I'll stick with that over NMDS.  
 
@@ -218,9 +218,7 @@ Maybe don't even show the plot by geochem zone... it's just a mess that doesn't 
 Can also add the sections "more permanovas" from lines 844-920, and possibly beta-diversity from lines 938-974. Just to be thorough...   
 
 ## follow-up tests on beta-diversity
-```{r }
-library(phyloseq)
-
+```{r}
 # omitting below-SMT samples, is there still a difference by stage?
 ps.hel.above <- subset_samples(ps.hel, geochem_zone!="below SMT") # subset
 set.seed(1)
@@ -430,7 +428,7 @@ gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(le
   theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
         axis.text.x = element_text(size=10), legend.position = "bottom", legend.box = "vertical")
 gg.all.biom # export dimensions 6.3 x 6.9
-gg.all.biom <- saveRDS(gg.all.biom, "figures/figure5") # export figure
+gg.all.biom <- saveRDS(gg.all.biom, "/Users/scottklasek/Desktop/svalflux/figures/figure5") # export figure
 
 biomarkers.to.plot %>% filter(Phylum=="Atribacteria") # shows biomarker ASVs for different stages and positions relative to SMT
 length(which(tax_table(ps.frdp)[,3]=="Calditrichia")) # shows numbers ASVs from a certain taxa
