@@ -1,7 +1,7 @@
 ANME-SRB Networks
 ================
 Scott Klasek
-4/26/2021
+5/11/2021
 
 Motivation: Svalbard paper, still in review. Reviewer \#4 requests FISH
 data as proof of ANME-SRB interactions. We don’t have FISH samples, the
@@ -159,7 +159,7 @@ sval.graph.1.gml <- read_graph(file = "/Users/scottklasek/Desktop/svalflux/data/
 summary(sval.graph.1.gml) # stats: 862 vertices, 1752 edges.
 ```
 
-    ## IGRAPH 31f2c79 U-W- 862 1752 -- 
+    ## IGRAPH 0250d1c U-W- 862 1752 -- 
     ## + attr: id (v/n), label (v/c), mv (v/n), weight (e/n)
 
 ``` r
@@ -209,7 +209,7 @@ sval.graph.1.nm.pa.gml <- add_pa_to_graph(select.asvs, ps.frdp, sval.graph.1.nm.
 summary(sval.graph.1.nm.pa.gml)
 ```
 
-    ## IGRAPH 08c7ee5 U-W- 844 1694 -- 
+    ## IGRAPH 329befb U-W- 844 1694 -- 
     ## + attr: id (v/n), label (v/c), mv (v/n), category (v/c), pa (v/n),
     ## | weight (e/n)
 
@@ -374,3 +374,60 @@ Top ANME-SRB pairs include ASVs 6/9 (ANME-1a and Seep-SRB1), ASVs 15/20
 244/344 (ANME-1a and Desulfatiglans), ASVs 30/293 (ANME-2a-2b and
 Seep-SRB1), and ASVs 131/345 (ANME-1a and Desulfatiglans). They don’t
 seem to be too clade-specific.
+
+### follow up on SRB
+
+``` r
+strong.connection.srb.asvs <- intersect(all.srb.asvs, V(sval.graph.1.nm.pa.w.gml)$label) # the SRBs that have strong connections in the graph
+sum(ps.all.asvc[strong.connection.srb.asvs,] %>% filter(pctreads > 0.1) %>% pull(pctreads))/sum(ps.all.asvc[strong.connection.srb.asvs,] %>% pull(pctreads)) # 81% of SRB reads in the graph are above 0.1% so let's focus on these 
+```
+
+    ## [1] 0.8172619
+
+``` r
+top.srb.asvs <- rownames(ps.all.asvc[strong.connection.srb.asvs,] %>% filter(pctreads > 0.1))
+
+for (i in top.srb.asvs) {graph.subset.plot(sval.graph.1.nm.pa.w.gml, i)} # graph them
+```
+
+![](7_network_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-5.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-6.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-7.png)<!-- -->![](7_network_files/figure-gfm/unnamed-chunk-11-8.png)<!-- -->
+
+``` r
+data.frame(tax_table(ps.select.asvs))[top.srb.asvs,] # they're only SEEP-SRB1 and Desulfatiglans
+```
+
+    ##        Kingdom         Phylum               Class             Order
+    ## ASV6  Bacteria Proteobacteria Deltaproteobacteria Desulfobacterales
+    ## ASV17 Bacteria Proteobacteria Deltaproteobacteria Desulfobacterales
+    ## ASV30 Bacteria Proteobacteria Deltaproteobacteria Desulfobacterales
+    ## ASV33 Bacteria Proteobacteria Deltaproteobacteria Desulfobacterales
+    ## ASV67 Bacteria Proteobacteria Deltaproteobacteria Desulfobacterales
+    ## ASV20 Bacteria Proteobacteria Deltaproteobacteria   Desulfarculales
+    ## ASV73 Bacteria Proteobacteria Deltaproteobacteria   Desulfarculales
+    ## ASV96 Bacteria Proteobacteria Deltaproteobacteria   Desulfarculales
+    ##                   Family          Genus
+    ## ASV6  Desulfobacteraceae      SEEP-SRB1
+    ## ASV17 Desulfobacteraceae      SEEP-SRB1
+    ## ASV30 Desulfobacteraceae      SEEP-SRB1
+    ## ASV33 Desulfobacteraceae      SEEP-SRB1
+    ## ASV67 Desulfobacteraceae      SEEP-SRB1
+    ## ASV20   Desulfarculaceae Desulfatiglans
+    ## ASV73   Desulfarculaceae Desulfatiglans
+    ## ASV96   Desulfarculaceae Desulfatiglans
+
+``` r
+data.frame(tax_table(ps.select.asvs))[c("ASV5", "ASV120", "ASV135", "ASV167", "ASV181"),] # top ASVs associating with SRB that are not ANME
+```
+
+    ##         Kingdom             Phylum           Class             Order
+    ## ASV5   Bacteria Epsilonbacteraeota Campylobacteria Campylobacterales
+    ## ASV120 Bacteria      Acidobacteria   Aminicenantia   Aminicenantales
+    ## ASV135 Bacteria        Chloroflexi Dehalococcoidia             MSBL5
+    ## ASV167 Bacteria    Latescibacteria Latescibacteria Latescibacterales
+    ## ASV181 Bacteria    Latescibacteria Latescibacteria Latescibacterales
+    ##                    Family      Genus
+    ## ASV5        Sulfurovaceae Sulfurovum
+    ## ASV120               <NA>       <NA>
+    ## ASV135               <NA>       <NA>
+    ## ASV167 Latescibacteraceae       <NA>
+    ## ASV181 Latescibacteraceae       <NA>

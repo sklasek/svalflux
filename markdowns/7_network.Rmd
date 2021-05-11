@@ -1,7 +1,7 @@
 ---
 title: "ANME-SRB Networks"
 author: "Scott Klasek"
-date: "4/26/2021"
+date: "5/11/2021"
 output: github_document
 ---
 Motivation: Svalbard paper, still in review. Reviewer #4 requests FISH data as proof of ANME-SRB interactions. We don't have FISH samples, the best we can do is offer a network and infer interactions through co-occurrences.  
@@ -221,3 +221,21 @@ data.frame(tax_table(ps.select.asvs))[other.strong.connections,]
   Seep-SRB1 and Desulfatiglans. And ASV50 is in Family Desulfobulbaceae, but has no Genus ID. Other abundant ASVs that co-occur with ANME include Atribacteria (JS1), Aminicenantales, and Actinomarinales (both Orders).  
   
   Top ANME-SRB pairs include ASVs 6/9 (ANME-1a and Seep-SRB1), ASVs 15/20 (ANME-1b and Desulfatiglans), ASVs 18/30 (ANME-1b and Seep-SRB1), ASVs 244/344 (ANME-1a and Desulfatiglans),  ASVs 30/293 (ANME-2a-2b and Seep-SRB1), and ASVs 131/345 (ANME-1a and Desulfatiglans). They don't seem to be too clade-specific.  
+  
+  
+### follow up on SRB    
+```{r}
+strong.connection.srb.asvs <- intersect(all.srb.asvs, V(sval.graph.1.nm.pa.w.gml)$label) # the SRBs that have strong connections in the graph
+sum(ps.all.asvc[strong.connection.srb.asvs,] %>% filter(pctreads > 0.1) %>% pull(pctreads))/sum(ps.all.asvc[strong.connection.srb.asvs,] %>% pull(pctreads)) # 81% of SRB reads in the graph are above 0.1% so let's focus on these 
+top.srb.asvs <- rownames(ps.all.asvc[strong.connection.srb.asvs,] %>% filter(pctreads > 0.1))
+
+for (i in top.srb.asvs) {graph.subset.plot(sval.graph.1.nm.pa.w.gml, i)} # graph them
+data.frame(tax_table(ps.select.asvs))[top.srb.asvs,] # they're only SEEP-SRB1 and Desulfatiglans
+data.frame(tax_table(ps.select.asvs))[c("ASV5", "ASV120", "ASV135", "ASV167", "ASV181"),] # top ASVs associating with SRB that are not ANME
+```
+  
+  
+  
+  
+  
+  
