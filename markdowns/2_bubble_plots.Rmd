@@ -1,7 +1,7 @@
 ---
 title: "2_bubble_plots"
 author: "Scott Klasek"
-date: "11/11/2020"
+date: "6/9/2021"
 output: github_document
 ---
 
@@ -207,7 +207,7 @@ bp.fluxincreasing <- bp.fi+
   theme_bw()+
   theme(legend.position = "top", 
         axis.text.x=element_text(angle = 55, hjust = 1, size=12),
-        axis.text = element_text(size=13),
+        axis.text.y=element_blank(),
         legend.text=element_text(size=13),
         strip.text.x = element_text(size=13), 
         strip.text.y = element_blank(), 
@@ -234,7 +234,46 @@ bp.steadystate <- bp.ss+
         strip.text.y = element_blank(), 
         legend.box = "vertical", plot.margin = margin(0,0,0,-0.25,"cm"))
 bp.steadystate
-bp.steadystate <- saveRDS(bp.steadystate, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate") # export plot
+
+bp.steadystate.no48 <- ggplot(sdf.ss %>% filter(core!="GC1048"), aes(tax,depth,size=pctabund))+
+  geom_point(aes(fill=Domain),colour="black",pch=21)+
+  xlab("")+
+  facet_grid(core~level_reorder,scales="free", space = "free")+
+  scale_y_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  scale_fill_discrete("")+
+  scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
+  geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
+  theme_bw()+
+  theme(legend.position = "top",
+        axis.text.x=element_text(angle = 55, hjust = 1, size=12),
+        axis.text.y = element_text(size=13),
+        legend.text=element_text(size=13),
+        strip.text.x = element_text(size=13), 
+        strip.text.y = element_blank(), 
+        legend.box = "vertical", plot.margin = margin(0,0,0,-0.25,"cm"))
+bp.steadystate.no48
+
+bp.steadystate.only48 <- ggplot(sdf.ss %>% filter(core=="GC1048"), aes(tax,depth,size=pctabund))+
+  geom_point(aes(fill=Domain),colour="black",pch=21)+
+  xlab("")+
+  facet_grid(core~level_reorder,scales="free", space = "free")+
+  scale_y_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  scale_fill_discrete("")+
+  scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
+  geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
+  theme_bw()+
+  theme(legend.position = "top",
+        axis.text.x=element_text(angle = 55, hjust = 1, size=12),
+        axis.text.y = element_text(size=13),
+        legend.text=element_text(size=13),
+        strip.text.x = element_text(size=13), 
+        strip.text.y = element_blank(), 
+        legend.box = "vertical", plot.margin = margin(0,0,0,-0.25,"cm"))
+bp.steadystate.only48
+
+saveRDS(bp.steadystate, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate") # export plot
+saveRDS(bp.steadystate.no48, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate.no48") # export plot
+saveRDS(bp.steadystate.only48, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate.only48") # export plot
 ```
 
 

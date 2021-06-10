@@ -1,7 +1,7 @@
 2\_bubble\_plots
 ================
 Scott Klasek
-11/11/2020
+6/9/2021
 
 ## recreate bubble plots from the phyloseq object
 
@@ -11,16 +11,14 @@ Scott Klasek
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
 
-    ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
-    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
-    ## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
-    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
+    ## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.0     ✓ dplyr   1.0.5
+    ## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+    ## ✓ readr   1.4.0     ✓ forcats 0.5.1
 
-    ## Warning: package 'ggplot2' was built under R version 3.6.2
-
-    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -38,8 +36,7 @@ sessioninfo <- sessionInfo()
 ## import phyloseq object
 
 ps.frdp is from sequence\_processing Rmd script  
-also calculate a few stats of abundant
-ASVs
+also calculate a few stats of abundant ASVs
 
 ``` r
 ps.frdp <- readRDS(file="/Users/scottklasek/Desktop/svalflux/data/ps.frdp") # imports the final phyloseq object
@@ -55,32 +52,32 @@ asvpcts.abund <- asvpcts %>% filter(percent_abundance > 1) # select only the one
 asvpcts.abund
 ```
 
-    ##      ASV percent_abundance  Kingdom             Phylum               Class
-    ## 1   ASV1          9.153714 Bacteria       Atribacteria                 JS1
-    ## 2   ASV2          8.576176 Bacteria       Atribacteria                 JS1
-    ## 3   ASV3          4.501283 Bacteria       Atribacteria                 JS1
-    ## 4   ASV4          2.921338  Archaea      Euryarchaeota     Methanomicrobia
-    ## 5   ASV5          2.209417 Bacteria Epsilonbacteraeota     Campylobacteria
-    ## 6   ASV6          2.388554 Bacteria     Proteobacteria Deltaproteobacteria
-    ## 7   ASV7          1.602793  Archaea      Euryarchaeota     Methanomicrobia
-    ## 8   ASV8          1.494097 Bacteria      Acidobacteria       Aminicenantia
-    ## 9   ASV9          1.427267  Archaea      Euryarchaeota     Methanomicrobia
-    ## 10 ASV10          1.192114 Bacteria     Proteobacteria Deltaproteobacteria
-    ## 11 ASV11          1.110465 Bacteria        Chloroflexi        Anaerolineae
-    ## 12 ASV13          1.012734 Bacteria       Atribacteria                 JS1
-    ##                Order             Family      Genus
-    ## 1               <NA>               <NA>       <NA>
-    ## 2               <NA>               <NA>       <NA>
-    ## 3               <NA>               <NA>       <NA>
-    ## 4             ANME-1            ANME-1a       <NA>
-    ## 5  Campylobacterales      Sulfurovaceae Sulfurovum
-    ## 6  Desulfobacterales Desulfobacteraceae  SEEP-SRB1
-    ## 7             ANME-1            ANME-1b       <NA>
-    ## 8    Aminicenantales               <NA>       <NA>
-    ## 9             ANME-1            ANME-1a       <NA>
-    ## 10 Desulfobacterales   Desulfobulbaceae  SEEP-SRB2
-    ## 11    Anaerolineales    Anaerolineaceae       <NA>
-    ## 12              <NA>               <NA>       <NA>
+    ##         ASV percent_abundance  Kingdom             Phylum               Class
+    ## ASV1   ASV1          9.153714 Bacteria       Atribacteria                 JS1
+    ## ASV2   ASV2          8.576176 Bacteria       Atribacteria                 JS1
+    ## ASV3   ASV3          4.501283 Bacteria       Atribacteria                 JS1
+    ## ASV4   ASV4          2.921338  Archaea      Euryarchaeota     Methanomicrobia
+    ## ASV5   ASV5          2.209417 Bacteria Epsilonbacteraeota     Campylobacteria
+    ## ASV6   ASV6          2.388554 Bacteria     Proteobacteria Deltaproteobacteria
+    ## ASV7   ASV7          1.602793  Archaea      Euryarchaeota     Methanomicrobia
+    ## ASV8   ASV8          1.494097 Bacteria      Acidobacteria       Aminicenantia
+    ## ASV9   ASV9          1.427267  Archaea      Euryarchaeota     Methanomicrobia
+    ## ASV10 ASV10          1.192114 Bacteria     Proteobacteria Deltaproteobacteria
+    ## ASV11 ASV11          1.110465 Bacteria        Chloroflexi        Anaerolineae
+    ## ASV13 ASV13          1.012734 Bacteria       Atribacteria                 JS1
+    ##                   Order             Family      Genus
+    ## ASV1               <NA>               <NA>       <NA>
+    ## ASV2               <NA>               <NA>       <NA>
+    ## ASV3               <NA>               <NA>       <NA>
+    ## ASV4             ANME-1            ANME-1a       <NA>
+    ## ASV5  Campylobacterales      Sulfurovaceae Sulfurovum
+    ## ASV6  Desulfobacterales Desulfobacteraceae  SEEP-SRB1
+    ## ASV7             ANME-1            ANME-1b       <NA>
+    ## ASV8    Aminicenantales               <NA>       <NA>
+    ## ASV9             ANME-1            ANME-1a       <NA>
+    ## ASV10 Desulfobacterales   Desulfobulbaceae  SEEP-SRB2
+    ## ASV11    Anaerolineales    Anaerolineaceae       <NA>
+    ## ASV13              <NA>               <NA>       <NA>
 
 ``` r
 # how abundant are ANME and SRB?
@@ -346,7 +343,7 @@ bp.fluxincreasing <- bp.fi+
   theme_bw()+
   theme(legend.position = "top", 
         axis.text.x=element_text(angle = 55, hjust = 1, size=12),
-        axis.text = element_text(size=13),
+        axis.text.y=element_blank(),
         legend.text=element_text(size=13),
         strip.text.x = element_text(size=13), 
         strip.text.y = element_blank(), 
@@ -383,5 +380,51 @@ bp.steadystate
 ![](2_bubble_plots_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
 
 ``` r
-bp.steadystate <- saveRDS(bp.steadystate, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate") # export plot
+bp.steadystate.no48 <- ggplot(sdf.ss %>% filter(core!="GC1048"), aes(tax,depth,size=pctabund))+
+  geom_point(aes(fill=Domain),colour="black",pch=21)+
+  xlab("")+
+  facet_grid(core~level_reorder,scales="free", space = "free")+
+  scale_y_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  scale_fill_discrete("")+
+  scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
+  geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
+  theme_bw()+
+  theme(legend.position = "top",
+        axis.text.x=element_text(angle = 55, hjust = 1, size=12),
+        axis.text.y = element_text(size=13),
+        legend.text=element_text(size=13),
+        strip.text.x = element_text(size=13), 
+        strip.text.y = element_blank(), 
+        legend.box = "vertical", plot.margin = margin(0,0,0,-0.25,"cm"))
+bp.steadystate.no48
+```
+
+![](2_bubble_plots_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
+
+``` r
+bp.steadystate.only48 <- ggplot(sdf.ss %>% filter(core=="GC1048"), aes(tax,depth,size=pctabund))+
+  geom_point(aes(fill=Domain),colour="black",pch=21)+
+  xlab("")+
+  facet_grid(core~level_reorder,scales="free", space = "free")+
+  scale_y_reverse("",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  scale_fill_discrete("")+
+  scale_size_area("% Abundance",breaks=c(1,5,10,20,40,60))+
+  geom_hline(aes(yintercept = smt),linetype="dashed",size=0.8)+
+  theme_bw()+
+  theme(legend.position = "top",
+        axis.text.x=element_text(angle = 55, hjust = 1, size=12),
+        axis.text.y = element_text(size=13),
+        legend.text=element_text(size=13),
+        strip.text.x = element_text(size=13), 
+        strip.text.y = element_blank(), 
+        legend.box = "vertical", plot.margin = margin(0,0,0,-0.25,"cm"))
+bp.steadystate.only48
+```
+
+![](2_bubble_plots_files/figure-gfm/unnamed-chunk-4-5.png)<!-- -->
+
+``` r
+saveRDS(bp.steadystate, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate") # export plot
+saveRDS(bp.steadystate.no48, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate.no48") # export plot
+saveRDS(bp.steadystate.only48, "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate.only48") # export plot
 ```

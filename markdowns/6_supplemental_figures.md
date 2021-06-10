@@ -1,8 +1,20 @@
-Supplemental figures and tables from Distinct methane-dependent
-biogeochemical regimes in Arctic seafloor gas hydrate mounds
+Supplemental figures and tables
 ================
 Scott Klasek
-11/11/2020
+6/10/2021
+
+Supplemental figures S5-S8 and tables S1 & S2 are presented here. Other
+figures/tables include:
+
+Figure S1- modeling setup  
+Figure S2- porewater ammonium concentrations and expected POCSR from
+Storfjordrenna cores described in this study and elsewhere  
+Figure S3- microbial community and porewater data from GC1048, which is
+shown
+[here](https://github.com/sklasek/svalflux/blob/master/markdowns/3_core_info_and_panel_figures.md)  
+Figure S4- siboglinid tube pictures from cores at GHM3 seep site  
+Table S3- compilation of porewater ammonium concentration data from
+Storfjordrenna GHMs
 
 ## load necessary libraries and data
 
@@ -15,46 +27,159 @@ library(vegan)
 
     ## Loading required package: lattice
 
-    ## This is vegan 2.5-6
+    ## This is vegan 2.5-7
+
+``` r
+library(DESeq2)
+```
+
+    ## Loading required package: S4Vectors
+
+    ## Loading required package: stats4
+
+    ## Loading required package: BiocGenerics
+
+    ## Loading required package: parallel
+
+    ## 
+    ## Attaching package: 'BiocGenerics'
+
+    ## The following objects are masked from 'package:parallel':
+    ## 
+    ##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    ##     clusterExport, clusterMap, parApply, parCapply, parLapply,
+    ##     parLapplyLB, parRapply, parSapply, parSapplyLB
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     IQR, mad, sd, var, xtabs
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    ##     dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    ##     grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    ##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    ##     rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    ##     union, unique, unsplit, which.max, which.min
+
+    ## 
+    ## Attaching package: 'S4Vectors'
+
+    ## The following object is masked from 'package:base':
+    ## 
+    ##     expand.grid
+
+    ## Loading required package: IRanges
+
+    ## 
+    ## Attaching package: 'IRanges'
+
+    ## The following object is masked from 'package:phyloseq':
+    ## 
+    ##     distance
+
+    ## Loading required package: GenomicRanges
+
+    ## Loading required package: GenomeInfoDb
+
+    ## Loading required package: SummarizedExperiment
+
+    ## Loading required package: MatrixGenerics
+
+    ## Loading required package: matrixStats
+
+    ## 
+    ## Attaching package: 'MatrixGenerics'
+
+    ## The following objects are masked from 'package:matrixStats':
+    ## 
+    ##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    ##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    ##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    ##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    ##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    ##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    ##     colWeightedMeans, colWeightedMedians, colWeightedSds,
+    ##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    ##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    ##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    ##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    ##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    ##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    ##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    ##     rowWeightedSds, rowWeightedVars
+
+    ## Loading required package: Biobase
+
+    ## Welcome to Bioconductor
+    ## 
+    ##     Vignettes contain introductory material; view with
+    ##     'browseVignettes()'. To cite Bioconductor, see
+    ##     'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+    ## 
+    ## Attaching package: 'Biobase'
+
+    ## The following object is masked from 'package:MatrixGenerics':
+    ## 
+    ##     rowMedians
+
+    ## The following objects are masked from 'package:matrixStats':
+    ## 
+    ##     anyMissing, rowMedians
+
+    ## The following object is masked from 'package:phyloseq':
+    ## 
+    ##     sampleNames
 
 ``` r
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
 
-    ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
-    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
-    ## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
-    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
+    ## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.0     ✓ dplyr   1.0.5
+    ## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+    ## ✓ readr   1.4.0     ✓ forcats 0.5.1
 
-    ## Warning: package 'ggplot2' was built under R version 3.6.2
-
-    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::collapse()   masks IRanges::collapse()
+    ## x dplyr::combine()    masks Biobase::combine(), BiocGenerics::combine()
+    ## x dplyr::count()      masks matrixStats::count()
+    ## x dplyr::desc()       masks IRanges::desc()
+    ## x tidyr::expand()     masks S4Vectors::expand()
+    ## x dplyr::filter()     masks stats::filter()
+    ## x dplyr::first()      masks S4Vectors::first()
+    ## x dplyr::lag()        masks stats::lag()
+    ## x ggplot2::Position() masks BiocGenerics::Position(), base::Position()
+    ## x purrr::reduce()     masks GenomicRanges::reduce(), IRanges::reduce()
+    ## x dplyr::rename()     masks S4Vectors::rename()
+    ## x dplyr::slice()      masks IRanges::slice()
 
 ``` r
 library(patchwork)
+library(ggpmisc)
+```
+
+    ## 
+    ## Attaching package: 'ggpmisc'
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     annotate
+
+``` r
 library(tables)
 ```
 
-    ## Loading required package: Hmisc
-
-    ## Loading required package: survival
-
-    ## Loading required package: Formula
-
     ## 
-    ## Attaching package: 'Hmisc'
+    ## Attaching package: 'tables'
 
-    ## The following objects are masked from 'package:dplyr':
+    ## The following object is masked from 'package:S4Vectors':
     ## 
-    ##     src, summarize
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     format.pval, units
+    ##     Factor
 
 ``` r
 library(here)
@@ -67,123 +192,460 @@ sessioninfo <- sessionInfo()
 ps.frdp <- readRDS(file="/Users/scottklasek/Desktop/svalflux/data/ps.frdp") # imports the final phyloseq object
 ```
 
-## Fig. S1, depth-integrated fluxes from each core
+## Fig. S5, regression of mcrA counts vs modeled AOM rates
 
-PC1029 is only estimated, others can be
-calculated
-
-``` r
-aomrates <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/aomrates2020update.csv") # import csv
-
-cores <- as.factor(as.character(levels(aomrates$core)[2:8])) # get a list of the cores
-maxdepth <- vector("numeric", length(cores)) # define a vector for writing max depths
-for (i in cores) {maxdepth[[i]] <- max((aomrates %>% filter(core==i))$depth)} # for-loop to calculate max depth
-maxdepth <- maxdepth[(0.5*length(maxdepth)+1):length(maxdepth)] # omitted zero values
-intflux <- vector("numeric", length(cores)) # define a vector for calculating fluxes
-for (i in cores) {intflux[[i]] <- sum((aomrates %>% filter(core==i))$aom)*(1e4 * 365 / 1e9)} # for-loop to calculate flux (converting micromoles per L per day to moles per m^2 per year)
-intflux <- intflux[(0.5*length(intflux)+1):length(intflux)] # omitted zero values
-
-fluxes <- as.data.frame(cbind(maxdepth, intflux)) # combine into data frame
-fluxes$core <- rownames(fluxes) # add core names
-flux.gc <- fluxes[1:6,] # subset only the gravity cores (not as confident about the rates for PC1029)
-flux.gc$stage <- c("increasing methane flux", "steady-state", "steady-state", "steady-state", "steady-state", "increasing methane flux") # add stage
-
-# i calculated a few things wrong. WeiLi gave the correct answers:
-flux.gc[1,2] <- 5.28 # correcting GC1045 flux
-flux.gc[6,2] <- 4.22 # correcting GC1081 flux
-
-gcf <- ggplot(flux.gc,aes(core,intflux,fill=stage))
-gg.flux <- gcf+geom_bar(stat="identity")+
-  scale_fill_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
-  scale_y_continuous(limits = c(0,6))+
-  xlab("")+
-  ylab(bquote(~CH[4]~'flux (mol'~m^-2~yr^-1*') at time of sampling'))+
-  theme_classic()+
-  theme(axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
-flux.gc
-```
-
-    ##        maxdepth   intflux   core                   stage
-    ## GC1045    175.0 5.2800000 GC1045 increasing methane flux
-    ## GC1048    349.5 0.8491165 GC1048            steady-state
-    ## GC1068    307.5 0.7475539 GC1068            steady-state
-    ## GC1069    307.5 0.5231347 GC1069            steady-state
-    ## GC1070    307.5 0.8259742 GC1070            steady-state
-    ## GC1081    150.0 4.2200000 GC1081 increasing methane flux
+I have omitted GC1048 samples from here.
 
 ``` r
-gg.flux
-```
+mcra.aom <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/mcra.aomrate.2021.csv") # import csv
+mcra.aom$logaom <- log10(mcra.aom$aom) # calculate log of AOM rates
+mcra.aom$logmcra <- log10(mcra.aom$mcra) # calculate log of mcrA gene abundances
 
-![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-Figure S1. Methane fluxes across each core, integrated from modeled AOM
-rates derived from data at the time of sampling. Cores are colored by
-methane stage. PC1029 was omitted due to high uncertainty in modeling
-AOM
-rates.
+# assign stages or whatever we end up calling them
+mcra.aom$stage <- "Steady-state"
+mcra.aom[which(mcra.aom$core=="GC1045"),"stage"] <- "Non-steady-state"
+mcra.aom[which(mcra.aom$core=="GC1081"),"stage"] <- "Non-steady-state"
 
-## Fig. S2 is worm pics
+mcra.aom.no48 <- mcra.aom %>% filter(core !="GC1048") # remove GC1048
 
-## Fig. S3, regression of mcrA counts vs modeled AOM rates
-
-``` r
-mcra.aom <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/mcra.aomrate.2020.csv") # import csv
-mcra.aom$logaom <- log10(mcra.aom$aom) # calculate log of AOM rate
-mcra.aom$logmcra <- log10(mcra.aom$mcra) # calculate log of mcrA gene abundance
-mcra.aom$logdsrab <- log10(mcra.aom$dsrab) # calculate log of dsrAB gene abundance
-
-mcra.aom$stage <- "steady-state"
-mcra.aom[which(mcra.aom$core=="GC1045"),11] <- "increasing methane flux"
-mcra.aom[which(mcra.aom$core=="GC1081"),11] <- "increasing methane flux"
-
-AOM_mcrA.lm <- lm(mcra.aom$logmcra ~ mcra.aom$logaom) # linear raegression
-summary(AOM_mcrA.lm) # multiple R^2 is 0.3364, slope estimate is 0.1892, and slope p-value is 0.00021 ***
+# linear model steady-state
+ss.lm <- lm(mcra.aom.no48 %>% filter(core_flowtype=="ss") %>% pull(logmcra) ~ 
+           mcra.aom.no48 %>% filter(core_flowtype=="ss") %>% pull(logaom))  # steady-state regression
+summary(ss.lm)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = mcra.aom$logmcra ~ mcra.aom$logaom)
+    ## lm(formula = mcra.aom.no48 %>% filter(core_flowtype == "ss") %>% 
+    ##     pull(logmcra) ~ mcra.aom.no48 %>% filter(core_flowtype == 
+    ##     "ss") %>% pull(logaom))
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -1.3630 -0.6521 -0.1117  0.5397  1.9202 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -0.79377 -0.56079 -0.04376  0.39413  1.23916 
     ## 
     ## Coefficients:
-    ##                 Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)      5.38890    0.16203  33.259  < 2e-16 ***
-    ## mcra.aom$logaom  0.18917    0.04557   4.151  0.00021 ***
+    ##                                                                  Estimate
+    ## (Intercept)                                                        4.8726
+    ## mcra.aom.no48 %>% filter(core_flowtype == "ss") %>% pull(logaom)   0.5811
+    ##                                                                  Std. Error
+    ## (Intercept)                                                          0.1437
+    ## mcra.aom.no48 %>% filter(core_flowtype == "ss") %>% pull(logaom)     0.2159
+    ##                                                                  t value
+    ## (Intercept)                                                       33.920
+    ## mcra.aom.no48 %>% filter(core_flowtype == "ss") %>% pull(logaom)   2.692
+    ##                                                                  Pr(>|t|)    
+    ## (Intercept)                                                        <2e-16 ***
+    ## mcra.aom.no48 %>% filter(core_flowtype == "ss") %>% pull(logaom)   0.0149 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.8516 on 34 degrees of freedom
-    ## Multiple R-squared:  0.3364, Adjusted R-squared:  0.3168 
-    ## F-statistic: 17.23 on 1 and 34 DF,  p-value: 0.0002095
+    ## Residual standard error: 0.6414 on 18 degrees of freedom
+    ## Multiple R-squared:  0.287,  Adjusted R-squared:  0.2474 
+    ## F-statistic: 7.246 on 1 and 18 DF,  p-value: 0.01491
 
 ``` r
-rate_mcrA <- ggplot(mcra.aom,aes(logaom,logmcra,color=stage)) 
-gg.ratemcrA <- rate_mcrA+
+# plot steady-state
+ss.df <- mcra.aom.no48 %>% filter(core_flowtype=="ss")
+ss.mcra <- ggplot(ss.df, aes(logaom,logmcra,color=stage))+
   geom_point(size=2)+
-  scale_color_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
+  geom_smooth(method = "lm")+
+  scale_color_manual("", values = "#8da0cb")+
   scale_x_continuous(expression('log'[10]*" AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
-  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}))+
-  geom_abline(intercept = 5.3889, slope = 0.18917)+
-  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11), legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
-  annotate("text", x = -4.5, y = 7.5, label = "paste(italic(R) ^ 2, \" = 0.3364\")", parse = TRUE)+
-  annotate("text", x = -4.5, y = 7.2, label = "paste(italic(p), \" = 0.00021\")", parse = TRUE)+
-  annotate("text", x = -4.5, y = 6.9, label = "paste(slope, \" = 0.1892\")", parse = TRUE)+
-  annotate("rect", xmin = -6, xmax = -3, ymin = 6.6, ymax = 7.8, alpha = .2)+
-  theme_bw()
-gg.ratemcrA 
+  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}), limits = c(3.5, 7.5))+
+  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11),
+        legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
+  stat_poly_eq(formula = ss.df$logmcra ~ ss.df$logaom, 
+                aes(label = paste(..eq.label.., ..rr.label.., stat(p.value.label), sep = "~~~")), 
+                parse = TRUE) +  
+  theme_bw()+theme(legend.position = "bottom")+ggtitle("A")
+
+# linear model non-steady-state
+nss.lm <- lm(mcra.aom.no48 %>% filter(core_flowtype=="inc") %>% pull(logmcra) ~ 
+           mcra.aom.no48 %>% filter(core_flowtype=="inc") %>% pull(logaom))  # non-steady-state regression
+summary(nss.lm)
 ```
 
-![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+    ## 
+    ## Call:
+    ## lm(formula = mcra.aom.no48 %>% filter(core_flowtype == "inc") %>% 
+    ##     pull(logmcra) ~ mcra.aom.no48 %>% filter(core_flowtype == 
+    ##     "inc") %>% pull(logaom))
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1.3127 -0.2991  0.1226  0.3229  0.7676 
+    ## 
+    ## Coefficients:
+    ##                                                                   Estimate
+    ## (Intercept)                                                        6.17646
+    ## mcra.aom.no48 %>% filter(core_flowtype == "inc") %>% pull(logaom)  0.22284
+    ##                                                                   Std. Error
+    ## (Intercept)                                                          0.25503
+    ## mcra.aom.no48 %>% filter(core_flowtype == "inc") %>% pull(logaom)    0.08286
+    ##                                                                   t value
+    ## (Intercept)                                                        24.218
+    ## mcra.aom.no48 %>% filter(core_flowtype == "inc") %>% pull(logaom)   2.689
+    ##                                                                   Pr(>|t|)    
+    ## (Intercept)                                                       5.21e-08 ***
+    ## mcra.aom.no48 %>% filter(core_flowtype == "inc") %>% pull(logaom)   0.0311 *  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.6885 on 7 degrees of freedom
+    ## Multiple R-squared:  0.5082, Adjusted R-squared:  0.4379 
+    ## F-statistic: 7.233 on 1 and 7 DF,  p-value: 0.03111
+
+``` r
+# plot non-steady-state
+nss.df <- mcra.aom.no48 %>% filter(core_flowtype=="inc")
+nss.mcra <- ggplot(nss.df, aes(logaom,logmcra,color=stage))+
+  geom_point(size=2)+
+  geom_smooth(method = "lm")+
+  scale_color_manual("", values = "#66c2a5")+
+  scale_x_continuous(expression('log'[10]*" AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
+  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}), limits = c(3.5, 7.5))+
+  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11),
+        legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
+  stat_poly_eq(formula = nss.df$logmcra ~ nss.df$logaom, 
+                aes(label = paste(..eq.label.., ..rr.label.., stat(p.value.label), sep = "~~~")), 
+                parse = TRUE) +  
+  theme_bw()+theme(legend.position = "bottom")+ggtitle("B")
+
+ss.mcra + nss.mcra
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 Figure S3. Regression of mcrA gene copy numbers (per gram bulk sediment)
 to modeled AOM rates shows a linear relationship across samples from all
 cores (log-log transformation). Samples are colored according to stages
 of methane dynamics, and those that did not contain detectable mcrA were
 omitted.
 
-## Fig. S4, ordination of just increasing-flux cores by geochem\_zone
+## Fig. S6 shows differentially abundant ASVs across methane flux stages and above/below the SMTZ
+
+We have 63 samples: 15 from seep, 36 from steady-state, and 12 from
+flux-increasing stages. There are no seep samples from below-SMTZ, 15
+from steady-state, and 4 from flux-increasing. In an ideal world, we
+would have a more balanced sample design for assessing ASVs that are
+differentially abundant between these three stages (above the SMTZ) and
+between the latter two stages (below SMTZ). However, DESeq2 is able to
+handle imbalances in group numbers fairly robustly:
+<https://support.bioconductor.org/p/115433/>
+
+``` r
+# enter logical metadata categories corresponding to whether sample stage is seep or increasing flux or steady-state
+
+sample_data(ps.frdp)$is.seep <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="seep"),22] <- TRUE
+sample_data(ps.frdp)$is.flux <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="fluxincreasing"),23] <- TRUE
+sample_data(ps.frdp)$is.ss <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="steadystate"),24] <- TRUE
+
+# here is where I omit GC1048
+ps.frdp.no48 <- subset_samples(ps.frdp, core!="GC1048")
+ps.frdp.no48
+```
+
+    ## phyloseq-class experiment-level object
+    ## otu_table()   OTU Table:         [ 16489 taxa and 63 samples ]
+    ## sample_data() Sample Data:       [ 63 samples by 24 sample variables ]
+    ## tax_table()   Taxonomy Table:    [ 16489 taxa by 6 taxonomic ranks ]
+    ## phy_tree()    Phylogenetic Tree: [ 16489 tips and 16487 internal nodes ]
+    ## refseq()      DNAStringSet:      [ 16489 reference sequences ]
+
+``` r
+# subset the phyloseq object by above/below SMTZ
+ps.above <- subset_samples(ps.frdp.no48, smtzposition=="above") 
+ps.below <- subset_samples(ps.frdp.no48, smtzposition=="below") 
+
+# make the same phyloseq object, but otu table with relative abundance instead of raw counts
+ps.above.ra <- transform_sample_counts(ps.above, function(OTU) OTU/sum(OTU))
+ps.below.ra <- transform_sample_counts(ps.below, function(OTU) OTU/sum(OTU))
+
+# define a function which will make a table out of deseq biomarker results, and return taxonomy and relative abundance info 
+table.stage.from.deseq <- function(deseq, relabundps, group){
+  de.results <- DESeq(deseq, test = "Wald", fitType = "parametric", sfType = "poscounts")
+  de.results.table <- results(de.results, cooksCutoff = FALSE)
+  de.results.table <- de.results.table[which(de.results.table$padj < 0.05), ]
+  meanabund.vector <- vector("numeric", length(rownames(de.results.table)))
+  for (i in rownames(de.results.table)) {meanabund.vector[[i]] <- mean(otu_table(relabundps)[which(sample_data(relabundps)$stage==group),i])}
+  meanabund.vector <- meanabund.vector[(0.5*length(meanabund.vector)+1):length(meanabund.vector)] 
+  de.results.table <- cbind(as(meanabund.vector, "matrix"), as(de.results.table, "data.frame"), as(tax_table(relabundps)[rownames(de.results.table), ], "matrix"))
+  colnames(de.results.table)[1] <- "relabund"
+  return(de.results.table)
+}
+
+# then convert phyloseq object to deseq, and run the function for each stage of methane dynamics
+de.above.is.seep <- phyloseq_to_deseq2(ps.above, ~ is.seep)
+```
+
+    ## converting counts to integer mode
+
+``` r
+de.results.table.above.seep <- table.stage.from.deseq(deseq = de.above.is.seep, relabundps = ps.above.ra, group = "seep") 
+```
+
+    ## estimating size factors
+
+    ## estimating dispersions
+
+    ## gene-wise dispersion estimates
+
+    ## mean-dispersion relationship
+
+    ## final dispersion estimates
+
+    ## fitting model and testing
+
+    ## -- replacing outliers and refitting for 3435 genes
+    ## -- DESeq argument 'minReplicatesForReplace' = 7 
+    ## -- original counts are preserved in counts(dds)
+
+    ## estimating dispersions
+
+    ## fitting model and testing
+
+``` r
+de.above.is.flux <- phyloseq_to_deseq2(ps.above, ~ is.flux)
+```
+
+    ## converting counts to integer mode
+
+``` r
+de.results.table.above.flux <- table.stage.from.deseq(deseq = de.above.is.flux, relabundps = ps.above.ra, group = "fluxincreasing") 
+```
+
+    ## estimating size factors
+
+    ## estimating dispersions
+
+    ## gene-wise dispersion estimates
+
+    ## mean-dispersion relationship
+
+    ## final dispersion estimates
+
+    ## fitting model and testing
+
+    ## -- replacing outliers and refitting for 3664 genes
+    ## -- DESeq argument 'minReplicatesForReplace' = 7 
+    ## -- original counts are preserved in counts(dds)
+
+    ## estimating dispersions
+
+    ## fitting model and testing
+
+``` r
+de.above.is.ss <- phyloseq_to_deseq2(ps.above, ~ is.ss)
+```
+
+    ## converting counts to integer mode
+
+``` r
+de.results.table.above.ss <- table.stage.from.deseq(deseq = de.above.is.ss, relabundps = ps.above.ra, group = "steadystate") 
+```
+
+    ## estimating size factors
+
+    ## estimating dispersions
+
+    ## gene-wise dispersion estimates
+
+    ## mean-dispersion relationship
+
+    ## final dispersion estimates
+
+    ## fitting model and testing
+
+    ## -- replacing outliers and refitting for 3957 genes
+    ## -- DESeq argument 'minReplicatesForReplace' = 7 
+    ## -- original counts are preserved in counts(dds)
+
+    ## estimating dispersions
+
+    ## fitting model and testing
+
+``` r
+de.below.is.flux <- phyloseq_to_deseq2(ps.below, ~ is.flux)
+```
+
+    ## converting counts to integer mode
+
+``` r
+de.results.table.below.flux <- table.stage.from.deseq(deseq = de.below.is.flux, relabundps = ps.below.ra, group = "fluxincreasing") 
+```
+
+    ## estimating size factors
+
+    ## estimating dispersions
+
+    ## gene-wise dispersion estimates
+
+    ## mean-dispersion relationship
+
+    ## final dispersion estimates
+
+    ## fitting model and testing
+
+    ## -- replacing outliers and refitting for 1316 genes
+    ## -- DESeq argument 'minReplicatesForReplace' = 7 
+    ## -- original counts are preserved in counts(dds)
+
+    ## estimating dispersions
+
+    ## fitting model and testing
+
+``` r
+de.below.is.ss <- phyloseq_to_deseq2(ps.below, ~ is.ss)
+```
+
+    ## converting counts to integer mode
+
+``` r
+de.results.table.below.ss <- table.stage.from.deseq(deseq = de.below.is.ss, relabundps = ps.below.ra, group = "steadystate") 
+```
+
+    ## estimating size factors
+
+    ## estimating dispersions
+
+    ## gene-wise dispersion estimates
+
+    ## mean-dispersion relationship
+
+    ## final dispersion estimates
+
+    ## fitting model and testing
+
+    ## -- replacing outliers and refitting for 1316 genes
+    ## -- DESeq argument 'minReplicatesForReplace' = 7 
+    ## -- original counts are preserved in counts(dds)
+
+    ## estimating dispersions
+
+    ## fitting model and testing
+
+``` r
+# assign category for each de.results.table
+de.results.table.above.seep$de.group <- "above.seep"
+de.results.table.above.flux$de.group <- "above.flux"
+de.results.table.above.ss$de.group <- "above.ss"
+de.results.table.below.flux$de.group <- "below.flux"
+de.results.table.below.ss$de.group <- "below.ss"
+
+# rewrite ASV numbers so rbind will not rename duplicates
+de.results.table.above.seep$asv <- rownames(de.results.table.above.seep)
+de.results.table.above.flux$asv <- rownames(de.results.table.above.flux)
+de.results.table.above.ss$asv <- rownames(de.results.table.above.ss)
+de.results.table.below.flux$asv <- rownames(de.results.table.below.flux)
+de.results.table.below.ss$asv <- rownames(de.results.table.below.ss)
+
+# merge the biomarkers from each block into a single data frame
+all.biomarkers <- rbind(as(de.results.table.above.seep, "data.frame"), 
+                        as(de.results.table.above.flux, "data.frame"), 
+                        as(de.results.table.above.ss, "data.frame"),
+                        as(de.results.table.below.flux, "data.frame"),
+                        as(de.results.table.below.ss, "data.frame")) 
+
+# select only the ones more abundant in the blocks (as opposed to less)
+all.biomarkers <- subset(all.biomarkers, log2FoldChange>0) 
+
+# add in metadata about SMT position only, and stage only
+all.biomarkers$smtpos <- "above"
+all.biomarkers[which(all.biomarkers$de.group=="below.flux"),16] <- "below"
+all.biomarkers[which(all.biomarkers$de.group=="below.ss"),16] <- "below"
+all.biomarkers$stage <- "increasing methane flux"
+all.biomarkers[which(all.biomarkers$de.group=="above.seep"),17] <- "active methane seepage"
+all.biomarkers[which(all.biomarkers$de.group=="above.ss"),17] <- "steady-state"
+all.biomarkers[which(all.biomarkers$de.group=="below.ss"),17] <- "steady-state"
+
+# subset all.biomarkers dataframe by categories we want to graph at
+most.biomarkers <- all.biomarkers %>% filter(Class!="Deltaproteobacteria" & Class!="Methanomicrobia") # remove Deltaproteobacteria & ANMEs because we'll graph them at higher taxonomic resolution, also removes NAs
+anme.biomarkers <- all.biomarkers %>% filter(Class == "Methanomicrobia") # subset ANMEs only (all Methanomicrobial biomarkers are ANME in this dataset)
+delta.biomarkers <- all.biomarkers %>% filter(Class == "Deltaproteobacteria" & is.na(Genus)==FALSE) # subset Deltaproteobacteria only
+
+# when plotting, facet by more than two stages: Plotting most biomarkers at the class level, but ANMEs at Family and Deltas at Genus
+most.biomarkers$plotlevel <- "Community"
+anme.biomarkers$plotlevel <- "ANME"
+delta.biomarkers$plotlevel <- "SRB"
+most.biomarkers$taxlevel <- most.biomarkers$Class
+anme.biomarkers$taxlevel <- anme.biomarkers$Family
+delta.biomarkers$taxlevel <- delta.biomarkers$Genus
+biomarkers.to.plot <- rbind(most.biomarkers, anme.biomarkers, delta.biomarkers) # combine all subsetted dataframes for plotting
+
+gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(levels(factor(taxlevel)))), y=log2FoldChange, color=Kingdom)) + 
+  geom_point(aes(size = relabund*100, fill=Kingdom), color="black", pch=21) +
+  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*700, breaks=c(0.1, 0.3, 1, 3))+
+  scale_fill_discrete("Domain")+
+  scale_x_discrete("")+
+  scale_y_continuous("log2 Differential Abundance Change", position = "right", limits = c(0,27)) +
+  facet_grid(smtpos+plotlevel~stage, scales = "free", space = "free") +
+  coord_flip() +
+  theme_bw()+
+  theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
+        axis.text.x = element_text(size=10), legend.position = "bottom", legend.box = "vertical")
+gg.all.biom # export dimensions 6.3 x 6.9
+```
+
+![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+biomarkers.to.plot %>% filter(Phylum=="Atribacteria") %>% select(Class, stage) # shows biomarker ASVs for different stages and positions relative to SMT
+```
+
+    ##         Class                   stage
+    ## ASV24     JS1  active methane seepage
+    ## ASV38     JS1 increasing methane flux
+    ## ASV3031   JS1            steady-state
+    ## ASV91     JS1 increasing methane flux
+    ## ASV681    JS1            steady-state
+
+``` r
+length(which(tax_table(ps.frdp)[,3]=="Calditrichia")) # shows numbers ASVs from a certain taxa
+```
+
+    ## [1] 87
+
+``` r
+# how many ASVs are differentially abundant? what average %s are they of communities across stages?
+length(unique(biomarkers.to.plot$asv))
+```
+
+    ## [1] 76
+
+``` r
+sum(biomarkers.to.plot %>% filter(stage=="active methane seepage") %>% select(relabund))*100 # 17.4%
+```
+
+    ## [1] 17.4108
+
+``` r
+sum(biomarkers.to.plot %>% filter(stage=="steady-state") %>% select(relabund))*100 # 6.9%
+```
+
+    ## [1] 6.874786
+
+``` r
+sum(biomarkers.to.plot %>% filter(stage=="increasing methane flux") %>% select(relabund))*100 # 1.6%
+```
+
+    ## [1] 1.622178
+
+``` r
+# how many total ANME ASVs in the dataset?
+nrow(data.frame(tax_table(ps.frdp.no48)) %>% filter(Order=="ANME-1" | Family=="ANME-2a-2b"| Family=="ANME-2c" | Genus=="ANME-3"))
+```
+
+    ## [1] 41
+
+(Made this figure a little easier to read in Affinity Designer).
+
+## Fig. S7, ordination of just increasing-flux cores by geochem\_zone
 
 ``` r
 # transform the phyloseq object
@@ -207,8 +669,8 @@ ps.hel.fluxinc <- subset_samples(ps.hel, stage=="increasing methane flux") # sub
 ord.ps.helfluxinc.wuni.pcoa <- ordinate(ps.hel.fluxinc, "PCoA", "unifrac", weighted=TRUE) # ordinate
 ```
 
-    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV16687 -- in
-    ## the phylogenetic tree in the data you provided.
+    ## Warning in UniFrac(physeq, ...): Randomly assigning root as -- ASV4052 -- in the
+    ## phylogenetic tree in the data you provided.
 
 ``` r
 fluxord <- plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = "geochem_zone")+
@@ -219,118 +681,19 @@ fluxord
 ```
 
 ![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-Fig. S4: From the very few samples we have here, the idea that the
-linear SR zone is the outlier is
-supported.
+From the very few samples we have here, the idea that the linear SR zone
+is the outlier is supported.
 
-## Fig. S5, justification of steady-state dynamics
-
-``` r
-ssval <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/steadystate_validation.csv") # import csv
-ssval <- ssval[,1:4] # trim the columns with no data
-ssjp <- ggplot(ssval,aes(depth,value,color=type))
-ssjp.plot <- ssjp+
-  geom_point(data=subset(ssval, type=="empirical"))+
-  geom_line()+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("Sulfate (mM)",limits = c(0,30),position = "right")+
-  scale_color_manual("Sulfate profile data type:",values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
-  theme_bw()+
-  theme(legend.position = "bottom")
-ssjp.plot
-```
-
-    ## Warning: Removed 5 rows containing missing values (geom_point).
-
-![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
-Figure S5. Empirically-measured sulfate porewater profiles from cores
-taken from steady-state areas, shown with modeled sulfate profiles
-assuming a non-steady state scenario where methane flux is increasing.
-The discrepancies in the shapes of these two profiles for these four
-cores is evidence that they are not experiencing a recent increase in
-methane flux, and are thus characterized as
-steady-state.
-
-## Fig. S6 was from WeiLi (fitting modeled curve to sulfate profile)
-
-## Fig. S7, fitting sulfate profiles
-
-``` r
-so4fit <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/so4fit.csv") # import csv
-
-so4fit[which(so4fit$core=="PC1029"),2] <- 100*so4fit[which(so4fit$core=="PC1029"),2] # oops these depths were in meters. fixed
-so4fit[which(so4fit$core=="GC1045"),2] <- 100*so4fit[which(so4fit$core=="GC1045"),2]
-so4fit[which(so4fit$core=="GC1081"),2] <- 100*so4fit[which(so4fit$core=="GC1081"),2]
-
-# solution: subset them (short cores on one, long on other) and plot two with patchwork
-so4fit.short <- so4fit %>% filter(core=="GC1045" | core=="GC1081")
-so4fit.long <- so4fit %>% filter(core=="GC1068" | core=="GC1069" | core=="GC1070")
-so4fit.48 <- so4fit %>% filter(core=="GC1048")
-so4fit.pc <- so4fit %>% filter(core=="PC1029")
-
-gg.fit.s <- ggplot(so4fit.short, aes(depth, value, color=type))
-gg.so4fit.s <- gg.fit.s+
-  geom_point(data=subset(so4fit.short, type=="e"))+
-  geom_line(data=subset(so4fit.short, type=="m"))+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("Sulfate (mM)", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  theme(legend.position = "none")
-
-gg.fit.l <- ggplot(so4fit.long, aes(depth, value, color=type))
-gg.so4fit.l <- gg.fit.l+
-  geom_point(data=subset(so4fit.long, type=="e"))+
-  geom_line(data=subset(so4fit.long, type=="m"))+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  theme(legend.position = "bottom")
-
-gg.fit.pc <- ggplot(so4fit.pc, aes(depth, value, color=type))
-gg.so4fit.pc <- gg.fit.pc+
-  geom_point(data=subset(so4fit.pc, type=="e"))+
-  geom_line(data=subset(so4fit.pc, type=="m"), linetype="dashed")+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("Sulfate (mM)", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  theme(legend.position = "none")
-
-gg.fit.48 <- ggplot(so4fit.48, aes(depth, value, color=type))
-gg.so4fit.48 <- gg.fit.48+
-  geom_point(data=subset(so4fit.48, type=="e"))+
-  geom_line(data=subset(so4fit.48, type=="m"))+
-  geom_line(data=subset(so4fit.48, type=="i"), color="red")+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  annotate(geom="text", x=320, y=20, label="initial state", color="red")+
-  theme(legend.position = "none")
-
-so4fitplot <- gg.so4fit.s / gg.so4fit.l | gg.so4fit.pc / gg.so4fit.48
-so4fitplot
-```
-
-![](6_supplemental_figures_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+## Figure S8 [network here](https://github.com/sklasek/svalflux/blob/master/markdowns/7_network.md).
 
 ## Table S1: table of core info
 
 ``` r
 coreinfo <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/coreinfo.csv") # import csv
 names(coreinfo)[1:6] <- c("Core", "Latitude", "Longitude", "Water depth (m)", "Core recovery (cm)", "SMT depth (cm)")
+flux <- c("~100 (estimated, see text)", 5.28, 4.22, 0.41, 1.30, 1.30, 1.30)
+coreinfo <- cbind(coreinfo, flux)
+colnames(coreinfo)[7] <- "Methane flux (mol m-2 yr-1) at time of sampling"
 coreinfo
 ```
 
@@ -342,18 +705,17 @@ coreinfo
     ## 5 GC1068 76 06.739  16 00.311              384                295
     ## 6 GC1069 76 06.719  16 00.334              383                227
     ## 7 GC1070 76 06.703  16 00.162              385                326
-    ##   SMT depth (cm)
-    ## 1             NA
-    ## 2             82
-    ## 3             56
-    ## 4            320
-    ## 5            108
-    ## 6            138
-    ## 7             69
+    ##   SMT depth (cm) Methane flux (mol m-2 yr-1) at time of sampling
+    ## 1             NA                      ~100 (estimated, see text)
+    ## 2             82                                            5.28
+    ## 3             56                                            4.22
+    ## 4            320                                            0.41
+    ## 5            108                                             1.3
+    ## 6            138                                             1.3
+    ## 7             69                                             1.3
 
 Table S1. Latitude, longitude, water depth, core recovery, and
-sulfate-methane transition depth of all cores analyzed in this
-study.
+sulfate-methane transition depth of all cores analyzed in this study.
 
 ## Table S2: methane flux histories
 
@@ -398,3 +760,75 @@ Table S2. Increases in methane flux over the past two decades for cores
 GC1045 and GC1081 and corresponding depths of modeled peak AOM rates.
 Fluxes are integrated from AOM rate data, using cell widths of 2.5 cm.
 (Peak AOM depths also at 2.5 cm resolution).
+
+## session info
+
+``` r
+sessioninfo
+```
+
+    ## R version 4.0.3 (2020-10-10)
+    ## Platform: x86_64-apple-darwin17.0 (64-bit)
+    ## Running under: macOS Catalina 10.15.7
+    ## 
+    ## Matrix products: default
+    ## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+    ## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+    ## 
+    ## locale:
+    ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+    ## 
+    ## attached base packages:
+    ## [1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+    ## [8] methods   base     
+    ## 
+    ## other attached packages:
+    ##  [1] here_1.0.1                  tables_0.9.6               
+    ##  [3] ggpmisc_0.3.9               patchwork_1.1.1            
+    ##  [5] forcats_0.5.1               stringr_1.4.0              
+    ##  [7] dplyr_1.0.5                 purrr_0.3.4                
+    ##  [9] readr_1.4.0                 tidyr_1.1.3                
+    ## [11] tibble_3.1.0                ggplot2_3.3.3              
+    ## [13] tidyverse_1.3.0             DESeq2_1.30.1              
+    ## [15] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+    ## [17] MatrixGenerics_1.2.1        matrixStats_0.58.0         
+    ## [19] GenomicRanges_1.42.0        GenomeInfoDb_1.26.2        
+    ## [21] IRanges_2.24.1              S4Vectors_0.28.1           
+    ## [23] BiocGenerics_0.36.0         vegan_2.5-7                
+    ## [25] lattice_0.20-41             permute_0.9-5              
+    ## [27] phyloseq_1.34.0            
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] colorspace_2.0-0       ellipsis_0.3.1         rprojroot_2.0.2       
+    ##  [4] XVector_0.30.0         fs_1.5.0               rstudioapi_0.13       
+    ##  [7] bit64_4.0.5            AnnotationDbi_1.52.0   fansi_0.4.2           
+    ## [10] lubridate_1.7.10       xml2_1.3.2             codetools_0.2-18      
+    ## [13] splines_4.0.3          cachem_1.0.4           geneplotter_1.68.0    
+    ## [16] knitr_1.31             ade4_1.7-16            jsonlite_1.7.2        
+    ## [19] broom_0.7.5            annotate_1.68.0        cluster_2.1.1         
+    ## [22] dbplyr_2.1.0           compiler_4.0.3         httr_1.4.2            
+    ## [25] backports_1.2.1        assertthat_0.2.1       Matrix_1.3-2          
+    ## [28] fastmap_1.1.0          cli_2.4.0              htmltools_0.5.1.1     
+    ## [31] prettyunits_1.1.1      tools_4.0.3            igraph_1.2.6          
+    ## [34] gtable_0.3.0           glue_1.4.2             GenomeInfoDbData_1.2.4
+    ## [37] reshape2_1.4.4         Rcpp_1.0.6             cellranger_1.1.0      
+    ## [40] vctrs_0.3.7            Biostrings_2.58.0      rhdf5filters_1.2.0    
+    ## [43] multtest_2.46.0        ape_5.4-1              nlme_3.1-152          
+    ## [46] iterators_1.0.13       xfun_0.21              rvest_0.3.6           
+    ## [49] lifecycle_1.0.0        XML_3.99-0.5           zlibbioc_1.36.0       
+    ## [52] MASS_7.3-53.1          scales_1.1.1           hms_1.0.0             
+    ## [55] biomformat_1.18.0      rhdf5_2.34.0           RColorBrewer_1.1-2    
+    ## [58] yaml_2.2.1             memoise_2.0.0          stringi_1.5.3         
+    ## [61] RSQLite_2.2.3          genefilter_1.72.1      foreach_1.5.1         
+    ## [64] BiocParallel_1.24.1    rlang_0.4.10           pkgconfig_2.0.3       
+    ## [67] bitops_1.0-6           evaluate_0.14          Rhdf5lib_1.12.1       
+    ## [70] bit_4.0.4              tidyselect_1.1.0       plyr_1.8.6            
+    ## [73] magrittr_2.0.1         R6_2.5.0               generics_0.1.0        
+    ## [76] DelayedArray_0.16.2    DBI_1.1.1              withr_2.4.1           
+    ## [79] pillar_1.6.0           haven_2.3.1            mgcv_1.8-34           
+    ## [82] survival_3.2-7         RCurl_1.98-1.2         modelr_0.1.8          
+    ## [85] crayon_1.4.1           utf8_1.2.1             rmarkdown_2.7         
+    ## [88] progress_1.2.2         locfit_1.5-9.4         grid_4.0.3            
+    ## [91] readxl_1.3.1           data.table_1.14.0      blob_1.2.1            
+    ## [94] reprex_1.0.0           digest_0.6.27          xtable_1.8-4          
+    ## [97] munsell_0.5.0

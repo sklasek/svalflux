@@ -1,7 +1,11 @@
 3\_core\_info\_and\_panel\_figures
 ================
 Scott Klasek
-11/11/2020
+6/9/2021
+
+Figures 3, 4, 5, and S3 that show porewater data, microbial community
+composition, and dsrAB & mcrA gene concentrations for cores sorted by
+methane states.
 
 ## load necessary libraries
 
@@ -9,16 +13,14 @@ Scott Klasek
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
 
-    ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.3
-    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
-    ## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
-    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
+    ## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.0     ✓ dplyr   1.0.5
+    ## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+    ## ✓ readr   1.4.0     ✓ forcats 0.5.1
 
-    ## Warning: package 'ggplot2' was built under R version 3.6.2
-
-    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -161,14 +163,14 @@ raom.nss <- aom.nss+geom_line(size=1)+
   geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
   coord_flip()+
   facet_grid(core~.)+
-  labs(title=expression("AOM rate (nmol cm"^{-3}*" d"^{-1}*")"))+
+  labs(title=expression("Modeled \nAOM rate (nmol cm"^{-3}*" d"^{-1}*")"))+
   scale_y_continuous("",breaks=c(0,100,200),limits = c(-5,220),position = "right")+
   scale_x_reverse("",breaks=c(0,25,50,75,100,125,150),limits=c(150,0))+
   theme_bw()+
   theme(axis.text=element_text(size=13),
         strip.text.y = element_blank(),
+        axis.text.y = element_blank(),
         strip.background = element_blank(),
-        axis.text.y=element_blank(),
         title=element_text(size=13),
         legend.title = element_text(size=13),
         legend.text = element_text(size=13),
@@ -251,10 +253,9 @@ dd.fi <- ddfi+geom_line(size=1.5)+
   labs(title=expression(paste("log"[10]," gene copies")))+
   theme(legend.position = "top",
         axis.title=element_text(size=13),
-        axis.text.x = element_text(size=13),
+        axis.text = element_text(size=13),
         legend.text = element_text(size=13),
-        strip.text = element_text(size=13),
-        axis.text.y = element_blank())
+        strip.text = element_text(size=13))
 
 # steady-state ddPCR plot
 ddss<- ggplot(dd.pcr.ss, aes(depth, logcopies, color=gene))
@@ -278,27 +279,17 @@ dd.ss <- ddss+geom_line(size=1.5)+
 ## create panel figures
 
 ``` r
-# Figure 2 (Steady-state sites) export dimensions at 12 x 8.4
-fig.ss <- ggarrange(gg.porewater.ss, raom.ss, bp.steadystate, dd.ss,
-                        ncol = 4, nrow = 1,widths = c(2.4,1.8,4.8,2),labels=c("A","B","C","D"))
-```
-
-    ## Warning: Removed 5 rows containing missing values (geom_point).
-
-![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
-# Figure 3 (Non-steady-state sites) export dimensions at 12 x 6
-fig.nss <- ggarrange(gg.porewater.nss, raom.nss, bp.fluxincreasing, dd.fi, ncol = 4, nrow = 1,
-  widths = c(2.4,2.1,5.4,1.8),labels=c("A","B","C","D"))
+# Figure 4 (Non-steady-state sites) export dimensions at 6 x 12
+fig.nss <- ggarrange(gg.porewater.nss, bp.fluxincreasing, dd.fi, raom.nss, ncol = 4, nrow = 1,
+  widths = c(2.4, 5.4, 1.8, 2.1),labels=c("A","B","C","D"))
 ```
 
     ## Warning: Removed 62 row(s) containing missing values (geom_path).
 
-![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
-# Figure 4 (Seep) export dimensions at 9.8 x 4.9
+# Figure 5 (Seep) export dimensions at 9.8 x 4.9
 fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),ncol = 3,nrow = 1,labels=c("A","B","C"))
 ```
 
@@ -306,18 +297,116 @@ fig1029 <- ggarrange(gg.porewater.1029, bp.seep, dd.seep, widths=c(1.1,2.5,0.9),
 
     ## Warning: Removed 3 rows containing missing values (geom_point).
 
-![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
-## print figures at their optimal sizes
-
-``` r
-fig.ss <- saveRDS(fig.ss, "/Users/scottklasek/Desktop/svalflux/figures/figure2") # export
-```
+Panel figure of steady-state without GC1048
 
 ``` r
-fig.nss <- saveRDS(fig.nss, "/Users/scottklasek/Desktop/svalflux/figures/figure3") # export
+# porewater plot
+gg.porewater.ss.no48 <- ggplot(pore.ss %>% filter(core!="GC1048"), aes(depth,value,color=species))+
+  geom_line(size=1.5)+
+  geom_point(size=3)+
+  geom_errorbar(aes(ymin = minerror, ymax = maxerror))+
+  geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
+  coord_flip()+
+  facet_grid(core~.)+
+  scale_y_continuous("",limits = c(0,40),position = "right")+
+  scale_x_reverse("Depth (cmbsf)",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  scale_color_manual("",values=c("orangered1","black","dodgerblue2","gold3"))+
+  labs(title="Porewater\nGeochemistry")+
+  annotation_custom2(rasterGrob(biofilm, interpolate=TRUE), xmin=-105, xmax=-20, ymin=0, ymax=40, data=pore.ss[1,])+ # for GC1070
+  theme_bw()+
+  theme(axis.text=element_text(size=13),
+        strip.text.y = element_text(size=13),
+        title=element_text(size=13),
+        axis.title=element_text(size=15),
+        legend.text = element_text(size=13),
+        legend.title = element_text(size=15),
+        legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
+
+# import steady-state bubble plot without GC1048
+bp.steadystate.no48 <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate.no48")
+
+# ddPCR plot
+dd.ss.no48 <- ggplot(dd.pcr.ss %>% filter(core!="GC1048"), aes(depth, logcopies, color=gene))+
+  geom_line(size=1.5)+
+  geom_point(size=3)+
+  coord_flip()+
+  scale_y_continuous("", breaks=c(4,5,6,7), limits = c(3.7,7.6), position="right")+
+  scale_x_reverse("", breaks=c(0,50,100,150,200,250,300,350), limits=c(350,0))+
+  geom_vline(aes(xintercept=smt), linetype="dashed",size=0.8)+
+  facet_grid(core~.)+
+  theme_bw()+
+  labs(title=expression(paste("log"[10]," gene copies")))+
+  theme(legend.position = "top",
+        legend.text=element_text(size=13),
+        strip.text = element_text(size=13),
+        axis.title=element_text(size=13), 
+        axis.text.x = element_text(size=13),
+        axis.text.y = element_blank())
+
+# Fig 3 panel figure
+fig.ss.no48 <- ggarrange(gg.porewater.ss.no48, bp.steadystate.no48, dd.ss.no48,
+                        ncol = 3, nrow = 1,widths = c(2.4,4.8,2),labels=c("A","B","C"))
 ```
 
+    ## Warning: Removed 1 row(s) containing missing values (geom_path).
+
+    ## Warning: Removed 4 rows containing missing values (geom_point).
+
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Panel figure of only GC1048 for supplementals
+
 ``` r
-fig1029 <- saveRDS(fig1029, "/Users/scottklasek/Desktop/svalflux/figures/figure4") # export
+# porewater plot
+gg.porewater.ss.only48 <- ggplot(pore.ss %>% filter(core=="GC1048"), aes(depth,value,color=species))+
+  geom_line(size=1.5)+
+  geom_point(size=3)+
+  geom_errorbar(aes(ymin = minerror, ymax = maxerror))+
+  geom_vline(aes(xintercept=smt),linetype="dashed",size=0.8)+
+  coord_flip()+
+  facet_grid(core~.)+
+  scale_y_continuous("",limits = c(0,40),position = "right")+
+  scale_x_reverse("Depth (cmbsf)",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
+  scale_color_manual("",values=c("orangered1","black","dodgerblue2","gold3"))+
+  labs(title="Porewater\nGeochemistry")+
+  annotation_custom2(rasterGrob(biofilm, interpolate=TRUE), xmin=-350, xmax=-260, ymin=0, ymax=40, data=pore.ss[75,])+ # for GC1048
+  theme_bw()+
+  theme(axis.text=element_text(size=13),
+        strip.text.y = element_text(size=13),
+        title=element_text(size=13),
+        axis.title=element_text(size=15),
+        legend.text = element_text(size=13),
+        legend.title = element_text(size=15),
+        legend.direction = "vertical",legend.position = "bottom",plot.margin=margin(0,0,0,0.25,"cm"))
+
+# import steady-state bubble plot without GC1048
+bp.steadystate.only48 <- readRDS(file = "/Users/scottklasek/Desktop/svalflux/figures/bp.steadystate.only48")
+
+# ddPCR plot
+dd.ss.only48 <- ggplot(dd.pcr.ss %>% filter(core=="GC1048"), aes(depth, logcopies, color=gene))+
+  geom_line(size=1.5)+
+  geom_point(size=3)+
+  coord_flip()+
+  scale_y_continuous("", breaks=c(4,5,6,7), limits = c(3.7,7.6), position="right")+
+  scale_x_reverse("", breaks=c(0,50,100,150,200,250,300,350), limits=c(350,0))+
+  geom_vline(aes(xintercept=smt), linetype="dashed",size=0.8)+
+  facet_grid(core~.)+
+  theme_bw()+
+  labs(title=expression(paste("log"[10]," gene copies")))+
+  theme(legend.position = "top",
+        legend.text=element_text(size=13),
+        strip.text = element_text(size=13),
+        axis.title=element_text(size=13), 
+        axis.text.x = element_text(size=13),
+        axis.text.y = element_blank())
+
+# make panel figure
+fig.ss.only48 <- ggarrange(gg.porewater.ss.only48, bp.steadystate.only48, dd.ss.only48,
+                        ncol = 3, nrow = 1,widths = c(2.4,4.8,2),labels=c("A","B","C"))
 ```
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+![](3_core_info_and_panel_figures_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

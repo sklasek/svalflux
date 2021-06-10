@@ -1,94 +1,214 @@
 ---
-title: "Supplemental figures and tables from Distinct methane-dependent biogeochemical regimes in Arctic seafloor gas hydrate mounds"
+title: "Supplemental figures and tables"
 author: "Scott Klasek"
-date: "11/11/2020"
+date: "6/10/2021"
 output: github_document
 ---
+Supplemental figures S5-S8 and tables S1 & S2 are presented here. Other figures/tables include:  
+
+Figure S1- modeling setup  
+Figure S2- porewater ammonium concentrations and expected POCSR from Storfjordrenna cores described in this study and elsewhere  
+Figure S3- microbial community and porewater data from GC1048, which is shown [here](https://github.com/sklasek/svalflux/blob/master/markdowns/3_core_info_and_panel_figures.md)   
+Figure S4- siboglinid tube pictures from cores at GHM3 seep site  
+Table S3- compilation of porewater ammonium concentration data from Storfjordrenna GHMs  
 
 ## load necessary libraries and data
 ```{r}
 library(phyloseq)
 library(vegan)
+library(DESeq2)
 library(tidyverse)
 library(patchwork)
+library(ggpmisc)
 library(tables)
 library(here)
 sessioninfo <- sessionInfo()
 ps.frdp <- readRDS(file="/Users/scottklasek/Desktop/svalflux/data/ps.frdp") # imports the final phyloseq object
 ```
 
-## Fig. S1, depth-integrated fluxes from each core
-PC1029 is only estimated, others can be calculated  
-
+## Fig. S5, regression of mcrA counts vs modeled AOM rates
+I have omitted GC1048 samples from here.  
 ```{r}
-aomrates <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/aomrates2020update.csv") # import csv
+mcra.aom <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/mcra.aomrate.2021.csv") # import csv
+mcra.aom$logaom <- log10(mcra.aom$aom) # calculate log of AOM rates
+mcra.aom$logmcra <- log10(mcra.aom$mcra) # calculate log of mcrA gene abundances
 
-cores <- as.factor(as.character(levels(aomrates$core)[2:8])) # get a list of the cores
-maxdepth <- vector("numeric", length(cores)) # define a vector for writing max depths
-for (i in cores) {maxdepth[[i]] <- max((aomrates %>% filter(core==i))$depth)} # for-loop to calculate max depth
-maxdepth <- maxdepth[(0.5*length(maxdepth)+1):length(maxdepth)] # omitted zero values
-intflux <- vector("numeric", length(cores)) # define a vector for calculating fluxes
-for (i in cores) {intflux[[i]] <- sum((aomrates %>% filter(core==i))$aom)*(1e4 * 365 / 1e9)} # for-loop to calculate flux (converting micromoles per L per day to moles per m^2 per year)
-intflux <- intflux[(0.5*length(intflux)+1):length(intflux)] # omitted zero values
+# assign stages or whatever we end up calling them
+mcra.aom$stage <- "Steady-state"
+mcra.aom[which(mcra.aom$core=="GC1045"),"stage"] <- "Non-steady-state"
+mcra.aom[which(mcra.aom$core=="GC1081"),"stage"] <- "Non-steady-state"
 
-fluxes <- as.data.frame(cbind(maxdepth, intflux)) # combine into data frame
-fluxes$core <- rownames(fluxes) # add core names
-flux.gc <- fluxes[1:6,] # subset only the gravity cores (not as confident about the rates for PC1029)
-flux.gc$stage <- c("increasing methane flux", "steady-state", "steady-state", "steady-state", "steady-state", "increasing methane flux") # add stage
+mcra.aom.no48 <- mcra.aom %>% filter(core !="GC1048") # remove GC1048
 
-# i calculated a few things wrong. WeiLi gave the correct answers:
-flux.gc[1,2] <- 5.28 # correcting GC1045 flux
-flux.gc[6,2] <- 4.22 # correcting GC1081 flux
+# linear model steady-state
+ss.lm <- lm(mcra.aom.no48 %>% filter(core_flowtype=="ss") %>% pull(logmcra) ~ 
+           mcra.aom.no48 %>% filter(core_flowtype=="ss") %>% pull(logaom))  # steady-state regression
+summary(ss.lm)
 
-gcf <- ggplot(flux.gc,aes(core,intflux,fill=stage))
-gg.flux <- gcf+geom_bar(stat="identity")+
-  scale_fill_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
-  scale_y_continuous(limits = c(0,6))+
-  xlab("")+
-  ylab(bquote(~CH[4]~'flux (mol'~m^-2~yr^-1*') at time of sampling'))+
-  theme_classic()+
-  theme(axis.text.y = element_text(size = 10),axis.text.x=element_text(angle = 45, hjust = 1,size=12))
-flux.gc
-gg.flux
-```
-Figure S1. Methane fluxes across each core, integrated from modeled AOM rates derived from data at the time of sampling. Cores are colored by methane stage. PC1029 was omitted due to high uncertainty in modeling AOM rates.   
-
-## Fig. S2 is worm pics
-
-## Fig. S3, regression of mcrA counts vs modeled AOM rates
-
-```{r}
-mcra.aom <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/mcra.aomrate.2020.csv") # import csv
-mcra.aom$logaom <- log10(mcra.aom$aom) # calculate log of AOM rate
-mcra.aom$logmcra <- log10(mcra.aom$mcra) # calculate log of mcrA gene abundance
-mcra.aom$logdsrab <- log10(mcra.aom$dsrab) # calculate log of dsrAB gene abundance
-
-mcra.aom$stage <- "steady-state"
-mcra.aom[which(mcra.aom$core=="GC1045"),11] <- "increasing methane flux"
-mcra.aom[which(mcra.aom$core=="GC1081"),11] <- "increasing methane flux"
-
-AOM_mcrA.lm <- lm(mcra.aom$logmcra ~ mcra.aom$logaom) # linear raegression
-summary(AOM_mcrA.lm) # multiple R^2 is 0.3364, slope estimate is 0.1892, and slope p-value is 0.00021 ***
-
-rate_mcrA <- ggplot(mcra.aom,aes(logaom,logmcra,color=stage)) 
-gg.ratemcrA <- rate_mcrA+
+# plot steady-state
+ss.df <- mcra.aom.no48 %>% filter(core_flowtype=="ss")
+ss.mcra <- ggplot(ss.df, aes(logaom,logmcra,color=stage))+
   geom_point(size=2)+
-  scale_color_manual("Methane regime", values = c("#66c2a5", "#8da0cb"))+
+  geom_smooth(method = "lm")+
+  scale_color_manual("", values = "#8da0cb")+
   scale_x_continuous(expression('log'[10]*" AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
-  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}))+
-  geom_abline(intercept = 5.3889, slope = 0.18917)+
-  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11), legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
-  annotate("text", x = -4.5, y = 7.5, label = "paste(italic(R) ^ 2, \" = 0.3364\")", parse = TRUE)+
-  annotate("text", x = -4.5, y = 7.2, label = "paste(italic(p), \" = 0.00021\")", parse = TRUE)+
-  annotate("text", x = -4.5, y = 6.9, label = "paste(slope, \" = 0.1892\")", parse = TRUE)+
-  annotate("rect", xmin = -6, xmax = -3, ymin = 6.6, ymax = 7.8, alpha = .2)+
-  theme_bw()
-gg.ratemcrA 
+  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}), limits = c(3.5, 7.5))+
+  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11),
+        legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
+  stat_poly_eq(formula = ss.df$logmcra ~ ss.df$logaom, 
+                aes(label = paste(..eq.label.., ..rr.label.., stat(p.value.label), sep = "~~~")), 
+                parse = TRUE) +  
+  theme_bw()+theme(legend.position = "bottom")+ggtitle("A")
+
+# linear model non-steady-state
+nss.lm <- lm(mcra.aom.no48 %>% filter(core_flowtype=="inc") %>% pull(logmcra) ~ 
+           mcra.aom.no48 %>% filter(core_flowtype=="inc") %>% pull(logaom))  # non-steady-state regression
+summary(nss.lm)
+
+# plot non-steady-state
+nss.df <- mcra.aom.no48 %>% filter(core_flowtype=="inc")
+nss.mcra <- ggplot(nss.df, aes(logaom,logmcra,color=stage))+
+  geom_point(size=2)+
+  geom_smooth(method = "lm")+
+  scale_color_manual("", values = "#66c2a5")+
+  scale_x_continuous(expression('log'[10]*" AOM rate (µmols L"^{-1}*" day"^{-1}*")"))+
+  scale_y_continuous(expression('log'[10]*' mcrA gene copies g'^{"-1"}), limits = c(3.5, 7.5))+
+  theme(axis.title=element_text(size = 12), axis.text = element_text(size = 11),
+        legend.title = element_text(size = 12), legend.text = element_text(size = 10))+
+  stat_poly_eq(formula = nss.df$logmcra ~ nss.df$logaom, 
+                aes(label = paste(..eq.label.., ..rr.label.., stat(p.value.label), sep = "~~~")), 
+                parse = TRUE) +  
+  theme_bw()+theme(legend.position = "bottom")+ggtitle("B")
+
+ss.mcra + nss.mcra
 ```
 Figure S3. Regression of mcrA gene copy numbers (per gram bulk sediment) to modeled AOM rates shows a linear relationship across samples from all cores (log-log transformation). Samples are colored according to stages of methane dynamics, and those that did not contain detectable mcrA were omitted.   
 
-## Fig. S4, ordination of just increasing-flux cores by geochem_zone
+## Fig. S6 shows differentially abundant ASVs across methane flux stages and above/below the SMTZ
+We have 63 samples: 15 from seep, 36 from steady-state, and 12 from flux-increasing stages. There are no seep samples from below-SMTZ, 15 from steady-state, and 4 from flux-increasing. In an ideal world, we would have a more balanced sample design for assessing ASVs that are differentially abundant between these three stages (above the SMTZ) and between the latter two stages (below SMTZ). However, DESeq2 is able to handle imbalances in group numbers fairly robustly: https://support.bioconductor.org/p/115433/   
 
+```{r, fig.height=4}
+# enter logical metadata categories corresponding to whether sample stage is seep or increasing flux or steady-state
+
+sample_data(ps.frdp)$is.seep <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="seep"),22] <- TRUE
+sample_data(ps.frdp)$is.flux <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="fluxincreasing"),23] <- TRUE
+sample_data(ps.frdp)$is.ss <- FALSE
+sample_data(ps.frdp)[which(sample_data(ps.frdp)$stage=="steadystate"),24] <- TRUE
+
+# here is where I omit GC1048
+ps.frdp.no48 <- subset_samples(ps.frdp, core!="GC1048")
+ps.frdp.no48
+# subset the phyloseq object by above/below SMTZ
+ps.above <- subset_samples(ps.frdp.no48, smtzposition=="above") 
+ps.below <- subset_samples(ps.frdp.no48, smtzposition=="below") 
+
+# make the same phyloseq object, but otu table with relative abundance instead of raw counts
+ps.above.ra <- transform_sample_counts(ps.above, function(OTU) OTU/sum(OTU))
+ps.below.ra <- transform_sample_counts(ps.below, function(OTU) OTU/sum(OTU))
+
+# define a function which will make a table out of deseq biomarker results, and return taxonomy and relative abundance info 
+table.stage.from.deseq <- function(deseq, relabundps, group){
+  de.results <- DESeq(deseq, test = "Wald", fitType = "parametric", sfType = "poscounts")
+  de.results.table <- results(de.results, cooksCutoff = FALSE)
+  de.results.table <- de.results.table[which(de.results.table$padj < 0.05), ]
+  meanabund.vector <- vector("numeric", length(rownames(de.results.table)))
+  for (i in rownames(de.results.table)) {meanabund.vector[[i]] <- mean(otu_table(relabundps)[which(sample_data(relabundps)$stage==group),i])}
+  meanabund.vector <- meanabund.vector[(0.5*length(meanabund.vector)+1):length(meanabund.vector)] 
+  de.results.table <- cbind(as(meanabund.vector, "matrix"), as(de.results.table, "data.frame"), as(tax_table(relabundps)[rownames(de.results.table), ], "matrix"))
+  colnames(de.results.table)[1] <- "relabund"
+  return(de.results.table)
+}
+
+# then convert phyloseq object to deseq, and run the function for each stage of methane dynamics
+de.above.is.seep <- phyloseq_to_deseq2(ps.above, ~ is.seep)
+de.results.table.above.seep <- table.stage.from.deseq(deseq = de.above.is.seep, relabundps = ps.above.ra, group = "seep") 
+de.above.is.flux <- phyloseq_to_deseq2(ps.above, ~ is.flux)
+de.results.table.above.flux <- table.stage.from.deseq(deseq = de.above.is.flux, relabundps = ps.above.ra, group = "fluxincreasing") 
+de.above.is.ss <- phyloseq_to_deseq2(ps.above, ~ is.ss)
+de.results.table.above.ss <- table.stage.from.deseq(deseq = de.above.is.ss, relabundps = ps.above.ra, group = "steadystate") 
+
+de.below.is.flux <- phyloseq_to_deseq2(ps.below, ~ is.flux)
+de.results.table.below.flux <- table.stage.from.deseq(deseq = de.below.is.flux, relabundps = ps.below.ra, group = "fluxincreasing") 
+de.below.is.ss <- phyloseq_to_deseq2(ps.below, ~ is.ss)
+de.results.table.below.ss <- table.stage.from.deseq(deseq = de.below.is.ss, relabundps = ps.below.ra, group = "steadystate") 
+
+# assign category for each de.results.table
+de.results.table.above.seep$de.group <- "above.seep"
+de.results.table.above.flux$de.group <- "above.flux"
+de.results.table.above.ss$de.group <- "above.ss"
+de.results.table.below.flux$de.group <- "below.flux"
+de.results.table.below.ss$de.group <- "below.ss"
+
+# rewrite ASV numbers so rbind will not rename duplicates
+de.results.table.above.seep$asv <- rownames(de.results.table.above.seep)
+de.results.table.above.flux$asv <- rownames(de.results.table.above.flux)
+de.results.table.above.ss$asv <- rownames(de.results.table.above.ss)
+de.results.table.below.flux$asv <- rownames(de.results.table.below.flux)
+de.results.table.below.ss$asv <- rownames(de.results.table.below.ss)
+
+# merge the biomarkers from each block into a single data frame
+all.biomarkers <- rbind(as(de.results.table.above.seep, "data.frame"), 
+                        as(de.results.table.above.flux, "data.frame"), 
+                        as(de.results.table.above.ss, "data.frame"),
+                        as(de.results.table.below.flux, "data.frame"),
+                        as(de.results.table.below.ss, "data.frame")) 
+
+# select only the ones more abundant in the blocks (as opposed to less)
+all.biomarkers <- subset(all.biomarkers, log2FoldChange>0) 
+
+# add in metadata about SMT position only, and stage only
+all.biomarkers$smtpos <- "above"
+all.biomarkers[which(all.biomarkers$de.group=="below.flux"),16] <- "below"
+all.biomarkers[which(all.biomarkers$de.group=="below.ss"),16] <- "below"
+all.biomarkers$stage <- "increasing methane flux"
+all.biomarkers[which(all.biomarkers$de.group=="above.seep"),17] <- "active methane seepage"
+all.biomarkers[which(all.biomarkers$de.group=="above.ss"),17] <- "steady-state"
+all.biomarkers[which(all.biomarkers$de.group=="below.ss"),17] <- "steady-state"
+
+# subset all.biomarkers dataframe by categories we want to graph at
+most.biomarkers <- all.biomarkers %>% filter(Class!="Deltaproteobacteria" & Class!="Methanomicrobia") # remove Deltaproteobacteria & ANMEs because we'll graph them at higher taxonomic resolution, also removes NAs
+anme.biomarkers <- all.biomarkers %>% filter(Class == "Methanomicrobia") # subset ANMEs only (all Methanomicrobial biomarkers are ANME in this dataset)
+delta.biomarkers <- all.biomarkers %>% filter(Class == "Deltaproteobacteria" & is.na(Genus)==FALSE) # subset Deltaproteobacteria only
+
+# when plotting, facet by more than two stages: Plotting most biomarkers at the class level, but ANMEs at Family and Deltas at Genus
+most.biomarkers$plotlevel <- "Community"
+anme.biomarkers$plotlevel <- "ANME"
+delta.biomarkers$plotlevel <- "SRB"
+most.biomarkers$taxlevel <- most.biomarkers$Class
+anme.biomarkers$taxlevel <- anme.biomarkers$Family
+delta.biomarkers$taxlevel <- delta.biomarkers$Genus
+biomarkers.to.plot <- rbind(most.biomarkers, anme.biomarkers, delta.biomarkers) # combine all subsetted dataframes for plotting
+
+gg.all.biom <- ggplot(biomarkers.to.plot, aes(x=factor(taxlevel, levels = rev(levels(factor(taxlevel)))), y=log2FoldChange, color=Kingdom)) + 
+  geom_point(aes(size = relabund*100, fill=Kingdom), color="black", pch=21) +
+  scale_size_area("Percent abundance", max_size = max(all.biomarkers$relabund)*700, breaks=c(0.1, 0.3, 1, 3))+
+  scale_fill_discrete("Domain")+
+  scale_x_discrete("")+
+  scale_y_continuous("log2 Differential Abundance Change", position = "right", limits = c(0,27)) +
+  facet_grid(smtpos+plotlevel~stage, scales = "free", space = "free") +
+  coord_flip() +
+  theme_bw()+
+  theme(strip.text.x = element_text(size=11), strip.text.y = element_text(size=8),
+        axis.text.x = element_text(size=10), legend.position = "bottom", legend.box = "vertical")
+gg.all.biom # export dimensions 6.3 x 6.9
+
+biomarkers.to.plot %>% filter(Phylum=="Atribacteria") %>% select(Class, stage) # shows biomarker ASVs for different stages and positions relative to SMT
+length(which(tax_table(ps.frdp)[,3]=="Calditrichia")) # shows numbers ASVs from a certain taxa
+
+# how many ASVs are differentially abundant? what average %s are they of communities across stages?
+length(unique(biomarkers.to.plot$asv))
+sum(biomarkers.to.plot %>% filter(stage=="active methane seepage") %>% select(relabund))*100 # 17.4%
+sum(biomarkers.to.plot %>% filter(stage=="steady-state") %>% select(relabund))*100 # 6.9%
+sum(biomarkers.to.plot %>% filter(stage=="increasing methane flux") %>% select(relabund))*100 # 1.6%
+
+# how many total ANME ASVs in the dataset?
+nrow(data.frame(tax_table(ps.frdp.no48)) %>% filter(Order=="ANME-1" | Family=="ANME-2a-2b"| Family=="ANME-2c" | Genus=="ANME-3"))
+```
+(Made this figure a little easier to read in Affinity Designer).  
+
+## Fig. S7, ordination of just increasing-flux cores by geochem_zone
 ```{r}
 # transform the phyloseq object
 otu.hel <- otu_table(decostand(otu_table(ps.frdp), method = "hellinger"), taxa_are_rows=FALSE)
@@ -116,103 +236,17 @@ fluxord <- plot_ordination(ps.hel.fluxinc, ord.ps.helfluxinc.wuni.pcoa, color = 
   theme_bw()
 fluxord 
 ```
-Fig. S4: From the very few samples we have here, the idea that the linear SR zone is the outlier is supported.   
+From the very few samples we have here, the idea that the linear SR zone is the outlier is supported.   
 
-## Fig. S5, justification of steady-state dynamics 
-
-```{r}
-ssval <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/steadystate_validation.csv") # import csv
-ssval <- ssval[,1:4] # trim the columns with no data
-ssjp <- ggplot(ssval,aes(depth,value,color=type))
-ssjp.plot <- ssjp+
-  geom_point(data=subset(ssval, type=="empirical"))+
-  geom_line()+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("Sulfate (mM)",limits = c(0,30),position = "right")+
-  scale_color_manual("Sulfate profile data type:",values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)",breaks=c(0,50,100,150,200,250,300,350),limits=c(350,0))+
-  theme_bw()+
-  theme(legend.position = "bottom")
-ssjp.plot
-```
-Figure S5. Empirically-measured sulfate porewater profiles from cores taken from steady-state areas, shown with modeled sulfate profiles assuming a non-steady state scenario where methane flux is increasing. The discrepancies in the shapes of these two profiles for these four cores is evidence that they are not experiencing a recent increase in methane flux, and are thus characterized as steady-state.   
-
-## Fig. S6 was from WeiLi (fitting modeled curve to sulfate profile)
-
-## Fig. S7, fitting sulfate profiles 
-
-```{r}
-so4fit <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/so4fit.csv") # import csv
-
-so4fit[which(so4fit$core=="PC1029"),2] <- 100*so4fit[which(so4fit$core=="PC1029"),2] # oops these depths were in meters. fixed
-so4fit[which(so4fit$core=="GC1045"),2] <- 100*so4fit[which(so4fit$core=="GC1045"),2]
-so4fit[which(so4fit$core=="GC1081"),2] <- 100*so4fit[which(so4fit$core=="GC1081"),2]
-
-# solution: subset them (short cores on one, long on other) and plot two with patchwork
-so4fit.short <- so4fit %>% filter(core=="GC1045" | core=="GC1081")
-so4fit.long <- so4fit %>% filter(core=="GC1068" | core=="GC1069" | core=="GC1070")
-so4fit.48 <- so4fit %>% filter(core=="GC1048")
-so4fit.pc <- so4fit %>% filter(core=="PC1029")
-
-gg.fit.s <- ggplot(so4fit.short, aes(depth, value, color=type))
-gg.so4fit.s <- gg.fit.s+
-  geom_point(data=subset(so4fit.short, type=="e"))+
-  geom_line(data=subset(so4fit.short, type=="m"))+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("Sulfate (mM)", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  theme(legend.position = "none")
-
-gg.fit.l <- ggplot(so4fit.long, aes(depth, value, color=type))
-gg.so4fit.l <- gg.fit.l+
-  geom_point(data=subset(so4fit.long, type=="e"))+
-  geom_line(data=subset(so4fit.long, type=="m"))+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  theme(legend.position = "bottom")
-
-gg.fit.pc <- ggplot(so4fit.pc, aes(depth, value, color=type))
-gg.so4fit.pc <- gg.fit.pc+
-  geom_point(data=subset(so4fit.pc, type=="e"))+
-  geom_line(data=subset(so4fit.pc, type=="m"), linetype="dashed")+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("Sulfate (mM)", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  theme(legend.position = "none")
-
-gg.fit.48 <- ggplot(so4fit.48, aes(depth, value, color=type))
-gg.so4fit.48 <- gg.fit.48+
-  geom_point(data=subset(so4fit.48, type=="e"))+
-  geom_line(data=subset(so4fit.48, type=="m"))+
-  geom_line(data=subset(so4fit.48, type=="i"), color="red")+
-  coord_flip()+
-  facet_grid(~core)+
-  scale_y_continuous("", limits = c(0,30), position = "right")+
-  scale_color_manual("Sulfate profile data type:", labels = c("Empirical", "Modeled"), values = c("dodgerblue1","black"))+
-  scale_x_reverse("Depth (cmbsf)")+
-  theme_bw()+
-  annotate(geom="text", x=320, y=20, label="initial state", color="red")+
-  theme(legend.position = "none")
-
-so4fitplot <- gg.so4fit.s / gg.so4fit.l | gg.so4fit.pc / gg.so4fit.48
-so4fitplot
-```
+## Figure S8 [network here](https://github.com/sklasek/svalflux/blob/master/markdowns/7_network.md).  
 
 ## Table S1: table of core info
 ```{r}
 coreinfo <- read.csv(file="/Users/scottklasek/Desktop/svalflux/data/coreinfo.csv") # import csv
 names(coreinfo)[1:6] <- c("Core", "Latitude", "Longitude", "Water depth (m)", "Core recovery (cm)", "SMT depth (cm)")
+flux <- c("~100 (estimated, see text)", 5.28, 4.22, 0.41, 1.30, 1.30, 1.30)
+coreinfo <- cbind(coreinfo, flux)
+colnames(coreinfo)[7] <- "Methane flux (mol m-2 yr-1) at time of sampling"
 coreinfo
 ```
 Table S1. Latitude, longitude, water depth, core recovery, and sulfate-methane transition depth of all cores analyzed in this study.   
@@ -224,3 +258,9 @@ names(inc.core)[2:4] <- c("Year before sampling", "CH4 flux mols m^-2 yr ^-1", "
 inc.core
 ```
 Table S2. Increases in methane flux over the past two decades for cores GC1045 and GC1081 and corresponding depths of modeled peak AOM rates. Fluxes are integrated from AOM rate data, using cell widths of 2.5 cm. (Peak AOM depths also at 2.5 cm resolution).   
+
+## session info
+```{r}
+sessioninfo
+```
+
