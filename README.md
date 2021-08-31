@@ -2,7 +2,7 @@
 Microbial community responses to increasing methane flux in Arctic marine sediments at Storfjordrenna, Svalbard    
 
 Authors: Scott A. Klasek, WeiLi Hong, Marta E. Torres, Stella Ross, Katelyn Hostetler, Alexey Portnov, Friederike Gründger, and Frederick S. Colwell    
-Publication status: not published yet.    
+Publication status: accepted... details to come   
 
 **Reproducible workflow:**    
 Raw 16S rRNA sequence reads are publicly available as [NCBI BioProject PRJNA533183](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA533183). Additional metadata data are available [here](https://github.com/sklasek/svalflux/tree/master/data).   
