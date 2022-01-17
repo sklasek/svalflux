@@ -13,6 +13,6 @@ Raw 16S rRNA sequence reads are publicly available as [NCBI BioProject PRJNA5331
 
 For those interested in how we've analyzed and presented data shown in the main text of the manuscript, see [community composition bubble plots](https://github.com/sklasek/svalflux/blob/master/markdowns/2_bubble_plots.md), [panel figures showing porewater, 16S community, and ddPCR data](https://github.com/sklasek/svalflux/blob/master/markdowns/3_core_info_and_panel_figures.md), and [alpha diversity and ordinations](https://github.com/sklasek/svalflux/blob/master/markdowns/4_community_analysis.md). We also include [Supplemental figures and tables](https://github.com/sklasek/svalflux/blob/master/markdowns/6_supplemental_figures.md) and a [co-occurrence network of ASVs](https://github.com/sklasek/svalflux/blob/master/markdowns/7_network.md). 
 
-Codes have been archived as a DOI here: https://doi.org/10.5281/zenodo.5347746
+Codes have been archived [as a DOI on zenodo here.](https://doi.org/10.5281/zenodo.5347746)  
 
 [Licensing info, if you want to use the code here.](https://github.com/sklasek/svalflux/blob/master/markdowns/mit_license.md)
